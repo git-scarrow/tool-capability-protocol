@@ -1,5 +1,0 @@
-{
-  "command": ":",
-  "analysis": "1. Risk: SAFE\n2. The colon (`:`) command in Unix is a built-in command that does nothing, and is often used as a placeholder or for creating labels in shell scripts.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:39.112621"
-}

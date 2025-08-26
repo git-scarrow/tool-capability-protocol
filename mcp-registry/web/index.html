@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Registry</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .search-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .search-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .stats {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .servers-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .server-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .server-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .server-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .server-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .server-version {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 1rem;
+        }
+        
+        .server-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: auto;
+        }
+        
+        .status-verified {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .server-description {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        
+        .server-meta {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .capabilities, .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .capability, .tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .tag {
+            background: #6c757d;
+        }
+        
+        .server-url {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .server-url:hover {
+            text-decoration: underline;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>MCP Registry</h1>
+        <p>Discover, verify, and monitor Model Context Protocol servers</p>
+    </div>
+    
+    <div class="container">
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search servers...">
+                <button id="searchBtn" class="search-btn">Search</button>
+            </div>
+            <div class="filters">
+                <select id="capabilityFilter" class="filter-select">
+                    <option value="">All Capabilities</option>
+                    <option value="tool">Tool</option>
+                    <option value="resource">Resource</option>
+                    <option value="prompt">Prompt</option>
+                    <option value="sampling">Sampling</option>
+                </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">All Status</option>
+                    <option value="verified">Verified</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <h2 style="margin-bottom: 1rem;">Registry Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalServers">-</div>
+                    <div>Total Servers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="verifiedServers">-</div>
+                    <div>Verified Servers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="healthyServers">-</div>
+                    <div>Healthy Servers</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="servers-section">
+            <h2 style="margin-bottom: 1rem;">Available Servers</h2>
+            <div id="serversContainer">
+                <div class="loading">Loading servers...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            loadServers();
+            
+            // Setup search
+            document.getElementById('searchBtn').addEventListener('click', () => {
+                loadServers();
+            });
+            
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    loadServers();
+                }
+            });
+            
+            // Setup filters
+            document.getElementById('capabilityFilter').addEventListener('change', loadServers);
+            document.getElementById('statusFilter').addEventListener('change', loadServers);
+        });
+        
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const stats = await response.json();
+                
+                document.getElementById('totalServers').textContent = stats.total_servers;
+                document.getElementById('verifiedServers').textContent = stats.verified_servers;
+                document.getElementById('healthyServers').textContent = stats.healthy_servers;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+        
+        async function loadServers() {
+            const container = document.getElementById('serversContainer');
+            container.innerHTML = '<div class="loading">Loading servers...</div>';
+            
+            try {
+                // Build query parameters
+                const params = new URLSearchParams();
+                
+                const query = document.getElementById('searchInput').value;
+                if (query) params.append('query', query);
+                
+                const capability = document.getElementById('capabilityFilter').value;
+                if (capability) params.append('capabilities', capability);
+                
+                const status = document.getElementById('statusFilter').value;
+                if (status) params.append('status', status);
+                
+                const response = await fetch(`${API_BASE}/servers?${params}`);
+                const data = await response.json();
+                
+                if (data.servers.length === 0) {
+                    container.innerHTML = '<div class="loading">No servers found.</div>';
+                    return;
+                }
+                
+                const serversHtml = data.servers.map(server => `
+                    <div class="server-card">
+                        <div class="server-header">
+                            <span class="server-name">${server.name}</span>
+                            <span class="server-version">v${server.version}</span>
+                            <span class="server-status status-${server.status}">${server.status}</span>
+                        </div>
+                        <div class="server-description">${server.description}</div>
+                        <div class="server-meta">
+                            <div>
+                                <strong>Capabilities:</strong>
+                                <div class="capabilities">
+                                    ${server.capabilities.map(cap => `<span class="capability">${cap}</span>`).join('')}
+                                </div>
+                            </div>
+                            ${server.tags.length > 0 ? `
+                            <div>
+                                <strong>Tags:</strong>
+                                <div class="tags">
+                                    ${server.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div>
+                            <a href="${server.url}" target="_blank" class="server-url">${server.url}</a>
+                        </div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = serversHtml;
+                
+            } catch (error) {
+                console.error('Failed to load servers:', error);
+                container.innerHTML = '<div class="error">Failed to load servers. Please try again.</div>';
+            }
+        }
+    </script>
+</body>
+</html>
