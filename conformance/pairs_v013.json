@@ -1,0 +1,652 @@
+[
+  {
+    "t1": "git branch -d {b0}",
+    "t2": "git branch -D {b0}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:eb97709d88513a34afb2bbe3baf3417c0828c84a888e62049555a101231b74b6",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample0"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b1}",
+    "t2": "git branch -D {b1}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:8253840f7ee3a60925db4fafaed0d75644efc0f43b4cf14c973b485fbaee6e7b",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample1"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b2}",
+    "t2": "git branch -D {b2}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:e4d8508c266f4b4947ae38df21c65a4bf9421881b42913f0f909df5e73b56efa",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample2"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b3}",
+    "t2": "git branch -D {b3}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:0eaa6ccaae337d9e1cf6f21f22bf0d5405437e2acdf227b6de8c30f6b6b60238",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample3"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b4}",
+    "t2": "git branch -D {b4}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:bfd2f55e79b28dfbfbc61b300f684ec78c37d93dbbfce7e9d5953d29549afb81",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample4"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b5}",
+    "t2": "git branch -D {b5}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:1d411f907e066184199adad35106a6649581486abd5881493a1d32461f50c61a",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample5"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b6}",
+    "t2": "git branch -D {b6}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:e36aee104eeef61889d3c3d22bd361dff8954740e0e44d6e24768a1ce302806a",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample6"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b7}",
+    "t2": "git branch -D {b7}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:12988ff6a565eef263d1cfe711e1c58ac2becb7887e6771f954647880d601af1",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample7"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b8}",
+    "t2": "git branch -D {b8}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:d6b85abfeb0f6e3622b5d412eb550c599746ae0e92bbef6012e36b1f32537819",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample8"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b9}",
+    "t2": "git branch -D {b9}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:5dfc0a23c13a7a2e883f793fcee438249af03d11cdc2798b7dd441a242797208",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample9"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b10}",
+    "t2": "git branch -D {b10}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:a68040462636aa787ed8471cdced911fe304d3f0089f45a959cc4814df1c20e9",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample10"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b11}",
+    "t2": "git branch -D {b11}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:e660ba55d8944742952c703ca4bd3edcc50427362e6ad7495815cbc4c877114c",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample11"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b12}",
+    "t2": "git branch -D {b12}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:b703c058826d756835adc3eb107f7d71e1782ef980be93bf42daafc3526038a4",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample12"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b13}",
+    "t2": "git branch -D {b13}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:d84139975dde1ba9cb5219e7046496d54bbf38df7e065d1661421b6f03870e24",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample13"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b14}",
+    "t2": "git branch -D {b14}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:4e0f8d26d4b7a580e78cd10634d0e17a967724be6eba956e1684296301115f60",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample14"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b15}",
+    "t2": "git branch -D {b15}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:4ce1f5203040ed70ccaf94c63474f9c4f464d8b752deea89998d01892d479ce8",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample15"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b16}",
+    "t2": "git branch -D {b16}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:46d8a6f956624107cda1bc900a70721c2a42e6842c2400c2d9b18b653d09fbee",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample16"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b17}",
+    "t2": "git branch -D {b17}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:2d78c6fd7b76f5e5429df688a3e3740209452a346dfcbcbe479399a3365709c4",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample17"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b18}",
+    "t2": "git branch -D {b18}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:78d58f603a6eecb5631c0d53a62bc0a2a18ebc394aa4151906e6deb784fbbffa",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample18"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b19}",
+    "t2": "git branch -D {b19}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:85d21888ad7a39abf56ef978cfbf635ad18335d867b312273eeae4d662e5ca44",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample19"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b20}",
+    "t2": "git branch -D {b20}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:ec69083b4f243d2ad96b95937f630caed5a231f6e76745130f6c33e4c77ff83f",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample20"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b21}",
+    "t2": "git branch -D {b21}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:3bae33fd42cd6795d350587d8d84bd8dea1d3f206e45fb2a2d099a4527e7f676",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample21"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b22}",
+    "t2": "git branch -D {b22}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:02b84d66436e44b300ba903eeb02fc1d887220f413ab113522c0d5a17a0b8584",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample22"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b23}",
+    "t2": "git branch -D {b23}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:9851affce378582055182722997a70d7dbd63f2866247a177875f78b65ac195f",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample23"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b24}",
+    "t2": "git branch -D {b24}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:dd6e1165a13b4f554b87610244274b317537b7263baea0cca761fe892af5fe51",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample24"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b25}",
+    "t2": "git branch -D {b25}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:2cb4b8a485a03f1b0ff949d55907ee65e5f9411814e7bf42d5578312b4b9742a",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample25"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b26}",
+    "t2": "git branch -D {b26}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:5fda0dafa6474a95044e4bb8128351ba53b18b0d9838cab064c32da9581eca0f",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample26"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b27}",
+    "t2": "git branch -D {b27}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:a873e3ea6fe0df4e2eb81b8321a4b22d5d513fb3c3527436f151de70bfb0c146",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample27"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b28}",
+    "t2": "git branch -D {b28}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:e9540864b80dfab913a62b3e44f4711f615b7e4f1494020902849c8f43e5f3aa",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample28"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b29}",
+    "t2": "git branch -D {b29}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:cdde9f17f42eac212b9b26d0238968d71be0c3839714e42cc2255a4ae2fc4d84",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample29"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b30}",
+    "t2": "git branch -D {b30}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:7a477c3f88b880f5a8731772d01ef0ae18966cd280881fd508053ccd66b78fd9",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample30"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b31}",
+    "t2": "git branch -D {b31}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:5a936c0e269e0c4b8a60dbcaef751f5fb75242a2f215fcc9e57c94daab325f33",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample31"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b32}",
+    "t2": "git branch -D {b32}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:b27a892f2b96094b4f6dc9b565d45e84b43c27b046f9e9647a76afb7780a721a",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample32"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b33}",
+    "t2": "git branch -D {b33}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:fdb55a300c96950a8338e9a61ef0df5378352492419f165e981c8d7ae81a2100",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample33"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b34}",
+    "t2": "git branch -D {b34}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:1839a0b758d22b5a672a694a2b0c52b9b4e05552af645435baa915f262a24401",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample34"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b35}",
+    "t2": "git branch -D {b35}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:15857e1bbb6dcc9a4d671f33115fd6d6200259abacb78f9f63908bb9994419f8",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample35"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b36}",
+    "t2": "git branch -D {b36}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:750650bf36cec862a68f067a8f72bf59c5e65fbddbc1ef76fb9a5806600da523",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample36"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b37}",
+    "t2": "git branch -D {b37}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:660574ac613effd569cb5730b9830ef848c858ea5219ad7cca1473fa60590ce5",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample37"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b38}",
+    "t2": "git branch -D {b38}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:020d3fc1db1019537169bea532d9f2cfa0390311366f376b04e06d7ff2e1505e",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample38"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b39}",
+    "t2": "git branch -D {b39}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:e6d226c1187b7e41891833f07e8851ac56f20aa3a7320bcef52a90766a31bf77",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample39"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b40}",
+    "t2": "git branch -D {b40}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:71902b89c9d7c8d509583a64bdf0554608e4cce77b2c04c8c5a7e71bbe8567d4",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample40"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b41}",
+    "t2": "git branch -D {b41}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:715cc0068041c29729b01c7000821e835142e422fb91d5a73d30fc7f84aa1f3f",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample41"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b42}",
+    "t2": "git branch -D {b42}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:e93bfcca3234d27cb12c7c64f44ba5c2cf03016ccf440e31db7c5c90e3c7d4a8",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample42"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b43}",
+    "t2": "git branch -D {b43}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:6b658c2b04d29afc9af3d27ca6472b79a736ef3ceead5066ff09e376c068b220",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample43"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b44}",
+    "t2": "git branch -D {b44}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:9258b59cf571d59e41df5e8822493fc7a34ce02c49024ac29ec73af8f2fb4d7a",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample44"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b45}",
+    "t2": "git branch -D {b45}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:827e25071a5c6f8fff195648dee89747236e7619bdfbceaa13d97d3876ca77bb",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample45"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b46}",
+    "t2": "git branch -D {b46}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:2a7890da08a494e9e74ffe6f9c1b770e2330f914436ee00e3f1bc21c1cd9040b",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample46"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b47}",
+    "t2": "git branch -D {b47}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:45ab39fc9a82e605600fd22dd53e6a5e10c934809a014f89296bdfbddd0fc781",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample47"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b48}",
+    "t2": "git branch -D {b48}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:721518066d4fd400449ed6a0bd1bce16198c17af5c590a4249b10a0998c197bd",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample48"
+      }
+    ],
+    "needs_predicates": []
+  },
+  {
+    "t1": "git branch -d {b49}",
+    "t2": "git branch -D {b49}",
+    "expected": "REFINES",
+    "evidence_id": "ev:sha256:2edf143874ad28cfcf7cc624c067e06e2bd35d8552bac9af7ad315740c50018c",
+    "evidence": [
+      {
+        "kind": "proof",
+        "ref": "pr:sample49"
+      }
+    ],
+    "needs_predicates": []
+  }
+]
