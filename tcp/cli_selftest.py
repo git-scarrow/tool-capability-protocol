@@ -25,13 +25,15 @@ def main() -> None:
     parser.add_argument("--evidence-check")
     parser.add_argument("--latency")
     parser.add_argument("--snf-check")
+    parser.add_argument("warm", nargs="?", help="Optional 'warm=true|false' tag; advisory only.")
     args = parser.parse_args()
 
     if args.pairs:
         pairs = _load_pairs(args.pairs)
         print(f"loaded {len(pairs)} pairs")
         if args.evidence_check:
-            sample_of = int(args.evidence_check.split("=")[1]) if "=" in args.evidence_check else 5
+            sample_of = int(args.evidence_check.split("=", 1)[1]) if "=" in args.evidence_check else 5
+            sample_of = max(1, sample_of)
             for pair in random.sample(pairs, min(sample_of, len(pairs))):
                 meta = dict(pair)
                 meta.setdefault("snf1", pair.get("t1"))
@@ -44,10 +46,21 @@ def main() -> None:
         N = 1000
         if "=" in args.latency:
             for part in args.latency.split(','):
-                if part.startswith('N='):
-                    N = int(part[2:])
+                k, _, v = part.partition('=')
+                if k.strip().lower() == 'n' and v:
+                    N = int(v)
         vals = [random.randint(1, 1000) for _ in range(N)]
         hist = record_hist("lat", vals)
+        # echo whether this was a warm or cold run when provided
+        if args.warm:
+            raw = args.warm.split("=", 1)[-1] if "=" in args.warm else args.warm
+            val = raw.strip().lower()
+            if val in {"1", "true", "yes", "y", "warm"}:
+                hist["warm"] = True
+            elif val in {"0", "false", "no", "n", "cold"}:
+                hist["warm"] = False
+            else:
+                hist["warm"] = raw
         print(json.dumps(hist))
 
     if args.vectors:
