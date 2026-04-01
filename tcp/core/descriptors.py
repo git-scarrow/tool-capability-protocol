@@ -288,6 +288,8 @@ class CapabilityDescriptor:
         """Convert to dictionary."""
 
         def serialize_obj(obj):
+            if isinstance(obj, IntEnum):
+                return obj.value
             if hasattr(obj, "__dict__"):
                 return {k: serialize_obj(v) for k, v in obj.__dict__.items()}
             elif isinstance(obj, list):
@@ -296,8 +298,6 @@ class CapabilityDescriptor:
                 return {k: serialize_obj(v) for k, v in obj.items()}
             elif isinstance(obj, datetime):
                 return obj.isoformat()
-            elif isinstance(obj, IntEnum):
-                return obj.value
             else:
                 return obj
 
