@@ -126,7 +126,7 @@ def test_gate_tools_approves_safe_matching_tool_and_router_selects_fastest():
 
     assert routed.selected_tool is not None
     assert routed.selected_tool.tool_name == "fast-json"
-    assert len(routed.gate_result.approved_tools) == 2
+    assert len(routed.approved) == 2
 
 
 def test_unknown_risk_requires_approval_when_auto_approval_enabled():

@@ -159,6 +159,22 @@ def test_mt2_fixture_suite_exercises_broader_routing_surface():
     assert guarded.tcp_projection.false_rejection_count > 0
 
 
+def test_mt2_bitmask_path_eliminates_false_rejections():
+    descriptors, tasks, environment = build_mt2_fixture_set()
+
+    comparisons = benchmark_exposure_paths(descriptors, tasks, environment)
+    summary = summarize_comparisons(comparisons)
+
+    # The bitmask path should match schema-heavy: zero false rejections
+    assert summary["bitmask_false_rejections"] == 0
+    # While preserving zero false allows
+    assert summary["bitmask_false_allows"] == 0
+    # And satisfying all tasks (the gate_tools path fails the approval-guarded task)
+    assert summary["bitmask_tasks_satisfied"] == summary["schema_tasks_satisfied"]
+    # Confirm the gate_tools path still has its known false rejections
+    assert summary["tcp_false_rejections"] > 0
+
+
 def test_mt2_suite_tracks_false_allow_and_false_rejection_counts():
     descriptors, tasks, environment = build_mt2_fixture_set()
 

@@ -16,6 +16,9 @@ from tcp.core.descriptors import (
 from .models import ToolRecord
 
 
+_PRIVILEGED_DEPENDENCIES = frozenset({"sudo", "ssh", "su", "doas", "pkexec"})
+
+
 def normalize_capability_descriptor(
     descriptor: CapabilityDescriptor,
     *,
@@ -26,6 +29,12 @@ def normalize_capability_descriptor(
 ) -> ToolRecord:
     """Normalize a structured capability descriptor into a ToolRecord."""
     capability_flags = descriptor.capability_flags or descriptor.get_capability_flags()
+
+    # Encode privileged dependencies into capability_flags so the bitmask
+    # hot path can gate on them without inspecting string metadata.
+    dep_names = {d.lower() for d in descriptor.dependencies}
+    if dep_names & _PRIVILEGED_DEPENDENCIES:
+        capability_flags |= CapabilityFlags.AUTH_REQUIRED
 
     commands = frozenset(command.name for command in descriptor.commands)
     input_formats = _format_names(descriptor.input_formats)
@@ -147,6 +156,8 @@ def _derive_structured_risk_level(*, capability_flags: int, permission_level: st
     if permission_level in {"denied", "execute_full"}:
         return "approval_required"
     if capability_flags & CapabilityFlags.SUPPORTS_NETWORK:
+        return "approval_required"
+    if capability_flags & CapabilityFlags.AUTH_REQUIRED:
         return "approval_required"
     return "unknown"
 

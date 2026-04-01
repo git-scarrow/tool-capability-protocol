@@ -16,11 +16,12 @@ from tcp.core.descriptors import (
     ProcessingMode,
 )
 
+from .bitmask_filter import EnvironmentMask, bitmask_filter
 from .gating import RuntimeEnvironment, gate_tools
 from .models import ToolRecord, ToolSelectionRequest
 from .normalize import normalize_capability_descriptor
 from .projection import project_tools
-from .router import route_tool
+from .router import route_tool, route_tool_legacy
 
 
 @dataclass(frozen=True)
@@ -60,6 +61,7 @@ class BenchmarkComparison:
     task_name: str
     schema_heavy: ExposureMetrics
     tcp_projection: ExposureMetrics
+    tcp_bitmask: ExposureMetrics | None = None
 
     @property
     def prompt_bytes_reduction(self) -> int:
@@ -85,18 +87,20 @@ def benchmark_exposure_paths(
     tasks: Sequence[BenchmarkTask],
     environment: RuntimeEnvironment,
 ) -> list[BenchmarkComparison]:
-    """Benchmark the schema-heavy and TCP projection exposure paths."""
+    """Benchmark the schema-heavy, TCP projection, and TCP bitmask exposure paths."""
     comparisons: list[BenchmarkComparison] = []
     normalized_records = [normalize_capability_descriptor(descriptor) for descriptor in descriptors]
 
     for task in tasks:
         schema_metrics = _benchmark_schema_heavy(descriptors, task, environment)
         tcp_metrics = _benchmark_tcp_projection(normalized_records, task, environment)
+        bitmask_metrics = _benchmark_bitmask_path(normalized_records, task, environment)
         comparisons.append(
             BenchmarkComparison(
                 task_name=task.name,
                 schema_heavy=schema_metrics,
                 tcp_projection=tcp_metrics,
+                tcp_bitmask=bitmask_metrics,
             )
         )
 
@@ -112,11 +116,16 @@ def summarize_comparisons(comparisons: Sequence[BenchmarkComparison]) -> dict[st
             "mean_gating_latency_delta_ms": 0.0,
             "tcp_tasks_satisfied": 0,
             "schema_tasks_satisfied": 0,
+            "bitmask_tasks_satisfied": 0,
             "tcp_false_allows": 0,
             "schema_false_allows": 0,
+            "bitmask_false_allows": 0,
             "tcp_false_rejections": 0,
             "schema_false_rejections": 0,
+            "bitmask_false_rejections": 0,
         }
+
+    bitmask_items = [item for item in comparisons if item.tcp_bitmask is not None]
 
     return {
         "task_count": len(comparisons),
@@ -132,13 +141,22 @@ def summarize_comparisons(comparisons: Sequence[BenchmarkComparison]) -> dict[st
         "schema_tasks_satisfied": sum(
             1 for item in comparisons if item.schema_heavy.task_satisfied
         ),
+        "bitmask_tasks_satisfied": sum(
+            1 for item in bitmask_items if item.tcp_bitmask.task_satisfied  # type: ignore[union-attr]
+        ),
         "tcp_false_allows": sum(item.tcp_projection.false_allow_count for item in comparisons),
         "schema_false_allows": sum(item.schema_heavy.false_allow_count for item in comparisons),
+        "bitmask_false_allows": sum(
+            item.tcp_bitmask.false_allow_count for item in bitmask_items  # type: ignore[union-attr]
+        ),
         "tcp_false_rejections": sum(
             item.tcp_projection.false_rejection_count for item in comparisons
         ),
         "schema_false_rejections": sum(
             item.schema_heavy.false_rejection_count for item in comparisons
+        ),
+        "bitmask_false_rejections": sum(
+            item.tcp_bitmask.false_rejection_count for item in bitmask_items  # type: ignore[union-attr]
         ),
     }
 
@@ -353,7 +371,7 @@ def _benchmark_tcp_projection(
     gating_latency_ms = (time.perf_counter() - start) * 1000
 
     selection_start = time.perf_counter()
-    routed = route_tool(list(records), task.request, environment)
+    routed = route_tool_legacy(list(records), task.request, environment)
     selection_latency_ms = (time.perf_counter() - selection_start) * 1000
     selected_name = routed.selected_tool.tool_name if routed.selected_tool else None
 
@@ -383,6 +401,111 @@ def _benchmark_tcp_projection(
             task=task,
         ),
     )
+
+
+def _benchmark_bitmask_path(
+    records: Sequence[ToolRecord],
+    task: BenchmarkTask,
+    environment: RuntimeEnvironment,
+) -> ExposureMetrics:
+    """Benchmark the three-tier bitmask path."""
+    from tcp.core.descriptors import CapabilityFlags as CF
+
+    deny_mask = _environment_to_deny_mask(environment)
+    approval_mask = int(CF.AUTH_REQUIRED)
+
+    start = time.perf_counter()
+    result = bitmask_filter(
+        records,
+        deny_mask=deny_mask,
+        approval_mask=approval_mask,
+        require_mask=task.request.required_capability_flags,
+    )
+
+    # Second-pass: apply non-bitmask filters (commands, formats, modes) on survivors
+    approved_final: list[ToolRecord] = []
+    approval_required_final: list[ToolRecord] = []
+    rejected_count = result.rejection_count
+
+    for tool in result.approved:
+        if _passes_request_filters(tool, task.request):
+            approved_final.append(tool)
+        else:
+            rejected_count += 1
+
+    for tool in result.approval_required:
+        if _passes_request_filters(tool, task.request):
+            if task.request.require_auto_approval:
+                approval_required_final.append(tool)
+            else:
+                approved_final.append(tool)
+        else:
+            rejected_count += 1
+
+    projected = json.dumps(project_tools(approved_final), separators=(",", ":"))
+    gating_latency_ms = (time.perf_counter() - start) * 1000
+
+    # Selection: pick fastest approved tool
+    selection_start = time.perf_counter()
+    selected: ToolRecord | None = None
+    if approved_final:
+        if task.request.preferred_criteria == "memory":
+            selected = min(approved_final, key=lambda t: t.memory_usage_mb)
+        else:
+            selected = min(approved_final, key=lambda t: t.avg_processing_time_ms)
+    selection_latency_ms = (time.perf_counter() - selection_start) * 1000
+    selected_name = selected.tool_name if selected else None
+
+    return ExposureMetrics(
+        exposure_name="tcp-bitmask",
+        prompt_bytes=len(projected.encode("utf-8")),
+        prompt_chars=len(projected),
+        approved_tool_count=len(approved_final),
+        rejected_tool_count=rejected_count,
+        approval_required_tool_count=len(approval_required_final),
+        gating_latency_ms=gating_latency_ms,
+        selection_latency_ms=selection_latency_ms,
+        selected_tool_name=selected_name,
+        task_satisfied=_task_satisfied(selected_name, task.expected_tool_names),
+        false_allow_count=_false_allow_count(
+            approved_names={t.tool_name for t in approved_final},
+            approval_required_names={t.tool_name for t in approval_required_final},
+            task=task,
+        ),
+        false_rejection_count=_false_rejection_count(
+            approved_names={t.tool_name for t in approved_final},
+            approval_required_names={t.tool_name for t in approval_required_final},
+            task=task,
+        ),
+    )
+
+
+def _environment_to_deny_mask(environment: RuntimeEnvironment) -> EnvironmentMask:
+    """Translate RuntimeEnvironment booleans into a deny bitmask."""
+    return EnvironmentMask.from_constraints(
+        network=environment.network_enabled,
+        file_access=environment.file_access_enabled,
+        stdin=environment.stdin_enabled,
+    )
+
+
+def _passes_request_filters(tool: ToolRecord, request: ToolSelectionRequest) -> bool:
+    """Check non-bitmask request filters (commands, formats, modes)."""
+    if request.required_commands and not request.required_commands.issubset(tool.commands):
+        return False
+    if request.required_input_formats and not request.required_input_formats.issubset(
+        tool.input_formats
+    ):
+        return False
+    if request.required_output_formats and not request.required_output_formats.issubset(
+        tool.output_formats
+    ):
+        return False
+    if request.required_processing_modes and not request.required_processing_modes.issubset(
+        tool.processing_modes
+    ):
+        return False
+    return True
 
 
 def _gate_schema_heavy_item(
