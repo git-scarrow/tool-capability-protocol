@@ -5,7 +5,7 @@ import json
 import struct
 import warnings
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import IntEnum
 from typing import Any, Dict, List, Optional, Union
 
@@ -194,6 +194,11 @@ class CapabilityDescriptor:
     updated_at: Optional[datetime] = None
     schema_version: str = "1.0.0"
 
+    @staticmethod
+    def _utc_now() -> datetime:
+        """Return a timezone-aware UTC timestamp."""
+        return datetime.now(UTC)
+
     def __post_init__(self):
         """Post-initialization processing."""
         # Normalize commands from Dict to List if needed
@@ -209,8 +214,8 @@ class CapabilityDescriptor:
             self.commands = list(self.commands.values())
 
         if self.created_at is None:
-            self.created_at = datetime.utcnow()
-        self.updated_at = datetime.utcnow()
+            self.created_at = self._utc_now()
+        self.updated_at = self._utc_now()
 
     def add_command(self, command: CommandDescriptor) -> None:
         """Add a command to the descriptor."""
@@ -222,7 +227,7 @@ class CapabilityDescriptor:
             raise TypeError(
                 "Commands must be normalized to a List before adding new commands"
             )
-        self.updated_at = datetime.utcnow()
+        self.updated_at = self._utc_now()
 
     def get_command(self, name: str) -> Optional[CommandDescriptor]:
         """Get command by name."""

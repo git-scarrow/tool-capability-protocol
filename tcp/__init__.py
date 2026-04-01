@@ -18,14 +18,18 @@ from .generators import (
     ProtobufGenerator,
 )
 from .harness import (
+    BenchmarkComparison,
+    BenchmarkTask,
     GateResult,
     RuntimeEnvironment,
     ToolRecord,
     ToolSelectionRequest,
+    benchmark_exposure_paths,
     gate_tools,
     project_tool,
     project_tools,
     route_tool,
+    summarize_comparisons,
 )
 
 __version__ = "0.1.0"
@@ -46,6 +50,8 @@ __all__ = [
     "ToolSelectionRequest",
     "RuntimeEnvironment",
     "GateResult",
+    "BenchmarkTask",
+    "BenchmarkComparison",
     # Generators
     "JSONGenerator",
     "OpenAPIGenerator",
@@ -57,4 +63,6 @@ __all__ = [
     "project_tool",
     "project_tools",
     "route_tool",
+    "benchmark_exposure_paths",
+    "summarize_comparisons",
 ]

@@ -1,13 +1,18 @@
 """Capability registry for managing tool descriptors."""
 
 import logging
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from threading import RLock
 from typing import Dict, List, Optional, Set, Tuple
 
 from .descriptors import CapabilityDescriptor
 
 logger = logging.getLogger(__name__)
+
+
+def _utc_now() -> datetime:
+    """Return a timezone-aware UTC timestamp."""
+    return datetime.now(UTC)
 
 
 class CapabilityRegistry:
@@ -35,7 +40,7 @@ class CapabilityRegistry:
                 self._tools[descriptor.name][descriptor.version] = descriptor
                 self._access_times[
                     (descriptor.name, descriptor.version)
-                ] = datetime.utcnow()
+                ] = _utc_now()
 
                 logger.info(f"Registered tool: {descriptor.name} v{descriptor.version}")
                 return True
@@ -103,7 +108,7 @@ class CapabilityRegistry:
             # Update access time
             self._access_times[
                 (descriptor.name, descriptor.version)
-            ] = datetime.utcnow()
+            ] = _utc_now()
 
             return descriptor
 
@@ -205,7 +210,7 @@ class CapabilityRegistry:
     def cleanup_expired(self, max_age_hours: int = 24) -> int:
         """Remove tools that haven't been accessed recently."""
         with self._lock:
-            cutoff_time = datetime.utcnow() - timedelta(hours=max_age_hours)
+            cutoff_time = _utc_now() - timedelta(hours=max_age_hours)
             expired = []
 
             for (name, version), access_time in self._access_times.items():
