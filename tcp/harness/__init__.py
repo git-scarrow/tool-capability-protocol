@@ -1,6 +1,12 @@
 """TCP harness primitives for descriptor-native tool routing."""
 
 from .audit import AuditEntry, GatingDecision
+from .bitmask_filter import (
+    BitmaskFilterResult,
+    EnvironmentMask,
+    bitmask_filter,
+    filter_for_prompt,
+)
 from .benchmark import (
     BenchmarkComparison,
     BenchmarkSuiteResult,
@@ -18,10 +24,14 @@ from .normalize import (
     normalize_legacy_tcp_descriptor,
 )
 from .projection import project_tool, project_tools
-from .router import route_tool
+from .router import route_tool, route_tool_legacy
 
 __all__ = [
     "AuditEntry",
+    "BitmaskFilterResult",
+    "EnvironmentMask",
+    "bitmask_filter",
+    "filter_for_prompt",
     "BenchmarkComparison",
     "BenchmarkSuiteResult",
     "BenchmarkTask",
@@ -37,6 +47,7 @@ __all__ = [
     "project_tools",
     "gate_tools",
     "route_tool",
+    "route_tool_legacy",
     "benchmark_exposure_paths",
     "benchmark_exposure_suite",
     "build_mt2_fixture_set",
