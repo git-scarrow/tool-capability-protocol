@@ -16,7 +16,9 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "tcp"))
+# Ensure the repository root is importable so `import tcp` resolves consistently
+# in local runs without requiring editable installation first.
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from tcp.analysis.tcp_generator import TCPDescriptorGenerator
 from tcp.core.descriptors import BinaryCapabilityDescriptor, CapabilityDescriptor

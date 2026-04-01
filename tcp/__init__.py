@@ -17,6 +17,16 @@ from .generators import (
     OpenAPIGenerator,
     ProtobufGenerator,
 )
+from .harness import (
+    GateResult,
+    RuntimeEnvironment,
+    ToolRecord,
+    ToolSelectionRequest,
+    gate_tools,
+    project_tool,
+    project_tools,
+    route_tool,
+)
 
 __version__ = "0.1.0"
 __author__ = "TCP Team"
@@ -32,10 +42,19 @@ __all__ = [
     "FormatDescriptor",
     "CapabilityRegistry",
     "DiscoveryService",
+    "ToolRecord",
+    "ToolSelectionRequest",
+    "RuntimeEnvironment",
+    "GateResult",
     # Generators
     "JSONGenerator",
     "OpenAPIGenerator",
     "GraphQLGenerator",
     "ProtobufGenerator",
     "BinaryGenerator",
+    # Harness
+    "gate_tools",
+    "project_tool",
+    "project_tools",
+    "route_tool",
 ]
