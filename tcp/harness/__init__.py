@@ -1,7 +1,15 @@
 """TCP harness primitives for descriptor-native tool routing."""
 
 from .audit import AuditEntry, GatingDecision
-from .benchmark import BenchmarkComparison, BenchmarkTask, benchmark_exposure_paths, summarize_comparisons
+from .benchmark import (
+    BenchmarkComparison,
+    BenchmarkSuiteResult,
+    BenchmarkTask,
+    benchmark_exposure_paths,
+    benchmark_exposure_suite,
+    build_mt2_fixture_set,
+    summarize_comparisons,
+)
 from .gating import GateResult, RuntimeEnvironment, gate_tools
 from .models import ToolRecord, ToolSelectionRequest
 from .normalize import (
@@ -15,6 +23,7 @@ from .router import route_tool
 __all__ = [
     "AuditEntry",
     "BenchmarkComparison",
+    "BenchmarkSuiteResult",
     "BenchmarkTask",
     "GatingDecision",
     "GateResult",
@@ -29,5 +38,7 @@ __all__ = [
     "gate_tools",
     "route_tool",
     "benchmark_exposure_paths",
+    "benchmark_exposure_suite",
+    "build_mt2_fixture_set",
     "summarize_comparisons",
 ]

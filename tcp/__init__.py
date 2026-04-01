@@ -19,12 +19,15 @@ from .generators import (
 )
 from .harness import (
     BenchmarkComparison,
+    BenchmarkSuiteResult,
     BenchmarkTask,
     GateResult,
     RuntimeEnvironment,
     ToolRecord,
     ToolSelectionRequest,
     benchmark_exposure_paths,
+    benchmark_exposure_suite,
+    build_mt2_fixture_set,
     gate_tools,
     project_tool,
     project_tools,
@@ -52,6 +55,7 @@ __all__ = [
     "GateResult",
     "BenchmarkTask",
     "BenchmarkComparison",
+    "BenchmarkSuiteResult",
     # Generators
     "JSONGenerator",
     "OpenAPIGenerator",
@@ -64,5 +68,7 @@ __all__ = [
     "project_tools",
     "route_tool",
     "benchmark_exposure_paths",
+    "benchmark_exposure_suite",
+    "build_mt2_fixture_set",
     "summarize_comparisons",
 ]

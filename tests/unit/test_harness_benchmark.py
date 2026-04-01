@@ -9,7 +9,13 @@ from tcp.core.descriptors import (
     PerformanceMetrics,
     ProcessingMode,
 )
-from tcp.harness.benchmark import BenchmarkTask, benchmark_exposure_paths, summarize_comparisons
+from tcp.harness.benchmark import (
+    BenchmarkTask,
+    benchmark_exposure_paths,
+    benchmark_exposure_suite,
+    build_mt2_fixture_set,
+    summarize_comparisons,
+)
 from tcp.harness.gating import RuntimeEnvironment
 from tcp.harness.models import ToolSelectionRequest
 
@@ -135,3 +141,31 @@ def test_summarize_comparisons_counts_satisfied_tasks():
     assert summary["task_count"] == 1
     assert summary["tcp_tasks_satisfied"] == 1
     assert summary["schema_tasks_satisfied"] == 1
+
+
+def test_mt2_fixture_suite_exercises_broader_routing_surface():
+    descriptors, tasks, environment = build_mt2_fixture_set()
+
+    comparisons = benchmark_exposure_paths(descriptors, tasks, environment)
+    summary = summarize_comparisons(comparisons)
+
+    assert len(tasks) >= 4
+    assert summary["task_count"] == len(tasks)
+    assert summary["schema_tasks_satisfied"] == len(tasks)
+    assert summary["mean_prompt_bytes_reduction"] > 0
+    assert summary["tcp_tasks_satisfied"] < len(tasks)
+    guarded = next(item for item in comparisons if item.task_name == "auto approval guarded")
+    assert guarded.tcp_projection.selected_tool_name is None
+    assert guarded.tcp_projection.false_rejection_count > 0
+
+
+def test_mt2_suite_tracks_false_allow_and_false_rejection_counts():
+    descriptors, tasks, environment = build_mt2_fixture_set()
+
+    suite = benchmark_exposure_suite(descriptors, tasks, environment, repetitions=2)
+
+    assert suite.summary["task_count"] == len(tasks) * 2
+    assert suite.summary["tcp_false_allows"] == 0
+    assert suite.summary["schema_false_allows"] == 0
+    assert suite.summary["tcp_false_rejections"] > 0
+    assert suite.summary["schema_false_rejections"] == 0

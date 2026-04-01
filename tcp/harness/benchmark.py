@@ -7,7 +7,14 @@ import time
 from dataclasses import dataclass, field
 from typing import Iterable, Sequence
 
-from tcp.core.descriptors import CapabilityDescriptor, FormatType, ProcessingMode
+from tcp.core.descriptors import (
+    CapabilityDescriptor,
+    CommandDescriptor,
+    FormatDescriptor,
+    FormatType,
+    PerformanceMetrics,
+    ProcessingMode,
+)
 
 from .gating import RuntimeEnvironment, gate_tools
 from .models import ToolRecord, ToolSelectionRequest
@@ -23,6 +30,9 @@ class BenchmarkTask:
     name: str
     request: ToolSelectionRequest
     expected_tool_names: frozenset[str] = field(default_factory=frozenset)
+    expected_approved_tool_names: frozenset[str] = field(default_factory=frozenset)
+    expected_approval_required_tool_names: frozenset[str] = field(default_factory=frozenset)
+    expected_rejected_tool_names: frozenset[str] = field(default_factory=frozenset)
 
 
 @dataclass(frozen=True)
@@ -39,6 +49,8 @@ class ExposureMetrics:
     selection_latency_ms: float
     selected_tool_name: str | None
     task_satisfied: bool
+    false_allow_count: int
+    false_rejection_count: int
 
 
 @dataclass(frozen=True)
@@ -58,6 +70,14 @@ class BenchmarkComparison:
     def gating_latency_delta_ms(self) -> float:
         """Return latency reduction from schema-heavy to TCP projection."""
         return self.schema_heavy.gating_latency_ms - self.tcp_projection.gating_latency_ms
+
+
+@dataclass(frozen=True)
+class BenchmarkSuiteResult:
+    """Aggregate result for a repeated benchmark suite."""
+
+    comparisons: tuple[BenchmarkComparison, ...]
+    summary: dict[str, float | int]
 
 
 def benchmark_exposure_paths(
@@ -92,6 +112,10 @@ def summarize_comparisons(comparisons: Sequence[BenchmarkComparison]) -> dict[st
             "mean_gating_latency_delta_ms": 0.0,
             "tcp_tasks_satisfied": 0,
             "schema_tasks_satisfied": 0,
+            "tcp_false_allows": 0,
+            "schema_false_allows": 0,
+            "tcp_false_rejections": 0,
+            "schema_false_rejections": 0,
         }
 
     return {
@@ -108,7 +132,155 @@ def summarize_comparisons(comparisons: Sequence[BenchmarkComparison]) -> dict[st
         "schema_tasks_satisfied": sum(
             1 for item in comparisons if item.schema_heavy.task_satisfied
         ),
+        "tcp_false_allows": sum(item.tcp_projection.false_allow_count for item in comparisons),
+        "schema_false_allows": sum(item.schema_heavy.false_allow_count for item in comparisons),
+        "tcp_false_rejections": sum(
+            item.tcp_projection.false_rejection_count for item in comparisons
+        ),
+        "schema_false_rejections": sum(
+            item.schema_heavy.false_rejection_count for item in comparisons
+        ),
     }
+
+
+def benchmark_exposure_suite(
+    descriptors: Sequence[CapabilityDescriptor],
+    tasks: Sequence[BenchmarkTask],
+    environment: RuntimeEnvironment,
+    *,
+    repetitions: int = 5,
+) -> BenchmarkSuiteResult:
+    """Run repeated exposure comparisons and return an aggregate summary."""
+    all_comparisons: list[BenchmarkComparison] = []
+    for _ in range(repetitions):
+        all_comparisons.extend(benchmark_exposure_paths(descriptors, tasks, environment))
+    return BenchmarkSuiteResult(
+        comparisons=tuple(all_comparisons),
+        summary=summarize_comparisons(all_comparisons),
+    )
+
+
+def build_mt2_fixture_set() -> tuple[list[CapabilityDescriptor], list[BenchmarkTask], RuntimeEnvironment]:
+    """Build the broader fixture set used by TCP-MT-2."""
+    descriptors = [
+        _make_descriptor(
+            name="fast-json",
+            command="transform",
+            latency_ms=5,
+            input_format="json",
+            output_format="json",
+        ),
+        _make_descriptor(
+            name="slow-json",
+            command="transform",
+            latency_ms=50,
+            input_format="json",
+            output_format="json",
+        ),
+        _make_descriptor(
+            name="stream-json",
+            command="transform",
+            latency_ms=15,
+            input_format="json",
+            output_format="json",
+            processing_mode=ProcessingMode.STREAM,
+        ),
+        _make_descriptor(
+            name="file-convert",
+            command="convert",
+            latency_ms=12,
+            input_format="blob",
+            output_format="json",
+            capability_flags=1 << 0,
+        ),
+        _make_descriptor(
+            name="net-fetch",
+            command="fetch",
+            latency_ms=8,
+            input_format="json",
+            output_format="json",
+            capability_flags=1 << 2,
+        ),
+        _make_descriptor(
+            name="priv-admin",
+            command="transform",
+            latency_ms=4,
+            input_format="json",
+            output_format="json",
+            dependencies=["sudo"],
+        ),
+    ]
+
+    tasks = [
+        BenchmarkTask(
+            name="fast local transform",
+            request=ToolSelectionRequest.from_kwargs(
+                required_commands={"transform"},
+                required_input_formats={"json"},
+                preferred_criteria="speed",
+                require_auto_approval=False,
+            ),
+            expected_tool_names=frozenset({"priv-admin"}),
+            expected_approved_tool_names=frozenset({"fast-json", "slow-json", "stream-json", "priv-admin"}),
+            expected_rejected_tool_names=frozenset({"file-convert", "net-fetch"}),
+        ),
+        BenchmarkTask(
+            name="offline stream transform",
+            request=ToolSelectionRequest.from_kwargs(
+                required_commands={"transform"},
+                required_processing_modes={"stream"},
+                require_auto_approval=False,
+            ),
+            expected_tool_names=frozenset({"stream-json"}),
+            expected_approved_tool_names=frozenset({"stream-json"}),
+            expected_rejected_tool_names=frozenset(
+                {"fast-json", "slow-json", "file-convert", "net-fetch", "priv-admin"}
+            ),
+        ),
+        BenchmarkTask(
+            name="binary file convert",
+            request=ToolSelectionRequest.from_kwargs(
+                required_commands={"convert"},
+                required_input_formats={"blob"},
+                require_auto_approval=False,
+            ),
+            expected_tool_names=frozenset({"file-convert"}),
+            expected_approved_tool_names=frozenset({"file-convert"}),
+            expected_rejected_tool_names=frozenset(
+                {"fast-json", "slow-json", "stream-json", "net-fetch", "priv-admin"}
+            ),
+        ),
+        BenchmarkTask(
+            name="auto approval guarded",
+            request=ToolSelectionRequest.from_kwargs(
+                required_commands={"transform"},
+                required_input_formats={"json"},
+                preferred_criteria="speed",
+                require_auto_approval=True,
+            ),
+            expected_tool_names=frozenset({"fast-json"}),
+            expected_approved_tool_names=frozenset({"fast-json", "slow-json", "stream-json"}),
+            expected_approval_required_tool_names=frozenset({"priv-admin"}),
+            expected_rejected_tool_names=frozenset({"file-convert", "net-fetch"}),
+        ),
+    ]
+
+    environment = RuntimeEnvironment(
+        network_enabled=False,
+        file_access_enabled=True,
+        stdin_enabled=True,
+        installed_tools=frozenset(
+            {
+                "fast-json",
+                "slow-json",
+                "stream-json",
+                "file-convert",
+                "net-fetch",
+                "priv-admin",
+            }
+        ),
+    )
+    return descriptors, tasks, environment
 
 
 def _benchmark_schema_heavy(
@@ -124,6 +296,7 @@ def _benchmark_schema_heavy(
     )
     parsed_payload = json.loads(payload)
     approved: list[dict] = []
+    approval_required_items: list[dict] = []
     rejected = 0
     approval_required = 0
 
@@ -132,6 +305,7 @@ def _benchmark_schema_heavy(
         if decision == "approved":
             approved.append(item)
         elif decision == "approval_required":
+            approval_required_items.append(item)
             approval_required += 1
         else:
             rejected += 1
@@ -154,6 +328,16 @@ def _benchmark_schema_heavy(
         selection_latency_ms=selection_latency_ms,
         selected_tool_name=selected_name,
         task_satisfied=_task_satisfied(selected_name, task.expected_tool_names),
+        false_allow_count=_false_allow_count(
+            approved_names={item["name"] for item in approved},
+            approval_required_names={item["name"] for item in approval_required_items},
+            task=task,
+        ),
+        false_rejection_count=_false_rejection_count(
+            approved_names={item["name"] for item in approved},
+            approval_required_names={item["name"] for item in approval_required_items},
+            task=task,
+        ),
     )
 
 
@@ -184,6 +368,20 @@ def _benchmark_tcp_projection(
         selection_latency_ms=selection_latency_ms,
         selected_tool_name=selected_name,
         task_satisfied=_task_satisfied(selected_name, task.expected_tool_names),
+        false_allow_count=_false_allow_count(
+            approved_names={tool.tool_name for tool in gate_result.approved_tools},
+            approval_required_names={
+                tool.tool_name for tool in gate_result.approval_required_tools
+            },
+            task=task,
+        ),
+        false_rejection_count=_false_rejection_count(
+            approved_names={tool.tool_name for tool in gate_result.approved_tools},
+            approval_required_names={
+                tool.tool_name for tool in gate_result.approval_required_tools
+            },
+            task=task,
+        ),
     )
 
 
@@ -305,6 +503,78 @@ def _task_satisfied(selected_name: str | None, expected_tool_names: frozenset[st
     if not expected_tool_names:
         return selected_name is not None
     return selected_name in expected_tool_names
+
+
+def _false_allow_count(
+    *, approved_names: set[str], approval_required_names: set[str], task: BenchmarkTask
+) -> int:
+    false_allow = 0
+
+    for name in approved_names:
+        if name not in task.expected_approved_tool_names:
+            false_allow += 1
+
+    for name in approval_required_names:
+        if name in task.expected_rejected_tool_names:
+            false_allow += 1
+
+    return false_allow
+
+
+def _false_rejection_count(
+    *, approved_names: set[str], approval_required_names: set[str], task: BenchmarkTask
+) -> int:
+    false_rejection = 0
+
+    for name in task.expected_approved_tool_names:
+        if name not in approved_names:
+            false_rejection += 1
+
+    for name in task.expected_approval_required_tool_names:
+        if name not in approval_required_names:
+            false_rejection += 1
+
+    for name in approval_required_names:
+        if name in task.expected_approved_tool_names:
+            false_rejection += 1
+
+    return false_rejection
+
+
+def _make_descriptor(
+    *,
+    name: str,
+    command: str,
+    latency_ms: int,
+    input_format: str,
+    output_format: str,
+    capability_flags: int = 0,
+    processing_mode: ProcessingMode = ProcessingMode.SYNC,
+    dependencies: Sequence[str] = (),
+) -> CapabilityDescriptor:
+    format_type_map = {
+        "json": FormatType.JSON,
+        "blob": FormatType.BINARY,
+        "text": FormatType.TEXT,
+    }
+    return CapabilityDescriptor(
+        name=name,
+        version="1.0",
+        commands=[CommandDescriptor(name=command)],
+        input_formats=[
+            FormatDescriptor(name=input_format, type=format_type_map.get(input_format, FormatType.TEXT))
+        ],
+        output_formats=[
+            FormatDescriptor(name=output_format, type=format_type_map.get(output_format, FormatType.TEXT))
+        ],
+        processing_modes=[processing_mode],
+        dependencies=list(dependencies),
+        capability_flags=capability_flags,
+        performance=PerformanceMetrics(
+            avg_processing_time_ms=latency_ms,
+            memory_usage_mb=8,
+        ),
+    )
 
 
 def _schema_snapshot(descriptor: CapabilityDescriptor) -> dict[str, object]:
