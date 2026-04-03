@@ -5,6 +5,8 @@ All tests mock run_agent_loop -- no real API calls.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -12,8 +14,10 @@ import pytest
 from tcp.agent.benchmark import (
     BenchmarkReport,
     PairedTrial,
+    SmokeResult,
     build_filtered_schemas,
     run_paired_benchmark,
+    run_smoke_test,
 )
 from tcp.agent.loop import LoopMetrics
 from tcp.agent.tasks import AgentTask
@@ -253,3 +257,71 @@ class TestRunPairedBenchmark:
 
         assert isinstance(report.summary, dict)
         assert report.summary["trial_count"] == 1
+
+    async def test_incremental_persistence(self, tmp_path):
+        """Results are saved after each trial."""
+        tasks = [AgentTask(name="t", prompt="P", expected_tool="x")]
+        schemas = [
+            {
+                "name": "x",
+                "description": "X",
+                "input_schema": {"type": "object", "properties": {}},
+            }
+        ]
+        filtered = {"t": schemas}
+        out = tmp_path / "results.json"
+
+        async def mock_loop(task_prompt, tools, mock_executor, **kwargs):
+            return _make_metrics(task_name="t", tool_count=len(tools))
+
+        with patch("tcp.agent.benchmark.run_agent_loop", side_effect=mock_loop):
+            report = await run_paired_benchmark(
+                tasks=tasks,
+                corpus_schemas=schemas,
+                filtered_schemas_by_task=filtered,
+                repetitions=2,
+                results_path=out,
+            )
+
+        assert out.exists()
+        data = json.loads(out.read_text())
+        assert len(data["trials"]) == 2
+        assert data["trials"][0]["task_name"] == "t"
+        assert "latency_delta_ms" in data["trials"][0]
+
+
+@pytest.mark.asyncio
+class TestRunSmokeTest:
+    """Smoke test with mocked loop."""
+
+    async def test_smoke_passes_on_success(self):
+        async def mock_loop(task_prompt, tools, mock_executor, **kwargs):
+            return _make_metrics(
+                task_name=kwargs.get("task_name", "test"),
+                tool_count=len(tools),
+                turns=2,
+                input_tokens=500,
+            )
+
+        with patch("tcp.agent.benchmark.run_agent_loop", side_effect=mock_loop):
+            result = await run_smoke_test()
+
+        assert result.passed
+        assert result.issues == ()
+        assert result.trial.task_name == "local file read"
+
+    async def test_smoke_fails_on_error(self):
+        async def mock_loop(task_prompt, tools, mock_executor, **kwargs):
+            return _make_metrics(
+                task_name=kwargs.get("task_name", "test"),
+                tool_count=len(tools),
+                turns=0,
+                input_tokens=0,
+                error="bad schema",
+            )
+
+        with patch("tcp.agent.benchmark.run_agent_loop", side_effect=mock_loop):
+            result = await run_smoke_test()
+
+        assert not result.passed
+        assert len(result.issues) > 0

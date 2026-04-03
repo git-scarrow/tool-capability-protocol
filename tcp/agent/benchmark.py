@@ -6,13 +6,16 @@ prompt-cache state and network conditions.
 
 from __future__ import annotations
 
+import json
+import os
 import random
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from pathlib import Path
 from typing import Callable
 
 from tcp.agent.loop import LoopMetrics, run_agent_loop
 from tcp.agent.mock_executors import get_mock_executor
-from tcp.agent.tasks import AgentTask
+from tcp.agent.tasks import AgentTask, build_agent_tasks
 
 
 @dataclass(frozen=True)
@@ -113,6 +116,42 @@ def build_filtered_schemas(
     return {task.name: filtered_schemas for task in tasks}
 
 
+def _metrics_to_dict(m: LoopMetrics) -> dict:
+    """Serialize LoopMetrics to a JSON-safe dict."""
+    return {
+        "task_name": m.task_name,
+        "tool_count": m.tool_count,
+        "turns": m.turns,
+        "first_token_latency_ms": m.first_token_latency_ms,
+        "total_response_time_ms": m.total_response_time_ms,
+        "input_tokens": m.input_tokens,
+        "output_tokens": m.output_tokens,
+        "tools_called": list(m.tools_called),
+        "selected_tool_correct": m.selected_tool_correct,
+        "error": m.error,
+        "error_kind": m.error_kind,
+    }
+
+
+def _trial_to_dict(t: PairedTrial) -> dict:
+    """Serialize a PairedTrial to a JSON-safe dict."""
+    return {
+        "task_name": t.task_name,
+        "unfiltered": _metrics_to_dict(t.unfiltered),
+        "filtered": _metrics_to_dict(t.filtered),
+        "latency_delta_ms": t.latency_delta_ms,
+        "token_delta": t.token_delta,
+    }
+
+
+def _save_incremental(trials: list[PairedTrial], path: Path) -> None:
+    """Atomically write all trials collected so far to JSON."""
+    tmp = path.with_suffix(".tmp")
+    data = {"trials": [_trial_to_dict(t) for t in trials]}
+    tmp.write_text(json.dumps(data, indent=2))
+    os.replace(tmp, path)
+
+
 async def run_paired_benchmark(
     tasks: list[AgentTask],
     corpus_schemas: list[dict],
@@ -120,10 +159,12 @@ async def run_paired_benchmark(
     *,
     repetitions: int = 5,
     model: str = "claude-sonnet-4-6",
+    results_path: Path | None = None,
 ) -> BenchmarkReport:
     """Run paired filtered/unfiltered trials for each task.
 
     Order is randomized per pair to control for prompt caching.
+    If results_path is provided, saves incrementally after each trial.
     """
     mock_exec = get_mock_executor()
     all_trials: list[PairedTrial] = []
@@ -151,12 +192,65 @@ async def run_paired_benchmark(
                 unfiltered_metrics = await _run_arm(corpus_schemas)
                 filtered_metrics = await _run_arm(filtered_schemas)
 
-            all_trials.append(
-                PairedTrial(
-                    task_name=task.name,
-                    unfiltered=unfiltered_metrics,
-                    filtered=filtered_metrics,
-                )
+            trial = PairedTrial(
+                task_name=task.name,
+                unfiltered=unfiltered_metrics,
+                filtered=filtered_metrics,
             )
+            all_trials.append(trial)
+
+            if results_path is not None:
+                _save_incremental(all_trials, results_path)
 
     return BenchmarkReport.from_trials(all_trials)
+
+
+@dataclass(frozen=True)
+class SmokeResult:
+    """Result of a single-call smoke test."""
+
+    trial: PairedTrial
+    passed: bool
+    issues: tuple[str, ...]
+
+
+async def run_smoke_test(
+    *,
+    model: str = "claude-sonnet-4-6",
+) -> SmokeResult:
+    """Run 1 task x 1 rep to validate the full pipeline. ~$0.10."""
+    from tcp.harness.corpus import build_mcp_corpus
+    from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+
+    tasks = build_agent_tasks()
+    # Pick first task with a non-None expected tool
+    task = next(t for t in tasks if t.expected_tool is not None)
+
+    entries = build_mcp_corpus()
+    corpus_schemas = corpus_to_anthropic_schemas(entries)
+    filtered = build_filtered_schemas([task], corpus_schemas)
+
+    report = await run_paired_benchmark(
+        tasks=[task],
+        corpus_schemas=corpus_schemas,
+        filtered_schemas_by_task=filtered,
+        repetitions=1,
+        model=model,
+    )
+
+    trial = report.trials[0]
+    issues: list[str] = []
+
+    for arm_name, metrics in [("unfiltered", trial.unfiltered), ("filtered", trial.filtered)]:
+        if metrics.error is not None:
+            issues.append(f"{arm_name}: error={metrics.error} (kind={metrics.error_kind})")
+        if metrics.turns == 0:
+            issues.append(f"{arm_name}: zero turns")
+        if metrics.input_tokens == 0:
+            issues.append(f"{arm_name}: zero input tokens")
+
+    return SmokeResult(
+        trial=trial,
+        passed=len(issues) == 0,
+        issues=tuple(issues),
+    )
