@@ -1,0 +1,275 @@
+"""Tests for the instrumented agent loop.
+
+All tests mock the Anthropic API -- no real API calls are made.
+"""
+
+from __future__ import annotations
+
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+
+from tcp.agent.loop import LoopMetrics, run_agent_loop
+
+
+# --- Test fixtures ---
+
+
+def _make_usage(input_tokens: int = 100, output_tokens: int = 50) -> MagicMock:
+    usage = MagicMock()
+    usage.input_tokens = input_tokens
+    usage.output_tokens = output_tokens
+    return usage
+
+
+def _make_text_block(text: str = "Done.") -> MagicMock:
+    block = MagicMock()
+    block.type = "text"
+    block.text = text
+    return block
+
+
+def _make_tool_use_block(
+    name: str = "fs-read-file",
+    tool_input: dict | None = None,
+    tool_id: str = "toolu_123",
+) -> MagicMock:
+    block = MagicMock()
+    block.type = "tool_use"
+    block.name = name
+    block.input = tool_input or {"input": "test"}
+    block.id = tool_id
+    return block
+
+
+def _make_response(
+    content: list,
+    input_tokens: int = 100,
+    output_tokens: int = 50,
+) -> MagicMock:
+    resp = MagicMock()
+    resp.content = content
+    resp.usage = _make_usage(input_tokens, output_tokens)
+    return resp
+
+
+def _noop_executor(tool_name: str, tool_input: dict) -> str:
+    return '{"status": "ok"}'
+
+
+# --- Tests ---
+
+
+class TestLoopMetrics:
+    """LoopMetrics is a frozen dataclass."""
+
+    def test_frozen(self):
+        m = LoopMetrics(
+            task_name="test",
+            tool_count=10,
+            turns=1,
+            first_token_latency_ms=50.0,
+            total_response_time_ms=100.0,
+            input_tokens=200,
+            output_tokens=50,
+            tools_called=("fs-read-file",),
+            selected_tool_correct=True,
+            error=None,
+        )
+        with pytest.raises(AttributeError):
+            m.task_name = "changed"  # type: ignore[misc]
+
+    def test_fields(self):
+        m = LoopMetrics(
+            task_name="t",
+            tool_count=5,
+            turns=2,
+            first_token_latency_ms=10.0,
+            total_response_time_ms=20.0,
+            input_tokens=100,
+            output_tokens=50,
+            tools_called=("a", "b"),
+            selected_tool_correct=True,
+            error=None,
+        )
+        assert m.turns == 2
+        assert m.tools_called == ("a", "b")
+
+
+@pytest.mark.asyncio
+class TestRunAgentLoop:
+    """Test the agent loop with mocked Anthropic API."""
+
+    async def test_single_turn_no_tool_use(self):
+        """Model responds with text only -- no tool calls."""
+        mock_response = _make_response(
+            content=[_make_text_block("I can help with that.")],
+            input_tokens=150,
+            output_tokens=30,
+        )
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Hello",
+                tools=[
+                    {
+                        "name": "test",
+                        "description": "t",
+                        "input_schema": {"type": "object", "properties": {}},
+                    }
+                ],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="test-task",
+            )
+
+        assert metrics.turns == 1
+        assert metrics.tools_called == ()
+        assert metrics.input_tokens == 150
+        assert metrics.output_tokens == 30
+        assert metrics.first_token_latency_ms > 0
+        assert metrics.total_response_time_ms >= metrics.first_token_latency_ms
+        assert metrics.selected_tool_correct is True
+        assert metrics.error is None
+
+    async def test_single_tool_call(self):
+        """Model calls one tool then finishes."""
+        tool_response = _make_response(
+            content=[_make_tool_use_block("fs-read-file", {"input": "/tmp/x"})],
+            input_tokens=200,
+            output_tokens=40,
+        )
+        final_response = _make_response(
+            content=[_make_text_block("Here are the contents.")],
+            input_tokens=250,
+            output_tokens=20,
+        )
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[tool_response, final_response]
+        )
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Read /tmp/x",
+                tools=[],
+                mock_executor=_noop_executor,
+                expected_tool="fs-read-file",
+                task_name="read-test",
+            )
+
+        assert metrics.turns == 2
+        assert metrics.tools_called == ("fs-read-file",)
+        assert metrics.input_tokens == 450  # 200 + 250
+        assert metrics.output_tokens == 60  # 40 + 20
+        assert metrics.selected_tool_correct is True
+
+    async def test_wrong_tool_selected(self):
+        """Model calls a different tool than expected."""
+        tool_response = _make_response(
+            content=[_make_tool_use_block("git-status")],
+            input_tokens=100,
+            output_tokens=30,
+        )
+        final_response = _make_response(
+            content=[_make_text_block("Done.")],
+            input_tokens=120,
+            output_tokens=10,
+        )
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[tool_response, final_response]
+        )
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Read file",
+                tools=[],
+                mock_executor=_noop_executor,
+                expected_tool="fs-read-file",
+                task_name="wrong-tool",
+            )
+
+        assert metrics.selected_tool_correct is False
+        assert metrics.tools_called == ("git-status",)
+
+    async def test_max_turns_respected(self):
+        """Loop stops after max_turns even if model keeps calling tools."""
+        tool_response = _make_response(
+            content=[_make_tool_use_block("fs-read-file")],
+            input_tokens=100,
+            output_tokens=20,
+        )
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=tool_response)
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Loop forever",
+                tools=[],
+                mock_executor=_noop_executor,
+                expected_tool="fs-read-file",
+                task_name="max-turns",
+                max_turns=3,
+            )
+
+        assert metrics.turns == 3
+
+    async def test_api_error_captured(self):
+        """API errors are captured in the error field, not raised."""
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=Exception("rate limited")
+        )
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Fail",
+                tools=[],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="error-test",
+            )
+
+        assert metrics.error is not None
+        assert "rate limited" in metrics.error
+        assert metrics.turns == 0
+
+    async def test_tool_count_from_tools_list(self):
+        """tool_count reflects the number of tools provided."""
+        mock_response = _make_response(content=[_make_text_block("ok")])
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+        tools = [
+            {
+                "name": f"tool-{i}",
+                "description": f"t{i}",
+                "input_schema": {"type": "object", "properties": {}},
+            }
+            for i in range(15)
+        ]
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Hi",
+                tools=tools,
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="count-test",
+            )
+
+        assert metrics.tool_count == 15
