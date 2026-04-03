@@ -1,0 +1,41 @@
+name: TCP Harness Benchmark
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tcp/**'
+      - 'tests/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tcp/**'
+      - 'tests/**'
+
+jobs:
+  harness-benchmark:
+    name: Harness Regression Guardrail
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Run unit tests
+        run: python -m pytest tests/unit/ -v
+
+      - name: Run benchmark suite
+        run: python -m tcp.harness.run_benchmark --repetitions 5 --output benchmark-summary.json
+
+      - name: Upload benchmark artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-summary
+          path: benchmark-summary.json
