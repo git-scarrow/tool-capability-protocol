@@ -7,9 +7,10 @@ from __future__ import annotations
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import anthropic
 import pytest
 
-from tcp.agent.loop import LoopMetrics, run_agent_loop
+from tcp.agent.loop import ErrorKind, LoopMetrics, run_agent_loop
 
 
 # --- Test fixtures ---
@@ -246,6 +247,63 @@ class TestRunAgentLoop:
         assert metrics.error is not None
         assert "rate limited" in metrics.error
         assert metrics.turns == 0
+        assert metrics.error_kind == "program_bug"
+
+    async def test_auth_error_classified(self):
+        """AuthenticationError gets API_AUTH classification."""
+        import httpx
+
+        mock_client = AsyncMock()
+        mock_response = httpx.Response(401, request=httpx.Request("POST", "https://api.anthropic.com"))
+        mock_client.messages.create = AsyncMock(
+            side_effect=anthropic.AuthenticationError(
+                message="invalid api key",
+                response=mock_response,
+                body=None,
+            )
+        )
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Fail",
+                tools=[],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="auth-test",
+            )
+
+        assert metrics.error_kind == "api_auth"
+        assert metrics.error is not None
+
+    async def test_bad_request_classified(self):
+        """BadRequestError gets API_BAD_REQUEST classification."""
+        import httpx
+
+        mock_client = AsyncMock()
+        mock_response = httpx.Response(400, request=httpx.Request("POST", "https://api.anthropic.com"))
+        mock_client.messages.create = AsyncMock(
+            side_effect=anthropic.BadRequestError(
+                message="invalid tool schema",
+                response=mock_response,
+                body=None,
+            )
+        )
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Fail",
+                tools=[],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="bad-request-test",
+            )
+
+        assert metrics.error_kind == "api_bad_request"
+        assert metrics.error is not None
 
     async def test_tool_count_from_tools_list(self):
         """tool_count reflects the number of tools provided."""

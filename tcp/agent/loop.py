@@ -9,9 +9,22 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
+from enum import Enum
 from typing import Callable
 
 import anthropic
+
+
+class ErrorKind(str, Enum):
+    """Structured error classification for agent loop failures."""
+
+    API_AUTH = "api_auth"
+    API_RATE_LIMIT = "api_rate_limit"
+    API_OVERLOADED = "api_overloaded"
+    API_BAD_REQUEST = "api_bad_request"
+    API_OTHER = "api_other"
+    DATA_BUG = "data_bug"
+    PROGRAM_BUG = "program_bug"
 
 
 @dataclass(frozen=True)
@@ -28,6 +41,7 @@ class LoopMetrics:
     tools_called: tuple[str, ...]
     selected_tool_correct: bool
     error: str | None
+    error_kind: str | None = None
 
 
 async def run_agent_loop(
@@ -97,19 +111,42 @@ async def run_agent_loop(
             messages.append({"role": "assistant", "content": response.content})
             messages.append({"role": "user", "content": tool_results})
 
+    except anthropic.AuthenticationError as exc:
+        return _make_error_metrics(
+            exc, ErrorKind.API_AUTH, task_name, tools, turns,
+            first_token_latency_ms, total_start, total_input_tokens,
+            total_output_tokens, tools_called,
+        )
+    except anthropic.RateLimitError as exc:
+        return _make_error_metrics(
+            exc, ErrorKind.API_RATE_LIMIT, task_name, tools, turns,
+            first_token_latency_ms, total_start, total_input_tokens,
+            total_output_tokens, tools_called,
+        )
+    except anthropic.BadRequestError as exc:
+        return _make_error_metrics(
+            exc, ErrorKind.API_BAD_REQUEST, task_name, tools, turns,
+            first_token_latency_ms, total_start, total_input_tokens,
+            total_output_tokens, tools_called,
+        )
+    except anthropic.APIStatusError as exc:
+        kind = ErrorKind.API_OVERLOADED if exc.status_code == 529 else ErrorKind.API_OTHER
+        return _make_error_metrics(
+            exc, kind, task_name, tools, turns,
+            first_token_latency_ms, total_start, total_input_tokens,
+            total_output_tokens, tools_called,
+        )
+    except (TypeError, KeyError, AttributeError, ValueError) as exc:
+        return _make_error_metrics(
+            exc, ErrorKind.DATA_BUG, task_name, tools, turns,
+            first_token_latency_ms, total_start, total_input_tokens,
+            total_output_tokens, tools_called,
+        )
     except Exception as exc:
-        total_end = time.perf_counter_ns()
-        return LoopMetrics(
-            task_name=task_name,
-            tool_count=len(tools),
-            turns=turns,
-            first_token_latency_ms=first_token_latency_ms,
-            total_response_time_ms=(total_end - total_start) / 1_000_000,
-            input_tokens=total_input_tokens,
-            output_tokens=total_output_tokens,
-            tools_called=tuple(tools_called),
-            selected_tool_correct=False,
-            error=str(exc),
+        return _make_error_metrics(
+            exc, ErrorKind.PROGRAM_BUG, task_name, tools, turns,
+            first_token_latency_ms, total_start, total_input_tokens,
+            total_output_tokens, tools_called,
         )
 
     total_end = time.perf_counter_ns()
@@ -132,4 +169,33 @@ async def run_agent_loop(
         tools_called=tuple(tools_called),
         selected_tool_correct=correct,
         error=None,
+    )
+
+
+def _make_error_metrics(
+    exc: Exception,
+    kind: ErrorKind,
+    task_name: str,
+    tools: list[dict],
+    turns: int,
+    first_token_latency_ms: float,
+    total_start: int,
+    total_input_tokens: int,
+    total_output_tokens: int,
+    tools_called: list[str],
+) -> LoopMetrics:
+    """Build LoopMetrics for an error case."""
+    total_end = time.perf_counter_ns()
+    return LoopMetrics(
+        task_name=task_name,
+        tool_count=len(tools),
+        turns=turns,
+        first_token_latency_ms=first_token_latency_ms,
+        total_response_time_ms=(total_end - total_start) / 1_000_000,
+        input_tokens=total_input_tokens,
+        output_tokens=total_output_tokens,
+        tools_called=tuple(tools_called),
+        selected_tool_correct=False,
+        error=str(exc),
+        error_kind=kind.value,
     )
