@@ -25,6 +25,7 @@ from .normalize import (
 )
 from .projection import project_tool, project_tools
 from .router import route_tool, route_tool_legacy
+from .schema_bridge import corpus_to_anthropic_schemas, tool_record_to_anthropic_schema
 
 __all__ = [
     "AuditEntry",
@@ -52,4 +53,6 @@ __all__ = [
     "benchmark_exposure_suite",
     "build_mt2_fixture_set",
     "summarize_comparisons",
+    "corpus_to_anthropic_schemas",
+    "tool_record_to_anthropic_schema",
 ]
