@@ -43,7 +43,10 @@ def build_agent_tasks() -> list[AgentTask]:
         ),
         AgentTask(
             name="file search",
-            prompt="Search for all files containing 'TODO' in the src directory.",
+            prompt=(
+                "Use the filesystem search tool to find all files whose "
+                "names match '*.config.json' under the /workspace directory."
+            ),
             expected_tool="fs-search-files",
         ),
         AgentTask(
@@ -90,7 +93,10 @@ def build_agent_tasks() -> list[AgentTask]:
         # --- Capability-flag tasks ---
         AgentTask(
             name="require JSON output",
-            prompt="Convert the input data to well-formatted JSON output.",
+            prompt=(
+                "Use jq to extract the 'users' array from the JSON file "
+                "at /tmp/response.json and pretty-print it."
+            ),
             expected_tool="jq",
         ),
     ]

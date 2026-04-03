@@ -6,6 +6,7 @@ Usage:
     python -m tcp.agent --run                # full benchmark (~$30)
     python -m tcp.agent --run --reps 3       # fewer reps (~$18)
     python -m tcp.agent --run --output out.json
+    python -m tcp.agent --matrix --output matrix.json  # generalization matrix
 """
 
 from __future__ import annotations
@@ -37,6 +38,11 @@ def main() -> None:
         action="store_true",
         help="Run full paired benchmark (~$30)",
     )
+    mode.add_argument(
+        "--matrix",
+        action="store_true",
+        help="Run generalization matrix across models + environments",
+    )
     parser.add_argument(
         "--reps",
         type=int,
@@ -66,6 +72,10 @@ def main() -> None:
         if not _cmd_preflight():
             sys.exit(1)
         asyncio.run(_cmd_run(args.reps, args.model, args.output))
+    elif args.matrix:
+        if not _cmd_preflight():
+            sys.exit(1)
+        asyncio.run(_cmd_matrix(args.reps, args.output))
 
 
 def _cmd_preflight() -> bool:
@@ -147,3 +157,35 @@ async def _cmd_run(reps: int, model: str, output: Path | None) -> None:
             for arm, m in [("F", t.filtered), ("U", t.unfiltered)]:
                 if m.error:
                     print(f"  [{arm}] {t.task_name}: [{m.error_kind}] {m.error[:80]}")
+
+
+async def _cmd_matrix(reps: int, output: Path | None) -> None:
+    """Run the generalization matrix."""
+    from tcp.agent.benchmark import run_matrix_benchmark
+
+    models = ["claude-sonnet-4-6", "claude-haiku-4-5-20251001"]
+    environments = ["offline", "online"]
+
+    total_cells = len(models) * len(environments) * 2  # x2 for cold/warm
+    calls_per_cell = 12 * reps * 2
+    total_calls = total_cells * calls_per_cell
+    print(
+        f"\n--- Matrix benchmark ---"
+        f"\n  Models: {models}"
+        f"\n  Environments: {environments}"
+        f"\n  Cache: cold + warm per cell"
+        f"\n  Reps per cell: {reps}"
+        f"\n  Total cells: {total_cells}"
+        f"\n  Total API calls: {total_calls}"
+    )
+    if output:
+        print(f"  Results: {output}")
+
+    report = await run_matrix_benchmark(
+        models=models,
+        environments=environments,
+        repetitions=reps,
+        results_path=output,
+    )
+
+    print(f"\n{report.summary_table()}")

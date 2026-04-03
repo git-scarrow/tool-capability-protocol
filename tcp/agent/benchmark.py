@@ -81,11 +81,17 @@ class BenchmarkReport:
 def build_filtered_schemas(
     tasks: list[AgentTask],
     corpus_schemas: list[dict],
+    *,
+    network: bool = False,
 ) -> dict[str, list[dict]]:
     """Build per-task filtered schema subsets using TCP gating.
 
-    Uses the MT-3 offline environment (network denied) with bitmask
-    filtering.  Each task gets the bitmask survivors as its filtered set.
+    Uses bitmask filtering with the given environment.  Each task gets
+    the bitmask survivors as its filtered set.
+
+    Args:
+        network: If True, allow network tools (online environment).
+                 If False, deny them (offline environment).
     """
     from tcp.core.descriptors import CapabilityFlags
     from tcp.harness.bitmask_filter import EnvironmentMask, bitmask_filter
@@ -101,14 +107,12 @@ def build_filtered_schemas(
     # Build schema lookup by tool name
     schema_by_name: dict[str, dict] = {s["name"]: s for s in corpus_schemas}
 
-    # Offline environment: deny network tools
-    deny = EnvironmentMask.from_constraints(network=False)
+    deny = EnvironmentMask.from_constraints(network=network)
     approval = int(CapabilityFlags.AUTH_REQUIRED)
 
     result = bitmask_filter(records, deny_mask=deny, approval_mask=approval)
     survivor_names = frozenset(r.tool_name for r in result.survivors)
 
-    # Every task gets the same bitmask-filtered set (offline environment)
     filtered_schemas = [
         schema_by_name[name] for name in survivor_names if name in schema_by_name
     ]
@@ -254,3 +258,107 @@ async def run_smoke_test(
         passed=len(issues) == 0,
         issues=tuple(issues),
     )
+
+
+@dataclass(frozen=True)
+class MatrixCell:
+    """One cell of the generalization matrix."""
+
+    model: str
+    environment: str  # "offline" or "online"
+    cache: str  # "cold" or "warm"
+    report: BenchmarkReport
+
+
+@dataclass(frozen=True)
+class MatrixReport:
+    """Full generalization matrix results."""
+
+    cells: tuple[MatrixCell, ...]
+
+    def summary_table(self) -> str:
+        """Human-readable summary of each cell."""
+        lines = [
+            f"{'Model':<25} {'Env':<10} {'Cache':<6} "
+            f"{'Trials':>7} {'TokΔ':>8} {'F-Corr':>7} {'U-Corr':>7} {'LatΔ':>10}"
+        ]
+        lines.append("-" * 85)
+        for c in self.cells:
+            s = c.report.summary
+            n = s["trial_count"]
+            if n == 0:
+                lines.append(f"{c.model:<25} {c.environment:<10} {c.cache:<6} {'(empty)':>7}")
+                continue
+            lines.append(
+                f"{c.model:<25} {c.environment:<10} {c.cache:<6} "
+                f"{n:>7} {s['mean_token_delta']:>+8.0f} "
+                f"{s['filtered_correct_rate']:>6.0%} "
+                f"{s['unfiltered_correct_rate']:>6.0%} "
+                f"{s['mean_latency_delta_ms']:>+9.0f}ms"
+            )
+        return "\n".join(lines)
+
+
+async def run_matrix_benchmark(
+    *,
+    models: list[str],
+    environments: list[str],
+    repetitions: int = 3,
+    results_path: Path | None = None,
+) -> MatrixReport:
+    """Run the generalization matrix across models and environments.
+
+    Cache control: each (model, environment) pair runs twice — once
+    cold (first run) and once warm (immediate re-run with same schemas,
+    benefiting from Anthropic's prompt caching).
+    """
+    from tcp.harness.corpus import build_mcp_corpus
+    from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+
+    tasks = build_agent_tasks()
+    entries = build_mcp_corpus()
+    corpus_schemas = corpus_to_anthropic_schemas(entries)
+
+    cells: list[MatrixCell] = []
+    all_trials: list[dict] = []  # for incremental persistence
+
+    for model in models:
+        for env in environments:
+            network = env == "online"
+            filtered = build_filtered_schemas(tasks, corpus_schemas, network=network)
+
+            for cache_label in ("cold", "warm"):
+                print(f"\n  [{model}] [{env}] [{cache_label}] "
+                      f"— {len(tasks)} tasks x {repetitions} reps...")
+
+                report = await run_paired_benchmark(
+                    tasks=tasks,
+                    corpus_schemas=corpus_schemas,
+                    filtered_schemas_by_task=filtered,
+                    repetitions=repetitions,
+                    model=model,
+                )
+
+                cell = MatrixCell(
+                    model=model,
+                    environment=env,
+                    cache=cache_label,
+                    report=report,
+                )
+                cells.append(cell)
+
+                # Incremental save
+                if results_path is not None:
+                    cell_data = {
+                        "model": cell.model,
+                        "environment": cell.environment,
+                        "cache": cell.cache,
+                        "summary": cell.report.summary,
+                        "trials": [_trial_to_dict(t) for t in cell.report.trials],
+                    }
+                    all_trials.append(cell_data)
+                    tmp = results_path.with_suffix(".tmp")
+                    tmp.write_text(json.dumps({"cells": all_trials}, indent=2))
+                    os.replace(tmp, results_path)
+
+    return MatrixReport(cells=tuple(cells))
