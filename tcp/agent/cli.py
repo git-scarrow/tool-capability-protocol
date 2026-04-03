@@ -1,0 +1,149 @@
+"""CLI for EXP-2 benchmark apparatus.
+
+Usage:
+    python -m tcp.agent --preflight          # offline checks only ($0)
+    python -m tcp.agent --smoke              # 1 API call (~$0.10)
+    python -m tcp.agent --run                # full benchmark (~$30)
+    python -m tcp.agent --run --reps 3       # fewer reps (~$18)
+    python -m tcp.agent --run --output out.json
+"""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import sys
+from pathlib import Path
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        prog="tcp.agent",
+        description="EXP-2 TCP-gated agent loop benchmark",
+    )
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument(
+        "--preflight",
+        action="store_true",
+        help="Run offline pre-flight checks only ($0)",
+    )
+    mode.add_argument(
+        "--smoke",
+        action="store_true",
+        help="Run 1 task x 1 rep against real API (~$0.10)",
+    )
+    mode.add_argument(
+        "--run",
+        action="store_true",
+        help="Run full paired benchmark (~$30)",
+    )
+    parser.add_argument(
+        "--reps",
+        type=int,
+        default=5,
+        help="Repetitions per task (default: 5)",
+    )
+    parser.add_argument(
+        "--model",
+        default="claude-sonnet-4-6",
+        help="Model to benchmark (default: claude-sonnet-4-6)",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Path for incremental JSON results",
+    )
+    args = parser.parse_args()
+
+    if args.preflight:
+        _cmd_preflight()
+    elif args.smoke:
+        if not _cmd_preflight():
+            sys.exit(1)
+        asyncio.run(_cmd_smoke(args.model))
+    elif args.run:
+        if not _cmd_preflight():
+            sys.exit(1)
+        asyncio.run(_cmd_run(args.reps, args.model, args.output))
+
+
+def _cmd_preflight() -> bool:
+    """Run offline checks. Returns True if all pass."""
+    from tcp.agent.preflight import run_preflight
+
+    report = run_preflight()
+    print(report.summary())
+    return report.passed
+
+
+async def _cmd_smoke(model: str) -> None:
+    """Run 1 API call to validate pipeline."""
+    from tcp.agent.benchmark import run_smoke_test
+
+    print("\n--- Smoke test (1 task x 1 rep) ---")
+    result = await run_smoke_test(model=model)
+
+    trial = result.trial
+    print(f"Task: {trial.task_name}")
+    for arm_name, m in [("unfiltered", trial.unfiltered), ("filtered", trial.filtered)]:
+        print(
+            f"  {arm_name}: {m.turns} turns, "
+            f"{m.input_tokens} in_tok, {m.output_tokens} out_tok, "
+            f"{m.total_response_time_ms:.0f}ms, "
+            f"tools={list(m.tools_called)}, "
+            f"correct={m.selected_tool_correct}"
+        )
+        if m.error:
+            print(f"    ERROR [{m.error_kind}]: {m.error}")
+
+    if result.passed:
+        print("\nSmoke test PASSED")
+    else:
+        print(f"\nSmoke test FAILED:")
+        for issue in result.issues:
+            print(f"  - {issue}")
+        sys.exit(1)
+
+
+async def _cmd_run(reps: int, model: str, output: Path | None) -> None:
+    """Run the full benchmark."""
+    from tcp.agent.benchmark import build_filtered_schemas, run_paired_benchmark
+    from tcp.agent.tasks import build_agent_tasks
+    from tcp.harness.corpus import build_mcp_corpus
+    from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+
+    tasks = build_agent_tasks()
+    entries = build_mcp_corpus()
+    corpus_schemas = corpus_to_anthropic_schemas(entries)
+    filtered = build_filtered_schemas(tasks, corpus_schemas)
+
+    total_calls = len(tasks) * reps * 2
+    print(f"\n--- Full benchmark: {len(tasks)} tasks x {reps} reps x 2 arms = {total_calls} API calls ---")
+    if output:
+        print(f"Results will be saved incrementally to {output}")
+
+    report = await run_paired_benchmark(
+        tasks=tasks,
+        corpus_schemas=corpus_schemas,
+        filtered_schemas_by_task=filtered,
+        repetitions=reps,
+        model=model,
+        results_path=output,
+    )
+
+    print(f"\n--- Results ({report.summary['trial_count']} trials) ---")
+    for key, val in report.summary.items():
+        if isinstance(val, float):
+            print(f"  {key}: {val:.2f}")
+        else:
+            print(f"  {key}: {val}")
+
+    # Check for errors
+    errors = [t for t in report.trials if t.filtered.error or t.unfiltered.error]
+    if errors:
+        print(f"\n{len(errors)} trials had errors:")
+        for t in errors[:5]:
+            for arm, m in [("F", t.filtered), ("U", t.unfiltered)]:
+                if m.error:
+                    print(f"  [{arm}] {t.task_name}: [{m.error_kind}] {m.error[:80]}")
