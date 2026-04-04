@@ -331,3 +331,67 @@ class TestRunAgentLoop:
             )
 
         assert metrics.tool_count == 15
+
+
+@pytest.mark.asyncio
+class TestBypassPath:
+    """Deterministic bypass skips the LLM entirely."""
+
+    async def test_bypass_invokes_executor_directly(self):
+        """When bypass_tool is provided, no API call is made."""
+        executor_calls = []
+
+        def tracking_executor(tool_name: str, tool_input: dict) -> str:
+            executor_calls.append(tool_name)
+            return '{"status": "ok"}'
+
+        metrics = await run_agent_loop(
+            task_prompt="Do something",
+            tools=[],
+            mock_executor=tracking_executor,
+            expected_tool="my-tool",
+            task_name="bypass-test",
+            bypass_tool="my-tool",
+        )
+
+        assert metrics.llm_bypassed is True
+        assert metrics.tools_called == ("my-tool",)
+        assert metrics.selected_tool_correct is True
+        assert metrics.turns == 0
+        assert metrics.input_tokens == 0
+        assert executor_calls == ["my-tool"]
+
+    async def test_bypass_wrong_tool_still_correct(self):
+        """Bypass tool matches expected_tool — correctness is True."""
+        metrics = await run_agent_loop(
+            task_prompt="Do something",
+            tools=[],
+            mock_executor=_noop_executor,
+            expected_tool="my-tool",
+            task_name="bypass-match",
+            bypass_tool="my-tool",
+        )
+        assert metrics.selected_tool_correct is True
+        assert metrics.llm_bypassed is True
+
+    async def test_no_bypass_when_not_specified(self):
+        """Without bypass_tool, the normal LLM path runs."""
+        mock_response = _make_response(
+            content=[_make_text_block("ok")],
+        )
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+        with patch(
+            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
+            metrics = await run_agent_loop(
+                task_prompt="Hello",
+                tools=[{"name": "t", "description": "t", "input_schema": {"type": "object", "properties": {}}}],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="no-bypass",
+            )
+
+        assert metrics.llm_bypassed is False
+        mock_client.messages.create.assert_called_once()
