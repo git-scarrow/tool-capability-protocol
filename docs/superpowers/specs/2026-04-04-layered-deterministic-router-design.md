@@ -47,7 +47,7 @@ class RouteConfidence(Enum):
 
 | Confidence    | Action                                    |
 |---------------|-------------------------------------------|
-| DETERMINISTIC | Skip LLM, invoke tool directly, record `llm_bypassed=True` |
+| DETERMINISTIC | Skip LLM, invoke tool via mock executor directly (same dispatch as LLM path, minus API call), record `llm_bypassed=True` |
 | AMBIGUOUS     | Send filtered set to LLM as today         |
 | NO_MATCH      | Send to LLM with empty tools (explain why it can't help) |
 
