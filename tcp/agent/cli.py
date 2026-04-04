@@ -48,6 +48,11 @@ def main() -> None:
         action="store_true",
         help="Run 3-arm adversarial ablation (ungated/fixed/per-task)",
     )
+    mode.add_argument(
+        "--scale",
+        action="store_true",
+        help="Run scale stress test with 500+ tool corpus",
+    )
     parser.add_argument(
         "--reps",
         type=int,
@@ -85,6 +90,10 @@ def main() -> None:
         if not _cmd_preflight():
             sys.exit(1)
         asyncio.run(_cmd_ablation(args.reps, args.model, args.output))
+    elif args.scale:
+        if not _cmd_preflight():
+            sys.exit(1)
+        asyncio.run(_cmd_scale(args.reps, args.model, args.output))
 
 
 def _cmd_preflight() -> bool:
@@ -237,3 +246,62 @@ async def _cmd_ablation(reps: int, model: str, output: Path | None) -> None:
         print(f"\n{len(errors)} arm errors:")
         for e in errors[:10]:
             print(e)
+
+
+async def _cmd_scale(reps: int, model: str, output: Path | None) -> None:
+    """Run scale stress test with 500+ tool corpus."""
+    from tcp.agent.benchmark import build_filtered_schemas, run_paired_benchmark
+    from tcp.agent.mock_executors import MOCK_RESPONSES
+    from tcp.agent.synthetic_corpus import build_scaled_corpus
+    from tcp.agent.tasks import build_agent_tasks
+    from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+
+    tasks = build_agent_tasks()
+    entries = build_scaled_corpus()
+    corpus_schemas = corpus_to_anthropic_schemas(entries)
+
+    # Ensure mock executor covers synthetic tools (default response is fine)
+    filtered = build_filtered_schemas(tasks, corpus_schemas)
+
+    total_calls = len(tasks) * reps * 2
+    print(
+        f"\n--- Scale stress test ---"
+        f"\n  Corpus: {len(entries)} tools ({len(corpus_schemas)} schemas)"
+        f"\n  Tasks: {len(tasks)}"
+        f"\n  Reps: {reps}"
+        f"\n  Model: {model}"
+        f"\n  Total API calls: {total_calls}"
+    )
+
+    # Show per-task filter sizes
+    print("\nPer-task filter sizes:")
+    for task in tasks:
+        n = len(filtered[task.name])
+        print(f"  {task.name}: {n}/{len(corpus_schemas)}")
+
+    if output:
+        print(f"\nResults: {output}")
+
+    report = await run_paired_benchmark(
+        tasks=tasks,
+        corpus_schemas=corpus_schemas,
+        filtered_schemas_by_task=filtered,
+        repetitions=reps,
+        model=model,
+        results_path=output,
+    )
+
+    print(f"\n--- Results ({report.summary['trial_count']} trials) ---")
+    for key, val in report.summary.items():
+        if isinstance(val, float):
+            print(f"  {key}: {val:.2f}")
+        else:
+            print(f"  {key}: {val}")
+
+    errors = [t for t in report.trials if t.filtered.error or t.unfiltered.error]
+    if errors:
+        print(f"\n{len(errors)} trials had errors:")
+        for t in errors[:5]:
+            for arm, m in [("F", t.filtered), ("U", t.unfiltered)]:
+                if m.error:
+                    print(f"  [{arm}] {t.task_name}: [{m.error_kind}] {m.error[:80]}")
