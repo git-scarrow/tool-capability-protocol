@@ -362,3 +362,179 @@ async def run_matrix_benchmark(
                     os.replace(tmp, results_path)
 
     return MatrixReport(cells=tuple(cells))
+
+
+# --- Three-arm adversarial ablation (MT-6) ---
+
+
+@dataclass(frozen=True)
+class ThreeArmTrial:
+    """One trial comparing ungated, fixed-filter, and per-task-filter arms."""
+
+    task_name: str
+    ungated: LoopMetrics
+    fixed_filter: LoopMetrics
+    per_task_filter: LoopMetrics
+
+
+@dataclass(frozen=True)
+class AblationReport:
+    """Results of the three-arm adversarial ablation."""
+
+    trials: tuple[ThreeArmTrial, ...]
+
+    def summary_table(self) -> str:
+        from collections import defaultdict
+
+        by_task: dict[str, list[ThreeArmTrial]] = defaultdict(list)
+        for t in self.trials:
+            by_task[t.task_name].append(t)
+
+        lines = [
+            f"{'Task':<35} {'U-Corr':>7} {'F-Corr':>7} {'PT-Corr':>8} "
+            f"{'U-Tok':>7} {'F-Tok':>7} {'PT-Tok':>7}"
+        ]
+        lines.append("-" * 85)
+
+        totals = {"u_c": 0, "f_c": 0, "pt_c": 0, "n": 0}
+        for name, trials in by_task.items():
+            n = len(trials)
+            u_c = sum(1 for t in trials if t.ungated.selected_tool_correct) / n
+            f_c = sum(1 for t in trials if t.fixed_filter.selected_tool_correct) / n
+            pt_c = sum(1 for t in trials if t.per_task_filter.selected_tool_correct) / n
+            u_tok = sum(t.ungated.input_tokens for t in trials) // n
+            f_tok = sum(t.fixed_filter.input_tokens for t in trials) // n
+            pt_tok = sum(t.per_task_filter.input_tokens for t in trials) // n
+            lines.append(
+                f"{name:<35} {u_c:>6.0%} {f_c:>6.0%} {pt_c:>7.0%} "
+                f"{u_tok:>7} {f_tok:>7} {pt_tok:>7}"
+            )
+            totals["u_c"] += sum(1 for t in trials if t.ungated.selected_tool_correct)
+            totals["f_c"] += sum(1 for t in trials if t.fixed_filter.selected_tool_correct)
+            totals["pt_c"] += sum(1 for t in trials if t.per_task_filter.selected_tool_correct)
+            totals["n"] += n
+
+        lines.append("-" * 85)
+        n = totals["n"]
+        lines.append(
+            f"{'TOTAL':<35} {totals['u_c']/n:>6.0%} {totals['f_c']/n:>6.0%} "
+            f"{totals['pt_c']/n:>7.0%}"
+        )
+        return "\n".join(lines)
+
+
+def build_per_task_filtered_schemas(
+    adv_tasks: list,
+    corpus_schemas: list[dict],
+) -> dict[str, list[dict]]:
+    """Build per-task filtered schemas using the full gate_tools pipeline."""
+    from tcp.harness.corpus import build_mcp_corpus
+    from tcp.harness.gating import RuntimeEnvironment, gate_tools
+    from tcp.harness.normalize import normalize_capability_descriptor
+
+    entries = build_mcp_corpus()
+    records = [normalize_capability_descriptor(e.descriptor) for e in entries]
+    schema_by_name = {s["name"]: s for s in corpus_schemas}
+
+    all_names = frozenset(e.descriptor.name for e in entries)
+    env = RuntimeEnvironment(
+        network_enabled=False,
+        file_access_enabled=True,
+        stdin_enabled=True,
+        installed_tools=all_names,
+    )
+
+    result = {}
+    for at in adv_tasks:
+        gate_result = gate_tools(records, at.selection_request, env)
+        survivor_names = {t.tool_name for t in gate_result.approved_tools}
+        # Also include approval_required tools (they're still visible)
+        survivor_names |= {t.tool_name for t in gate_result.approval_required_tools}
+        schemas = [schema_by_name[n] for n in survivor_names if n in schema_by_name]
+        result[at.agent_task.name] = schemas
+
+    return result
+
+
+def _three_arm_trial_to_dict(t: ThreeArmTrial) -> dict:
+    return {
+        "task_name": t.task_name,
+        "ungated": _metrics_to_dict(t.ungated),
+        "fixed_filter": _metrics_to_dict(t.fixed_filter),
+        "per_task_filter": _metrics_to_dict(t.per_task_filter),
+    }
+
+
+async def run_adversarial_ablation(
+    *,
+    repetitions: int = 3,
+    model: str = "claude-sonnet-4-6",
+    results_path: Path | None = None,
+) -> AblationReport:
+    """Run the 3-arm adversarial ablation benchmark."""
+    from tcp.agent.adversarial import build_adversarial_tasks
+    from tcp.harness.corpus import build_mcp_corpus
+    from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+
+    adv_tasks = build_adversarial_tasks()
+    entries = build_mcp_corpus()
+    corpus_schemas = corpus_to_anthropic_schemas(entries)
+
+    # Build the two filtered arms
+    tasks_for_fixed = [at.agent_task for at in adv_tasks]
+    fixed_filtered = build_filtered_schemas(tasks_for_fixed, corpus_schemas, network=False)
+    per_task_filtered = build_per_task_filtered_schemas(adv_tasks, corpus_schemas)
+
+    # Log filter sizes
+    for at in adv_tasks:
+        name = at.agent_task.name
+        f_n = len(fixed_filtered[name])
+        pt_n = len(per_task_filtered[name])
+        print(f"  {name}: ungated={len(corpus_schemas)}, fixed={f_n}, per-task={pt_n}")
+
+    mock_exec = get_mock_executor()
+    all_trials: list[ThreeArmTrial] = []
+
+    for at in adv_tasks:
+        task = at.agent_task
+        fixed_schemas = fixed_filtered[task.name]
+        pt_schemas = per_task_filtered[task.name]
+
+        for _rep in range(repetitions):
+            # Randomize arm order
+            arms = ["ungated", "fixed", "per_task"]
+            random.shuffle(arms)
+
+            results: dict[str, LoopMetrics] = {}
+            for arm in arms:
+                if arm == "ungated":
+                    schemas = corpus_schemas
+                elif arm == "fixed":
+                    schemas = fixed_schemas
+                else:
+                    schemas = pt_schemas
+
+                results[arm] = await run_agent_loop(
+                    task_prompt=task.prompt,
+                    tools=schemas,
+                    mock_executor=mock_exec,
+                    expected_tool=task.expected_tool,
+                    task_name=task.name,
+                    model=model,
+                )
+
+            trial = ThreeArmTrial(
+                task_name=task.name,
+                ungated=results["ungated"],
+                fixed_filter=results["fixed"],
+                per_task_filter=results["per_task"],
+            )
+            all_trials.append(trial)
+
+            if results_path is not None:
+                data = {"trials": [_three_arm_trial_to_dict(t) for t in all_trials]}
+                tmp = results_path.with_suffix(".tmp")
+                tmp.write_text(json.dumps(data, indent=2))
+                os.replace(tmp, results_path)
+
+    return AblationReport(trials=tuple(all_trials))

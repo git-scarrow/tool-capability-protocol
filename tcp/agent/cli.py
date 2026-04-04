@@ -43,6 +43,11 @@ def main() -> None:
         action="store_true",
         help="Run generalization matrix across models + environments",
     )
+    mode.add_argument(
+        "--ablation",
+        action="store_true",
+        help="Run 3-arm adversarial ablation (ungated/fixed/per-task)",
+    )
     parser.add_argument(
         "--reps",
         type=int,
@@ -76,6 +81,10 @@ def main() -> None:
         if not _cmd_preflight():
             sys.exit(1)
         asyncio.run(_cmd_matrix(args.reps, args.output))
+    elif args.ablation:
+        if not _cmd_preflight():
+            sys.exit(1)
+        asyncio.run(_cmd_ablation(args.reps, args.model, args.output))
 
 
 def _cmd_preflight() -> bool:
@@ -189,3 +198,42 @@ async def _cmd_matrix(reps: int, output: Path | None) -> None:
     )
 
     print(f"\n{report.summary_table()}")
+
+
+async def _cmd_ablation(reps: int, model: str, output: Path | None) -> None:
+    """Run the 3-arm adversarial ablation."""
+    from tcp.agent.adversarial import build_adversarial_tasks
+    from tcp.agent.benchmark import run_adversarial_ablation
+
+    adv_tasks = build_adversarial_tasks()
+    total_calls = len(adv_tasks) * reps * 3
+    print(
+        f"\n--- Adversarial ablation ---"
+        f"\n  Tasks: {len(adv_tasks)}"
+        f"\n  Arms: ungated / fixed-filter / per-task-filter"
+        f"\n  Reps: {reps}"
+        f"\n  Model: {model}"
+        f"\n  Total API calls: {total_calls}"
+    )
+    if output:
+        print(f"  Results: {output}")
+
+    print("\nFilter sizes:")
+    report = await run_adversarial_ablation(
+        repetitions=reps,
+        model=model,
+        results_path=output,
+    )
+
+    print(f"\n{report.summary_table()}")
+
+    # Check for errors
+    errors = []
+    for t in report.trials:
+        for arm_name, m in [("U", t.ungated), ("F", t.fixed_filter), ("PT", t.per_task_filter)]:
+            if m.error:
+                errors.append(f"  [{arm_name}] {t.task_name}: [{m.error_kind}] {m.error[:80]}")
+    if errors:
+        print(f"\n{len(errors)} arm errors:")
+        for e in errors[:10]:
+            print(e)
