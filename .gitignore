@@ -138,3 +138,11 @@ pids
 *.tmp
 *.temp
 .temporary/
+
+# Research artifacts (large, not source)
+claude-code-main/
+claude-code-main.zip
+latest-claude.txt
+results.json
+scale-results.json
+lancedb/
