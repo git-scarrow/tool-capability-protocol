@@ -75,6 +75,11 @@ def main() -> None:
         default=None,
         help="Path for incremental JSON results",
     )
+    parser.add_argument(
+        "--realistic",
+        action="store_true",
+        help="Use realistic A-arm corpus (real Claude Code tool descriptions)",
+    )
     args = parser.parse_args()
 
     if args.preflight:
@@ -82,11 +87,11 @@ def main() -> None:
     elif args.smoke:
         if not _cmd_preflight():
             sys.exit(1)
-        asyncio.run(_cmd_smoke(args.model))
+        asyncio.run(_cmd_smoke(args.model, realistic=args.realistic))
     elif args.run:
         if not _cmd_preflight():
             sys.exit(1)
-        asyncio.run(_cmd_run(args.reps, args.model, args.output))
+        asyncio.run(_cmd_run(args.reps, args.model, args.output, realistic=args.realistic))
     elif args.matrix:
         if not _cmd_preflight():
             sys.exit(1)
@@ -114,12 +119,13 @@ def _cmd_preflight() -> bool:
     return report.passed
 
 
-async def _cmd_smoke(model: str) -> None:
+async def _cmd_smoke(model: str, *, realistic: bool = False) -> None:
     """Run 1 API call to validate pipeline."""
     from tcp.agent.benchmark import run_smoke_test
 
-    print("\n--- Smoke test (1 task x 1 rep) ---")
-    result = await run_smoke_test(model=model)
+    label = "realistic" if realistic else "minimal"
+    print(f"\n--- Smoke test (1 task x 1 rep, {label} corpus) ---")
+    result = await run_smoke_test(model=model, realistic=realistic)
 
     trial = result.trial
     print(f"Task: {trial.task_name}")
@@ -143,20 +149,28 @@ async def _cmd_smoke(model: str) -> None:
         sys.exit(1)
 
 
-async def _cmd_run(reps: int, model: str, output: Path | None) -> None:
+async def _cmd_run(reps: int, model: str, output: Path | None, *, realistic: bool = False) -> None:
     """Run the full benchmark."""
     from tcp.agent.benchmark import build_filtered_schemas, run_paired_benchmark
     from tcp.agent.tasks import build_agent_tasks
-    from tcp.harness.corpus import build_mcp_corpus
-    from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
 
     tasks = build_agent_tasks()
-    entries = build_mcp_corpus()
-    corpus_schemas = corpus_to_anthropic_schemas(entries)
+
+    if realistic:
+        from tcp.harness.realistic_schemas import build_realistic_corpus
+        corpus_schemas = build_realistic_corpus()
+    else:
+        from tcp.harness.corpus import build_mcp_corpus
+        from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+        entries = build_mcp_corpus()
+        corpus_schemas = corpus_to_anthropic_schemas(entries)
+
     filtered = build_filtered_schemas(tasks, corpus_schemas)
 
+    label = "realistic" if realistic else "minimal"
     total_calls = len(tasks) * reps * 2
-    print(f"\n--- Full benchmark: {len(tasks)} tasks x {reps} reps x 2 arms = {total_calls} API calls ---")
+    print(f"\n--- Full benchmark ({label}): {len(tasks)} tasks x {reps} reps x 2 arms = {total_calls} API calls ---")
+    print(f"A-arm corpus: {len(corpus_schemas)} tools")
     if output:
         print(f"Results will be saved incrementally to {output}")
 
