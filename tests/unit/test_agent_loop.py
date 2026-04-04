@@ -96,6 +96,22 @@ class TestLoopMetrics:
         assert m.turns == 2
         assert m.tools_called == ("a", "b")
 
+    def test_new_routing_fields_default(self):
+        m = LoopMetrics(
+            task_name="t",
+            tool_count=5,
+            turns=1,
+            first_token_latency_ms=10.0,
+            total_response_time_ms=20.0,
+            input_tokens=100,
+            output_tokens=50,
+            tools_called=(),
+            selected_tool_correct=True,
+            error=None,
+        )
+        assert m.route_confidence == ""
+        assert m.survivor_count == 0
+
 
 @pytest.mark.asyncio
 class TestRunAgentLoop:

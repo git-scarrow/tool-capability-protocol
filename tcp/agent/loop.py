@@ -43,6 +43,8 @@ class LoopMetrics:
     error: str | None
     error_kind: str | None = None
     llm_bypassed: bool = False
+    route_confidence: str = ""
+    survivor_count: int = 0
 
 
 async def run_agent_loop(

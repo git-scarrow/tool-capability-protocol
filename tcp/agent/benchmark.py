@@ -176,6 +176,9 @@ def _metrics_to_dict(m: LoopMetrics) -> dict:
         "selected_tool_correct": m.selected_tool_correct,
         "error": m.error,
         "error_kind": m.error_kind,
+        "llm_bypassed": m.llm_bypassed,
+        "route_confidence": m.route_confidence,
+        "survivor_count": m.survivor_count,
     }
 
 
