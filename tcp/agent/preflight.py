@@ -193,13 +193,19 @@ def _check_expected_tools_in_corpus(tasks: list, corpus_names: set[str]) -> Pref
 
 def _check_filtered_sets_nonempty(tasks: list, schemas: list[dict]) -> PreflightCheck:
     filtered = build_filtered_schemas(tasks, schemas)
-    empty = [name for name, s in filtered.items() if not s]
-    if empty:
+    # Tasks with expected_tool=None are allowed to have empty filtered sets
+    # (e.g., network-denied tasks, nonexistent commands)
+    tasks_by_name = {t.name: t for t in tasks}
+    unexpected_empty = [
+        name for name, s in filtered.items()
+        if not s and tasks_by_name[name].expected_tool is not None
+    ]
+    if unexpected_empty:
         return PreflightCheck(
             name="filtered_sets_nonempty",
             passed=False,
-            message=f"{len(empty)} tasks have zero filtered tools",
-            details=tuple(empty),
+            message=f"{len(unexpected_empty)} tasks with expected tools have zero filtered tools",
+            details=tuple(unexpected_empty),
         )
     counts = [f"{name}: {len(s)}" for name, s in list(filtered.items())[:3]]
     return PreflightCheck(

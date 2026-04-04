@@ -78,33 +78,23 @@ class BenchmarkReport:
         )
 
 
-def build_filtered_schemas(
+def build_fixed_filtered_schemas(
     tasks: list[AgentTask],
     corpus_schemas: list[dict],
     *,
     network: bool = False,
 ) -> dict[str, list[dict]]:
-    """Build per-task filtered schema subsets using TCP gating.
+    """Build filtered schemas using fixed bitmask filtering (benchmark control).
 
-    Uses bitmask filtering with the given environment.  Each task gets
-    the bitmask survivors as its filtered set.
-
-    Args:
-        network: If True, allow network tools (online environment).
-                 If False, deny them (offline environment).
+    Every task gets the same set of bitmask survivors.
     """
     from tcp.core.descriptors import CapabilityFlags
     from tcp.harness.bitmask_filter import EnvironmentMask, bitmask_filter
     from tcp.harness.corpus import build_mcp_corpus
     from tcp.harness.normalize import normalize_capability_descriptor
 
-    # Build ToolRecords from corpus
     entries = build_mcp_corpus()
-    records = []
-    for entry in entries:
-        records.append(normalize_capability_descriptor(entry.descriptor))
-
-    # Build schema lookup by tool name
+    records = [normalize_capability_descriptor(e.descriptor) for e in entries]
     schema_by_name: dict[str, dict] = {s["name"]: s for s in corpus_schemas}
 
     deny = EnvironmentMask.from_constraints(network=network)
@@ -118,6 +108,58 @@ def build_filtered_schemas(
     ]
 
     return {task.name: filtered_schemas for task in tasks}
+
+
+def build_filtered_schemas(
+    tasks: list[AgentTask],
+    corpus_schemas: list[dict],
+    *,
+    network: bool = False,
+    mode: str = "per_task",
+) -> dict[str, list[dict]]:
+    """Build filtered schema subsets for each task.
+
+    Args:
+        mode: Filtering strategy.
+            "per_task" (default) — full gate_tools pipeline per task.
+            "fixed" — static bitmask filtering (all tasks get same set).
+    """
+    if mode == "fixed":
+        return build_fixed_filtered_schemas(tasks, corpus_schemas, network=network)
+
+    from tcp.harness.corpus import build_mcp_corpus
+    from tcp.harness.gating import RuntimeEnvironment, gate_tools
+    from tcp.harness.models import ToolSelectionRequest
+    from tcp.harness.normalize import normalize_capability_descriptor
+
+    entries = build_mcp_corpus()
+    records = [normalize_capability_descriptor(e.descriptor) for e in entries]
+    schema_by_name: dict[str, dict] = {s["name"]: s for s in corpus_schemas}
+
+    all_names = frozenset(e.descriptor.name for e in entries)
+    env = RuntimeEnvironment(
+        network_enabled=network,
+        file_access_enabled=True,
+        stdin_enabled=True,
+        installed_tools=all_names,
+    )
+
+    # Default selection request for tasks without one
+    default_request = ToolSelectionRequest.from_kwargs(
+        preferred_criteria="speed",
+        require_auto_approval=False,
+    )
+
+    result: dict[str, list[dict]] = {}
+    for task in tasks:
+        request = task.selection_request or default_request
+        gate_result = gate_tools(records, request, env)
+        survivor_names = {t.tool_name for t in gate_result.approved_tools}
+        survivor_names |= {t.tool_name for t in gate_result.approval_required_tools}
+        schemas = [schema_by_name[n] for n in survivor_names if n in schema_by_name]
+        result[task.name] = schemas
+
+    return result
 
 
 def _metrics_to_dict(m: LoopMetrics) -> dict:
@@ -427,33 +469,23 @@ def build_per_task_filtered_schemas(
     adv_tasks: list,
     corpus_schemas: list[dict],
 ) -> dict[str, list[dict]]:
-    """Build per-task filtered schemas using the full gate_tools pipeline."""
-    from tcp.harness.corpus import build_mcp_corpus
-    from tcp.harness.gating import RuntimeEnvironment, gate_tools
-    from tcp.harness.normalize import normalize_capability_descriptor
+    """Build per-task filtered schemas for adversarial tasks.
 
-    entries = build_mcp_corpus()
-    records = [normalize_capability_descriptor(e.descriptor) for e in entries]
-    schema_by_name = {s["name"]: s for s in corpus_schemas}
-
-    all_names = frozenset(e.descriptor.name for e in entries)
-    env = RuntimeEnvironment(
-        network_enabled=False,
-        file_access_enabled=True,
-        stdin_enabled=True,
-        installed_tools=all_names,
-    )
-
-    result = {}
+    Delegates to the common per-task filtering path via
+    build_filtered_schemas(mode="per_task").
+    """
+    # Convert AdversarialTask list to AgentTask list with selection_request
+    agent_tasks = []
     for at in adv_tasks:
-        gate_result = gate_tools(records, at.selection_request, env)
-        survivor_names = {t.tool_name for t in gate_result.approved_tools}
-        # Also include approval_required tools (they're still visible)
-        survivor_names |= {t.tool_name for t in gate_result.approval_required_tools}
-        schemas = [schema_by_name[n] for n in survivor_names if n in schema_by_name]
-        result[at.agent_task.name] = schemas
-
-    return result
+        agent_tasks.append(
+            AgentTask(
+                name=at.agent_task.name,
+                prompt=at.agent_task.prompt,
+                expected_tool=at.agent_task.expected_tool,
+                selection_request=at.selection_request,
+            )
+        )
+    return build_filtered_schemas(agent_tasks, corpus_schemas, mode="per_task")
 
 
 def _three_arm_trial_to_dict(t: ThreeArmTrial) -> dict:

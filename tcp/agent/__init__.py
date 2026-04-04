@@ -9,6 +9,8 @@ from tcp.agent.benchmark import (
     BenchmarkReport,
     PairedTrial,
     SmokeResult,
+    build_filtered_schemas,
+    build_fixed_filtered_schemas,
     run_paired_benchmark,
     run_smoke_test,
 )
