@@ -1,0 +1,1457 @@
+{
+  "trials": [
+    {
+      "task_name": "single file read (not multi)",
+      "ungated": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1600.411868,
+        "total_response_time_ms": 2620.643502,
+        "input_tokens": 11925,
+        "output_tokens": 80,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1022.891499,
+        "total_response_time_ms": 3138.479687,
+        "input_tokens": 5033,
+        "output_tokens": 141,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1319.823926,
+        "total_response_time_ms": 3909.581857,
+        "input_tokens": 1273,
+        "output_tokens": 145,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "single file read (not multi)",
+      "ungated": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 2862.550663,
+        "total_response_time_ms": 4670.059876,
+        "input_tokens": 11940,
+        "output_tokens": 146,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1236.557734,
+        "total_response_time_ms": 2817.029226,
+        "input_tokens": 5033,
+        "output_tokens": 121,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1208.209725,
+        "total_response_time_ms": 3111.265427,
+        "input_tokens": 1273,
+        "output_tokens": 141,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "single file read (not multi)",
+      "ungated": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1782.738875,
+        "total_response_time_ms": 3326.092096,
+        "input_tokens": 11925,
+        "output_tokens": 80,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1071.364393,
+        "total_response_time_ms": 5069.911425,
+        "input_tokens": 5033,
+        "output_tokens": 116,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "single file read (not multi)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 2304.456975,
+        "total_response_time_ms": 5108.499268,
+        "input_tokens": 1273,
+        "output_tokens": 145,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "unstaged diff (not staged)",
+      "ungated": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1303.289818,
+        "total_response_time_ms": 6173.980565,
+        "input_tokens": 11937,
+        "output_tokens": 267,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1772.166239,
+        "total_response_time_ms": 6826.349829,
+        "input_tokens": 5075,
+        "output_tokens": 316,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1625.633512,
+        "total_response_time_ms": 6344.413298,
+        "input_tokens": 1299,
+        "output_tokens": 349,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "unstaged diff (not staged)",
+      "ungated": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1510.9423,
+        "total_response_time_ms": 6816.980192,
+        "input_tokens": 11945,
+        "output_tokens": 341,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 2107.160588,
+        "total_response_time_ms": 6378.188643,
+        "input_tokens": 5075,
+        "output_tokens": 294,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1685.899957,
+        "total_response_time_ms": 7877.521197,
+        "input_tokens": 1296,
+        "output_tokens": 386,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "unstaged diff (not staged)",
+      "ungated": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1197.402403,
+        "total_response_time_ms": 6674.318187,
+        "input_tokens": 11937,
+        "output_tokens": 293,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1097.559799,
+        "total_response_time_ms": 5734.243082,
+        "input_tokens": 5036,
+        "output_tokens": 301,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "unstaged diff (not staged)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1578.328219,
+        "total_response_time_ms": 6795.740167,
+        "input_tokens": 1296,
+        "output_tokens": 345,
+        "tools_called": [
+          "git-diff"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "commit history (not single commit)",
+      "ungated": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1633.220757,
+        "total_response_time_ms": 4538.408256,
+        "input_tokens": 11910,
+        "output_tokens": 175,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1237.582174,
+        "total_response_time_ms": 4461.409205,
+        "input_tokens": 5019,
+        "output_tokens": 168,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 2558.811412,
+        "total_response_time_ms": 5967.019376,
+        "input_tokens": 1257,
+        "output_tokens": 186,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "commit history (not single commit)",
+      "ungated": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1881.185724,
+        "total_response_time_ms": 4605.79263,
+        "input_tokens": 11910,
+        "output_tokens": 169,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1384.451879,
+        "total_response_time_ms": 4692.513346,
+        "input_tokens": 5019,
+        "output_tokens": 188,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1556.65154,
+        "total_response_time_ms": 5053.594315,
+        "input_tokens": 1257,
+        "output_tokens": 208,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "commit history (not single commit)",
+      "ungated": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1590.63221,
+        "total_response_time_ms": 4538.70062,
+        "input_tokens": 11910,
+        "output_tokens": 187,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1192.589401,
+        "total_response_time_ms": 5724.676618,
+        "input_tokens": 5019,
+        "output_tokens": 220,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "commit history (not single commit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1363.643147,
+        "total_response_time_ms": 4414.699543,
+        "input_tokens": 1257,
+        "output_tokens": 183,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "create new file (not edit)",
+      "ungated": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1836.557983,
+        "total_response_time_ms": 3108.211036,
+        "input_tokens": 11935,
+        "output_tokens": 113,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1634.560584,
+        "total_response_time_ms": 3530.998467,
+        "input_tokens": 5043,
+        "output_tokens": 132,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1264.451464,
+        "total_response_time_ms": 2585.36911,
+        "input_tokens": 1269,
+        "output_tokens": 138,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "create new file (not edit)",
+      "ungated": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1900.234939,
+        "total_response_time_ms": 3761.233232,
+        "input_tokens": 11935,
+        "output_tokens": 133,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1348.842268,
+        "total_response_time_ms": 3209.028228,
+        "input_tokens": 5043,
+        "output_tokens": 132,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 991.619164,
+        "total_response_time_ms": 2431.557803,
+        "input_tokens": 1261,
+        "output_tokens": 131,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "create new file (not edit)",
+      "ungated": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1805.030516,
+        "total_response_time_ms": 3304.301396,
+        "input_tokens": 11935,
+        "output_tokens": 134,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1180.969954,
+        "total_response_time_ms": 3103.697112,
+        "input_tokens": 5043,
+        "output_tokens": 133,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "create new file (not edit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1135.673098,
+        "total_response_time_ms": 2551.038383,
+        "input_tokens": 1269,
+        "output_tokens": 138,
+        "tools_called": [
+          "fs-write-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "library docs (not web search)",
+      "ungated": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 90,
+        "turns": 3,
+        "first_token_latency_ms": 2346.686322,
+        "total_response_time_ms": 16871.823997,
+        "input_tokens": 18091,
+        "output_tokens": 862,
+        "tools_called": [
+          "c7-resolve-library",
+          "c7-query-docs"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 35,
+        "turns": 4,
+        "first_token_latency_ms": 1163.56891,
+        "total_response_time_ms": 9722.571379,
+        "input_tokens": 10387,
+        "output_tokens": 394,
+        "tools_called": [
+          "rag-list-files",
+          "rag-query-documents",
+          "rag-query-passages"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 0,
+        "turns": 1,
+        "first_token_latency_ms": 7557.807433,
+        "total_response_time_ms": 7557.810172,
+        "input_tokens": 28,
+        "output_tokens": 349,
+        "tools_called": [],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "library docs (not web search)",
+      "ungated": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 90,
+        "turns": 3,
+        "first_token_latency_ms": 1879.819336,
+        "total_response_time_ms": 19622.775623,
+        "input_tokens": 18091,
+        "output_tokens": 969,
+        "tools_called": [
+          "c7-resolve-library",
+          "c7-query-docs"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 35,
+        "turns": 4,
+        "first_token_latency_ms": 1687.323379,
+        "total_response_time_ms": 9529.193668,
+        "input_tokens": 10387,
+        "output_tokens": 403,
+        "tools_called": [
+          "rag-list-files",
+          "rag-query-documents",
+          "rag-query-passages"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 0,
+        "turns": 1,
+        "first_token_latency_ms": 6740.791536,
+        "total_response_time_ms": 6740.797666,
+        "input_tokens": 28,
+        "output_tokens": 347,
+        "tools_called": [],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "library docs (not web search)",
+      "ungated": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 90,
+        "turns": 3,
+        "first_token_latency_ms": 1970.296366,
+        "total_response_time_ms": 19105.921001,
+        "input_tokens": 18079,
+        "output_tokens": 952,
+        "tools_called": [
+          "c7-resolve-library",
+          "c7-query-docs"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 35,
+        "turns": 4,
+        "first_token_latency_ms": 1345.081306,
+        "total_response_time_ms": 8461.636926,
+        "input_tokens": 10387,
+        "output_tokens": 373,
+        "tools_called": [
+          "rag-list-files",
+          "rag-query-documents",
+          "rag-query-passages"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "library docs (not web search)",
+        "tool_count": 0,
+        "turns": 1,
+        "first_token_latency_ms": 7443.053109,
+        "total_response_time_ms": 7443.057763,
+        "input_tokens": 28,
+        "output_tokens": 374,
+        "tools_called": [],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "flat directory listing (not tree)",
+      "ungated": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 2134.041951,
+        "total_response_time_ms": 3904.241695,
+        "input_tokens": 11927,
+        "output_tokens": 144,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1875.364902,
+        "total_response_time_ms": 3897.773495,
+        "input_tokens": 5035,
+        "output_tokens": 142,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1337.748011,
+        "total_response_time_ms": 3638.369402,
+        "input_tokens": 1280,
+        "output_tokens": 169,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "flat directory listing (not tree)",
+      "ungated": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1233.856278,
+        "total_response_time_ms": 2348.326377,
+        "input_tokens": 11927,
+        "output_tokens": 124,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1258.434746,
+        "total_response_time_ms": 3552.409601,
+        "input_tokens": 5035,
+        "output_tokens": 153,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1313.180609,
+        "total_response_time_ms": 3136.092507,
+        "input_tokens": 1275,
+        "output_tokens": 164,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "flat directory listing (not tree)",
+      "ungated": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1230.780543,
+        "total_response_time_ms": 3123.585858,
+        "input_tokens": 11927,
+        "output_tokens": 147,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1137.928356,
+        "total_response_time_ms": 3644.431824,
+        "input_tokens": 5035,
+        "output_tokens": 149,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "flat directory listing (not tree)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1277.414955,
+        "total_response_time_ms": 3357.220239,
+        "input_tokens": 1275,
+        "output_tokens": 178,
+        "tools_called": [
+          "fs-list-directory"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "file metadata (not permissions change)",
+      "ungated": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1923.868888,
+        "total_response_time_ms": 5025.101782,
+        "input_tokens": 11948,
+        "output_tokens": 160,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1302.180683,
+        "total_response_time_ms": 3280.927926,
+        "input_tokens": 5056,
+        "output_tokens": 137,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1361.292883,
+        "total_response_time_ms": 3576.174506,
+        "input_tokens": 1308,
+        "output_tokens": 167,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "file metadata (not permissions change)",
+      "ungated": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1426.264102,
+        "total_response_time_ms": 4081.913239,
+        "input_tokens": 11948,
+        "output_tokens": 151,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1605.273919,
+        "total_response_time_ms": 3479.356153,
+        "input_tokens": 5056,
+        "output_tokens": 140,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1537.047586,
+        "total_response_time_ms": 3465.871058,
+        "input_tokens": 1308,
+        "output_tokens": 179,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "file metadata (not permissions change)",
+      "ungated": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1259.984315,
+        "total_response_time_ms": 3282.325829,
+        "input_tokens": 11948,
+        "output_tokens": 154,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1409.927955,
+        "total_response_time_ms": 2895.98951,
+        "input_tokens": 5056,
+        "output_tokens": 136,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "file metadata (not permissions change)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1965.155307,
+        "total_response_time_ms": 4197.309449,
+        "input_tokens": 1322,
+        "output_tokens": 196,
+        "tools_called": [
+          "fs-get-file-info"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "document search (not passage search)",
+      "ungated": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 90,
+        "turns": 3,
+        "first_token_latency_ms": 1662.442951,
+        "total_response_time_ms": 9889.189705,
+        "input_tokens": 18061,
+        "output_tokens": 448,
+        "tools_called": [
+          "rag-query-documents",
+          "rag-list-files"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 35,
+        "turns": 3,
+        "first_token_latency_ms": 1921.75401,
+        "total_response_time_ms": 9952.661768,
+        "input_tokens": 7964,
+        "output_tokens": 508,
+        "tools_called": [
+          "rag-list-files",
+          "rag-query-documents",
+          "fs-read-multiple"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1418.222719,
+        "total_response_time_ms": 6855.568571,
+        "input_tokens": 1259,
+        "output_tokens": 310,
+        "tools_called": [
+          "rag-query-documents"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "document search (not passage search)",
+      "ungated": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1232.20362,
+        "total_response_time_ms": 6878.348162,
+        "input_tokens": 11917,
+        "output_tokens": 311,
+        "tools_called": [
+          "rag-query-documents"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 35,
+        "turns": 3,
+        "first_token_latency_ms": 2792.127651,
+        "total_response_time_ms": 12497.052122,
+        "input_tokens": 7969,
+        "output_tokens": 487,
+        "tools_called": [
+          "rag-list-files",
+          "rag-query-documents",
+          "fs-read-multiple"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1434.775692,
+        "total_response_time_ms": 7275.005153,
+        "input_tokens": 1259,
+        "output_tokens": 331,
+        "tools_called": [
+          "rag-query-documents"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "document search (not passage search)",
+      "ungated": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1217.662766,
+        "total_response_time_ms": 7388.126578,
+        "input_tokens": 11917,
+        "output_tokens": 345,
+        "tools_called": [
+          "rag-query-documents"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 35,
+        "turns": 3,
+        "first_token_latency_ms": 2485.061597,
+        "total_response_time_ms": 12015.866716,
+        "input_tokens": 7966,
+        "output_tokens": 542,
+        "tools_called": [
+          "rag-list-files",
+          "rag-query-documents",
+          "fs-read-multiple"
+        ],
+        "selected_tool_correct": false,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "document search (not passage search)",
+        "tool_count": 1,
+        "turns": 3,
+        "first_token_latency_ms": 1588.725633,
+        "total_response_time_ms": 10678.823538,
+        "input_tokens": 2278,
+        "output_tokens": 515,
+        "tools_called": [
+          "rag-query-documents",
+          "rag-query-documents",
+          "rag-query-documents",
+          "rag-query-documents"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "stage files (not commit)",
+      "ungated": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 2224.407331,
+        "total_response_time_ms": 3780.413204,
+        "input_tokens": 11916,
+        "output_tokens": 91,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1042.899939,
+        "total_response_time_ms": 4027.485567,
+        "input_tokens": 5024,
+        "output_tokens": 105,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1074.965835,
+        "total_response_time_ms": 2495.456785,
+        "input_tokens": 1246,
+        "output_tokens": 104,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "stage files (not commit)",
+      "ungated": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1759.845656,
+        "total_response_time_ms": 3255.298947,
+        "input_tokens": 11916,
+        "output_tokens": 112,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1067.982214,
+        "total_response_time_ms": 3374.789868,
+        "input_tokens": 5024,
+        "output_tokens": 105,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1737.880516,
+        "total_response_time_ms": 3010.717643,
+        "input_tokens": 1246,
+        "output_tokens": 103,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "stage files (not commit)",
+      "ungated": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1597.795716,
+        "total_response_time_ms": 2829.4488,
+        "input_tokens": 11916,
+        "output_tokens": 91,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1092.767426,
+        "total_response_time_ms": 3418.881733,
+        "input_tokens": 5024,
+        "output_tokens": 104,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "stage files (not commit)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1308.696396,
+        "total_response_time_ms": 2777.638899,
+        "input_tokens": 1246,
+        "output_tokens": 102,
+        "tools_called": [
+          "git-add"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "read local html (not browser)",
+      "ungated": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1153.644666,
+        "total_response_time_ms": 3478.177521,
+        "input_tokens": 11933,
+        "output_tokens": 137,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1580.448958,
+        "total_response_time_ms": 4368.969153,
+        "input_tokens": 5041,
+        "output_tokens": 139,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1168.657405,
+        "total_response_time_ms": 3429.516579,
+        "input_tokens": 1284,
+        "output_tokens": 181,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "read local html (not browser)",
+      "ungated": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1445.437213,
+        "total_response_time_ms": 3641.451893,
+        "input_tokens": 11933,
+        "output_tokens": 140,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1609.186692,
+        "total_response_time_ms": 4356.240184,
+        "input_tokens": 5041,
+        "output_tokens": 137,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1829.653635,
+        "total_response_time_ms": 3981.474035,
+        "input_tokens": 1284,
+        "output_tokens": 164,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "read local html (not browser)",
+      "ungated": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 90,
+        "turns": 2,
+        "first_token_latency_ms": 1395.932343,
+        "total_response_time_ms": 3918.490128,
+        "input_tokens": 11933,
+        "output_tokens": 137,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "fixed_filter": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 35,
+        "turns": 2,
+        "first_token_latency_ms": 1790.946429,
+        "total_response_time_ms": 4329.768076,
+        "input_tokens": 5041,
+        "output_tokens": 142,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      },
+      "per_task_filter": {
+        "task_name": "read local html (not browser)",
+        "tool_count": 1,
+        "turns": 2,
+        "first_token_latency_ms": 1096.904821,
+        "total_response_time_ms": 4530.82516,
+        "input_tokens": 1280,
+        "output_tokens": 178,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "error": null,
+        "error_kind": null
+      }
+    }
+  ]
+}
