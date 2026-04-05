@@ -115,6 +115,18 @@ MOCK_RESPONSES: dict[str, str] = {
     "docker": '{"containers": [{"id": "abc", "status": "running"}]}',
     "python": '{"output": "Hello, World!"}',
     "jq": '{"result": {"name": "extracted_value"}}',
+    # --- Synthetic ambiguous corpus ---
+    "ripgrep": '{"matches": ["src/main.py:15:TODO fix auth"]}',
+    "http-fetch": '{"status": 200, "body": {"deploy_status": "healthy"}}',
+    "wget": '{"status": 200, "saved": "/tmp/output"}',
+    "python-exec": '{"output": "result"}',
+    "node-exec": '{"output": "result"}',
+    "tee": '{"status": "written", "bytes": 128}',
+    "editor": '{"status": "opened", "path": "/tmp/file"}',
+    "ps": '{"processes": [{"pid": 1234, "name": "postgres"}]}',
+    "pgrep": '{"pids": [1234, 1235]}',
+    "diff": '{"diff": "--- v1\\n+++ v2\\n@@ -1 +1 @@\\n-old\\n+new"}',
+    "colordiff": '{"diff": "--- v1\\n+++ v2\\n@@ -1 +1 @@\\n-old\\n+new"}',
 }
 
 _DEFAULT_RESPONSE = '{"status": "ok"}'
