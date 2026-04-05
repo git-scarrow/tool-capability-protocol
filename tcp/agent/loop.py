@@ -7,26 +7,12 @@ tool calls to a mock executor.
 
 from __future__ import annotations
 
-import hashlib
-import json
 import time
 from dataclasses import dataclass
 from enum import Enum
 from typing import Callable
 
 import anthropic
-
-
-def _tool_list_hash(tools: list[dict]) -> str:
-    """Stable hash of tool list for cache-stability measurement.
-
-    Mirrors promptCacheBreakDetection.ts:computeHash — if the hash is
-    identical across turns, the tool prefix is cache-stable.
-    """
-    payload = json.dumps(
-        sorted(t.get("name", "") for t in tools), sort_keys=True
-    )
-    return hashlib.sha256(payload.encode()).hexdigest()[:16]
 
 
 class ErrorKind(str, Enum):
@@ -56,11 +42,6 @@ class LoopMetrics:
     selected_tool_correct: bool
     error: str | None
     error_kind: str | None = None
-    # Cache metrics — mirrors Anthropic's cache_read/cache_creation tracking
-    cache_read_tokens: int = 0
-    cache_creation_tokens: int = 0
-    # Per-turn tool list hash for stability measurement
-    tool_list_hash: str = ""
     llm_bypassed: bool = False
     route_confidence: str = ""
     survivor_count: int = 0
@@ -109,11 +90,8 @@ async def run_agent_loop(
     tools_called: list[str] = []
     total_input_tokens = 0
     total_output_tokens = 0
-    total_cache_read = 0
-    total_cache_creation = 0
     first_token_latency_ms = 0.0
     turns = 0
-    tl_hash = _tool_list_hash(tools)
 
     total_start = time.perf_counter_ns()
 
@@ -135,13 +113,6 @@ async def run_agent_loop(
 
             total_input_tokens += response.usage.input_tokens
             total_output_tokens += response.usage.output_tokens
-            # Cache metrics — available when prompt caching is active
-            total_cache_read += getattr(
-                response.usage, "cache_read_input_tokens", 0
-            ) or 0
-            total_cache_creation += getattr(
-                response.usage, "cache_creation_input_tokens", 0
-            ) or 0
 
             # Extract tool_use blocks
             tool_use_blocks = [b for b in response.content if b.type == "tool_use"]
@@ -222,9 +193,6 @@ async def run_agent_loop(
         tools_called=tuple(tools_called),
         selected_tool_correct=correct,
         error=None,
-        cache_read_tokens=total_cache_read,
-        cache_creation_tokens=total_cache_creation,
-        tool_list_hash=tl_hash,
     )
 
 

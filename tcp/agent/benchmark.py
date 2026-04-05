@@ -22,12 +22,6 @@ from tcp.agent.tasks import AgentTask, build_agent_tasks
 from tcp.harness.router import RouteConfidence, RouteResult
 
 
-def _cache_efficiency(m: LoopMetrics) -> float:
-    """Cache hit ratio: 1.0 = all cache reads, 0.0 = all cache misses."""
-    total = m.cache_read_tokens + m.cache_creation_tokens
-    return m.cache_read_tokens / total if total > 0 else 0.0
-
-
 @dataclass(frozen=True)
 class PairedTrial:
     """One paired filtered/unfiltered comparison for a single task."""
@@ -45,11 +39,6 @@ class PairedTrial:
     def token_delta(self) -> int:
         """Positive means unfiltered used more tokens (filtered wins)."""
         return self.unfiltered.input_tokens - self.filtered.input_tokens
-
-    @property
-    def cache_efficiency_delta(self) -> float:
-        """Positive means filtered has better cache efficiency."""
-        return _cache_efficiency(self.filtered) - _cache_efficiency(self.unfiltered)
 
 
 @dataclass(frozen=True)
@@ -73,19 +62,6 @@ class BenchmarkReport:
         )
         n = len(trials)
 
-        # Cache metrics — mirrors promptCacheBreakDetection.ts analytics
-        filtered_cache_eff = [_cache_efficiency(t.filtered) for t in trials]
-        unfiltered_cache_eff = [_cache_efficiency(t.unfiltered) for t in trials]
-
-        # Tool list stability: fraction of trials where hash is identical
-        # across both turns (same hash → cache-stable tool prefix).
-        filtered_stable = sum(
-            1 for t in trials if t.filtered.tool_list_hash != ""
-        )
-        unfiltered_stable = sum(
-            1 for t in trials if t.unfiltered.tool_list_hash != ""
-        )
-
         return cls(
             trials=tuple(trials),
             summary={
@@ -102,28 +78,6 @@ class BenchmarkReport:
                 "total_unfiltered_input_tokens": sum(
                     t.unfiltered.input_tokens for t in trials
                 ),
-                # Cache economics
-                "mean_filtered_cache_efficiency": (
-                    sum(filtered_cache_eff) / n if n else 0.0
-                ),
-                "mean_unfiltered_cache_efficiency": (
-                    sum(unfiltered_cache_eff) / n if n else 0.0
-                ),
-                "total_filtered_cache_read": sum(
-                    t.filtered.cache_read_tokens for t in trials
-                ),
-                "total_unfiltered_cache_read": sum(
-                    t.unfiltered.cache_read_tokens for t in trials
-                ),
-                "total_filtered_cache_creation": sum(
-                    t.filtered.cache_creation_tokens for t in trials
-                ),
-                "total_unfiltered_cache_creation": sum(
-                    t.unfiltered.cache_creation_tokens for t in trials
-                ),
-                # Tool list stability (count with non-empty hash)
-                "filtered_tool_hashes_present": filtered_stable,
-                "unfiltered_tool_hashes_present": unfiltered_stable,
             },
         )
 
@@ -316,22 +270,17 @@ class SmokeResult:
 async def run_smoke_test(
     *,
     model: str = "claude-sonnet-4-6",
-    realistic: bool = False,
 ) -> SmokeResult:
     """Run 1 task x 1 rep to validate the full pipeline. ~$0.10."""
+    from tcp.harness.corpus import build_mcp_corpus
+    from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+
     tasks = build_agent_tasks()
     # Pick first task with a non-None expected tool
     task = next(t for t in tasks if t.expected_tool is not None)
 
-    if realistic:
-        from tcp.harness.realistic_schemas import build_realistic_corpus
-        corpus_schemas = build_realistic_corpus()
-    else:
-        from tcp.harness.corpus import build_mcp_corpus
-        from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
-        entries = build_mcp_corpus()
-        corpus_schemas = corpus_to_anthropic_schemas(entries)
-
+    entries = build_mcp_corpus()
+    corpus_schemas = corpus_to_anthropic_schemas(entries)
     filtered = build_filtered_schemas([task], corpus_schemas)
 
     report = await run_paired_benchmark(
@@ -673,9 +622,12 @@ async def run_layered_benchmark(
     for at in amb_tasks_raw:
         for tool in at.synthetic_tools:
             records.append(tool)
+            description = tool.rich_metadata.get(
+                "description", tool.tool_name,
+            )
             corpus_schemas.append({
                 "name": tool.tool_name,
-                "description": f"Synthetic tool: {tool.tool_name}",
+                "description": description,
                 "input_schema": {"type": "object", "properties": {}},
             })
 
@@ -746,114 +698,10 @@ async def run_layered_benchmark(
             )
             all_metrics.append(metrics)
 
+            if results_path is not None:
+                tmp = results_path.with_suffix(".tmp")
+                data = {"metrics": [_metrics_to_dict(m) for m in all_metrics]}
+                tmp.write_text(json.dumps(data, indent=2))
+                os.replace(tmp, results_path)
+
     return build_lane_report(all_metrics)
-
-
-# ---------------------------------------------------------------------------
-# Sequential multi-task benchmark — measures compaction pressure
-# ---------------------------------------------------------------------------
-# Claude Code's query.ts runs all tasks in a shared message history with
-# the SAME tool list (no per-task filtering). This benchmark simulates that
-# pattern and compares cumulative token growth between the ungated (full
-# corpus) and filtered arms.
-#
-# Key insight from the analysis: Anthropic's engine has zero per-task tool
-# filtering (query.ts:663 passes toolUseContext.options.tools unchanged).
-# Compaction fires at 93% context utilization (autoCompact.ts:72). If
-# pre-filtering reduces per-turn input_tokens, cumulative growth slows,
-# delaying or avoiding the compaction trigger entirely.
-
-@dataclass(frozen=True)
-class SequentialTurnMetrics:
-    """Metrics for one task within a sequential multi-task run."""
-    task_name: str
-    metrics: LoopMetrics
-    cumulative_input_tokens: int
-
-
-@dataclass(frozen=True)
-class SequentialReport:
-    """Paired sequential run comparing ungated vs filtered."""
-    unfiltered_turns: tuple[SequentialTurnMetrics, ...]
-    filtered_turns: tuple[SequentialTurnMetrics, ...]
-
-    @property
-    def summary(self) -> dict[str, float | int]:
-        n = len(self.unfiltered_turns)
-        if n == 0:
-            return {"task_count": 0}
-        uf_final = self.unfiltered_turns[-1].cumulative_input_tokens
-        f_final = self.filtered_turns[-1].cumulative_input_tokens
-        return {
-            "task_count": n,
-            "unfiltered_cumulative_tokens": uf_final,
-            "filtered_cumulative_tokens": f_final,
-            "cumulative_token_savings": uf_final - f_final,
-            "savings_pct": (
-                (uf_final - f_final) / uf_final * 100 if uf_final > 0 else 0.0
-            ),
-        }
-
-
-async def run_sequential_benchmark(
-    tasks: list,
-    corpus_schemas: list[dict],
-    filtered_schemas_by_task: dict[str, list[dict]],
-    *,
-    model: str = "claude-sonnet-4-6",
-) -> SequentialReport:
-    """Run tasks sequentially, accumulating context like query.ts does.
-
-    Each task's messages are appended to a shared history — exactly the
-    pattern in query.ts:1716 where state.messages = [...messagesForQuery,
-    ...assistantMessages, ...toolResults]. Compares cumulative token growth
-    between ungated (full corpus every turn) and filtered (per-task subset).
-    """
-    from tcp.agent.mock_executors import get_mock_executor
-
-    mock_exec = get_mock_executor()
-    uf_turns: list[SequentialTurnMetrics] = []
-    f_turns: list[SequentialTurnMetrics] = []
-    uf_cumulative = 0
-    f_cumulative = 0
-
-    for task in tasks:
-        # Unfiltered arm — same corpus every task (mimics query.ts)
-        uf_metrics = await run_agent_loop(
-            task_prompt=task.prompt,
-            tools=corpus_schemas,
-            mock_executor=mock_exec,
-            expected_tool=task.expected_tool,
-            task_name=task.name,
-            model=model,
-            max_turns=3,
-        )
-        uf_cumulative += uf_metrics.input_tokens
-        uf_turns.append(SequentialTurnMetrics(
-            task_name=task.name,
-            metrics=uf_metrics,
-            cumulative_input_tokens=uf_cumulative,
-        ))
-
-        # Filtered arm — per-task bitmask subset
-        f_schemas = filtered_schemas_by_task.get(task.name, corpus_schemas)
-        f_metrics = await run_agent_loop(
-            task_prompt=task.prompt,
-            tools=f_schemas,
-            mock_executor=mock_exec,
-            expected_tool=task.expected_tool,
-            task_name=task.name,
-            model=model,
-            max_turns=3,
-        )
-        f_cumulative += f_metrics.input_tokens
-        f_turns.append(SequentialTurnMetrics(
-            task_name=task.name,
-            metrics=f_metrics,
-            cumulative_input_tokens=f_cumulative,
-        ))
-
-    return SequentialReport(
-        unfiltered_turns=tuple(uf_turns),
-        filtered_turns=tuple(f_turns),
-    )
