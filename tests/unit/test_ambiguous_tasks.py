@@ -6,6 +6,7 @@ import pytest
 
 from tcp.agent.ambiguous_tasks import build_ambiguous_tasks, AmbiguousTask
 from tcp.harness.gating import RuntimeEnvironment, gate_tools
+from tcp.harness.router import RouteConfidence, route_tool
 
 
 class TestAmbiguousTaskStructure:
@@ -90,3 +91,26 @@ class TestAmbiguousSurvivorCounts:
                 f"{task.agent_task.expected_tool!r} was filtered out. "
                 f"Survivors: {sorted(survivor_names)}"
             )
+
+
+class TestEndToEndClassification:
+    """Full pipeline: ambiguous tasks get AMBIGUOUS confidence."""
+
+    def test_ambiguous_tasks_classified_ambiguous(self):
+        env = RuntimeEnvironment(
+            network_enabled=True,
+            file_access_enabled=True,
+            stdin_enabled=True,
+            installed_tools=frozenset(),
+        )
+        for task in build_ambiguous_tasks():
+            result = route_tool(
+                list(task.synthetic_tools),
+                task.selection_request,
+                env,
+            )
+            assert result.confidence == RouteConfidence.AMBIGUOUS, (
+                f"Task {task.agent_task.name!r}: expected AMBIGUOUS, "
+                f"got {result.confidence} with {result.survivor_count} survivors"
+            )
+            assert result.survivor_count >= 2
