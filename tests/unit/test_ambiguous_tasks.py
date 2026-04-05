@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from tcp.agent.ambiguous_tasks import build_ambiguous_tasks, AmbiguousTask
+from tcp.harness.gating import RuntimeEnvironment, gate_tools
 
 
 class TestAmbiguousTaskStructure:
@@ -48,4 +49,44 @@ class TestAmbiguousTaskStructure:
                 f"Task {task.agent_task.name!r}: expected tool "
                 f"{task.agent_task.expected_tool!r} not in synthetic tools "
                 f"{sorted(tool_names)}"
+            )
+
+
+class TestAmbiguousSurvivorCounts:
+    """Each ambiguous task produces 2-5 survivors from its synthetic tools."""
+
+    def test_survivor_counts_in_range(self):
+        env = RuntimeEnvironment(
+            network_enabled=True,  # allow network tools for fetch tasks
+            file_access_enabled=True,
+            stdin_enabled=True,
+            installed_tools=frozenset(),
+        )
+        for task in build_ambiguous_tasks():
+            tools = list(task.synthetic_tools)
+            result = gate_tools(tools, task.selection_request, env)
+            survivors = len(result.approved_tools) + len(result.approval_required_tools)
+            assert 2 <= survivors <= 5, (
+                f"Task {task.agent_task.name!r}: expected 2-5 survivors, "
+                f"got {survivors} (approved={len(result.approved_tools)}, "
+                f"approval_required={len(result.approval_required_tools)}, "
+                f"rejected={len(result.rejected_tools)})"
+            )
+
+    def test_expected_tool_survives_filtering(self):
+        env = RuntimeEnvironment(
+            network_enabled=True,
+            file_access_enabled=True,
+            stdin_enabled=True,
+            installed_tools=frozenset(),
+        )
+        for task in build_ambiguous_tasks():
+            tools = list(task.synthetic_tools)
+            result = gate_tools(tools, task.selection_request, env)
+            survivor_names = {t.tool_name for t in result.approved_tools}
+            survivor_names |= {t.tool_name for t in result.approval_required_tools}
+            assert task.agent_task.expected_tool in survivor_names, (
+                f"Task {task.agent_task.name!r}: expected tool "
+                f"{task.agent_task.expected_tool!r} was filtered out. "
+                f"Survivors: {sorted(survivor_names)}"
             )

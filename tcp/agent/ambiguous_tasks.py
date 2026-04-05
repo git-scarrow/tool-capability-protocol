@@ -46,7 +46,7 @@ def _tool(
         commands=frozenset(),
         input_formats=input_formats or frozenset(),
         output_formats=output_formats or frozenset(),
-        permission_level="standard",
+        permission_level="unknown",
         avg_processing_time_ms=10.0,
         memory_usage_mb=64.0,
         rich_metadata={"description": description},
