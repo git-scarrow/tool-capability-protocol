@@ -53,6 +53,11 @@ def main() -> None:
         action="store_true",
         help="Run scale stress test with 500+ tool corpus",
     )
+    mode.add_argument(
+        "--layered",
+        action="store_true",
+        help="Run layered benchmark (deterministic bypass + ambiguous LLM)",
+    )
     parser.add_argument(
         "--reps",
         type=int,
@@ -94,6 +99,10 @@ def main() -> None:
         if not _cmd_preflight():
             sys.exit(1)
         asyncio.run(_cmd_scale(args.reps, args.model, args.output))
+    elif args.layered:
+        if not _cmd_preflight():
+            sys.exit(1)
+        asyncio.run(_cmd_layered(args.reps, args.model, args.output))
 
 
 def _cmd_preflight() -> bool:
@@ -305,3 +314,24 @@ async def _cmd_scale(reps: int, model: str, output: Path | None) -> None:
             for arm, m in [("F", t.filtered), ("U", t.unfiltered)]:
                 if m.error:
                     print(f"  [{arm}] {t.task_name}: [{m.error_kind}] {m.error[:80]}")
+
+
+async def _cmd_layered(reps: int, model: str, output: Path | None) -> None:
+    """Run the layered benchmark."""
+    from tcp.agent.benchmark import run_layered_benchmark
+
+    print(
+        f"\n--- Layered benchmark ---"
+        f"\n  Reps: {reps}"
+        f"\n  Model: {model}"
+    )
+    if output:
+        print(f"  Results: {output}")
+
+    report = await run_layered_benchmark(
+        repetitions=reps,
+        model=model,
+        results_path=output,
+    )
+
+    print(f"\n{report.summary_table()}")

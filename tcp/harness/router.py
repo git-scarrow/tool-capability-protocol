@@ -8,6 +8,7 @@ followed by non-bitmask request filters (commands, formats, modes).  The legacy
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Iterable
 
 from tcp.core.descriptors import CapabilityFlags
@@ -16,6 +17,14 @@ from .audit import AuditEntry, GatingDecision
 from .bitmask_filter import BitmaskFilterResult, EnvironmentMask, bitmask_filter
 from .gating import GateResult, RuntimeEnvironment, gate_tools
 from .models import ToolRecord, ToolSelectionRequest
+
+
+class RouteConfidence(Enum):
+    """Confidence classification for a routing decision."""
+
+    DETERMINISTIC = "deterministic"
+    AMBIGUOUS = "ambiguous"
+    NO_MATCH = "no_match"
 
 
 @dataclass(frozen=True)
@@ -29,6 +38,10 @@ class RouteResult:
     approval_required: tuple[ToolRecord, ...] = field(default_factory=tuple)
     rejected: tuple[ToolRecord, ...] = field(default_factory=tuple)
     audit_log: tuple[AuditEntry, ...] = field(default_factory=tuple)
+    confidence: RouteConfidence = RouteConfidence.NO_MATCH
+    survivor_count: int = 0
+    candidate_scores: dict[str, float] | None = None
+    score_gap: float | None = None
 
 
 def route_tool(
@@ -128,6 +141,15 @@ def route_tool(
     # --- Stage 4: selection ---
     selected = _select_best(approved, request.preferred_criteria)
 
+    # --- Stage 5: confidence classification ---
+    survivor_count = len(approved) + len(approval_required)
+    if survivor_count == 0:
+        confidence = RouteConfidence.NO_MATCH
+    elif survivor_count == 1:
+        confidence = RouteConfidence.DETERMINISTIC
+    else:
+        confidence = RouteConfidence.AMBIGUOUS
+
     return RouteResult(
         selected_tool=selected,
         bitmask_result=bitmask_result,
@@ -135,6 +157,8 @@ def route_tool(
         approval_required=tuple(approval_required),
         rejected=tuple(rejected + list(bitmask_result.rejected)),
         audit_log=tuple(audit),
+        confidence=confidence,
+        survivor_count=survivor_count,
     )
 
 

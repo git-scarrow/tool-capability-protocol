@@ -11,6 +11,7 @@ from tcp.agent.benchmark import (
     SmokeResult,
     build_filtered_schemas,
     build_fixed_filtered_schemas,
+    run_layered_benchmark,
     run_paired_benchmark,
     run_smoke_test,
 )
@@ -30,6 +31,7 @@ __all__ = [
     "build_agent_tasks",
     "get_mock_executor",
     "run_agent_loop",
+    "run_layered_benchmark",
     "run_paired_benchmark",
     "run_preflight",
     "run_smoke_test",

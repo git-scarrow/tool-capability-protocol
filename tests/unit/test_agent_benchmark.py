@@ -16,9 +16,11 @@ from tcp.agent.benchmark import (
     PairedTrial,
     SmokeResult,
     build_filtered_schemas,
+    run_layered_benchmark,
     run_paired_benchmark,
     run_smoke_test,
 )
+from tcp.agent.lane_report import LaneReport
 from tcp.agent.loop import LoopMetrics
 from tcp.agent.tasks import AgentTask
 
@@ -325,3 +327,25 @@ class TestRunSmokeTest:
 
         assert not result.passed
         assert len(result.issues) > 0
+
+
+@pytest.mark.asyncio
+class TestRunLayeredBenchmark:
+    """Layered benchmark runs deterministic and ambiguous tasks."""
+
+    async def test_returns_lane_report(self):
+        call_count = 0
+
+        async def mock_loop(task_prompt, tools, mock_executor, **kwargs):
+            nonlocal call_count
+            call_count += 1
+            return _make_metrics(
+                task_name=kwargs.get("task_name", "test"),
+                tool_count=len(tools),
+            )
+
+        with patch("tcp.agent.benchmark.run_agent_loop", side_effect=mock_loop):
+            report = await run_layered_benchmark(repetitions=1)
+
+        assert isinstance(report, LaneReport)
+        assert report.deterministic_count + report.ambiguous_count + report.no_match_count > 0

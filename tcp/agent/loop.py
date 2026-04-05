@@ -42,6 +42,9 @@ class LoopMetrics:
     selected_tool_correct: bool
     error: str | None
     error_kind: str | None = None
+    llm_bypassed: bool = False
+    route_confidence: str = ""
+    survivor_count: int = 0
 
 
 async def run_agent_loop(
@@ -53,6 +56,7 @@ async def run_agent_loop(
     task_name: str,
     model: str = "claude-sonnet-4-6",
     max_turns: int = 5,
+    bypass_tool: str | None = None,
 ) -> LoopMetrics:
     """Execute a single agent loop and return metrics.
 
@@ -61,6 +65,26 @@ async def run_agent_loop(
     3. Feed tool_result back, repeat until text-only or max_turns
     4. Collect timing at every API call boundary
     """
+    # --- Deterministic bypass path ---
+    if bypass_tool is not None:
+        total_start = time.perf_counter_ns()
+        mock_executor(bypass_tool, {})
+        total_end = time.perf_counter_ns()
+        correct = bypass_tool == expected_tool
+        return LoopMetrics(
+            task_name=task_name,
+            tool_count=len(tools),
+            turns=0,
+            first_token_latency_ms=0.0,
+            total_response_time_ms=(total_end - total_start) / 1_000_000,
+            input_tokens=0,
+            output_tokens=0,
+            tools_called=(bypass_tool,),
+            selected_tool_correct=correct,
+            error=None,
+            llm_bypassed=True,
+        )
+
     client = anthropic.AsyncAnthropic()
     messages: list[dict] = [{"role": "user", "content": task_prompt}]
     tools_called: list[str] = []

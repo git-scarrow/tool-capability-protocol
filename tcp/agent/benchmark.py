@@ -9,13 +9,17 @@ from __future__ import annotations
 import json
 import os
 import random
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Callable
 
+from tcp.agent.ambiguous_tasks import build_ambiguous_tasks
+from tcp.agent.lane_report import LaneReport, build_lane_report
 from tcp.agent.loop import LoopMetrics, run_agent_loop
 from tcp.agent.mock_executors import get_mock_executor
+from tcp.agent.routing_strategy import should_bypass_llm
 from tcp.agent.tasks import AgentTask, build_agent_tasks
+from tcp.harness.router import RouteConfidence, RouteResult
 
 
 @dataclass(frozen=True)
@@ -176,6 +180,9 @@ def _metrics_to_dict(m: LoopMetrics) -> dict:
         "selected_tool_correct": m.selected_tool_correct,
         "error": m.error,
         "error_kind": m.error_kind,
+        "llm_bypassed": m.llm_bypassed,
+        "route_confidence": m.route_confidence,
+        "survivor_count": m.survivor_count,
     }
 
 
@@ -570,3 +577,122 @@ async def run_adversarial_ablation(
                 os.replace(tmp, results_path)
 
     return AblationReport(trials=tuple(all_trials))
+
+
+async def run_layered_benchmark(
+    *,
+    repetitions: int = 3,
+    model: str = "claude-sonnet-4-6",
+    results_path: Path | None = None,
+) -> LaneReport:
+    """Run the layered benchmark: deterministic bypass + ambiguous LLM path.
+
+    1. Builds combined task set (12 deterministic + 6 ambiguous + 3 no-match)
+    2. For each task, runs per-task filtering and classifies confidence
+    3. DETERMINISTIC: bypass LLM, invoke executor directly
+    4. AMBIGUOUS/NO_MATCH: send filtered tools to LLM
+    5. Returns three-lane report
+    """
+    from tcp.harness.corpus import build_mcp_corpus
+    from tcp.harness.gating import RuntimeEnvironment, gate_tools
+    from tcp.harness.models import ToolSelectionRequest
+    from tcp.harness.normalize import normalize_capability_descriptor
+    from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+
+    # Build tasks
+    det_tasks = build_agent_tasks()
+    amb_tasks_raw = build_ambiguous_tasks()
+    amb_tasks = [
+        AgentTask(
+            name=at.agent_task.name,
+            prompt=at.agent_task.prompt,
+            expected_tool=at.agent_task.expected_tool,
+            selection_request=at.selection_request,
+        )
+        for at in amb_tasks_raw
+    ]
+    all_tasks = det_tasks + amb_tasks
+
+    # Build corpus (include synthetic tools from ambiguous tasks)
+    entries = build_mcp_corpus()
+    corpus_schemas = corpus_to_anthropic_schemas(entries)
+    records = [normalize_capability_descriptor(e.descriptor) for e in entries]
+
+    # Add synthetic tool records and schemas
+    for at in amb_tasks_raw:
+        for tool in at.synthetic_tools:
+            records.append(tool)
+            corpus_schemas.append({
+                "name": tool.tool_name,
+                "description": f"Synthetic tool: {tool.tool_name}",
+                "input_schema": {"type": "object", "properties": {}},
+            })
+
+    schema_by_name = {s["name"]: s for s in corpus_schemas}
+    all_names = frozenset(r.tool_name for r in records)
+    env = RuntimeEnvironment(
+        network_enabled=False,
+        file_access_enabled=True,
+        stdin_enabled=True,
+        installed_tools=all_names,
+    )
+    default_request = ToolSelectionRequest.from_kwargs(
+        preferred_criteria="speed",
+        require_auto_approval=False,
+    )
+
+    mock_exec = get_mock_executor()
+    all_metrics: list[LoopMetrics] = []
+
+    for task in all_tasks:
+        request = task.selection_request or default_request
+        gate_result = gate_tools(records, request, env)
+        survivor_names = {t.tool_name for t in gate_result.approved_tools}
+        survivor_names |= {t.tool_name for t in gate_result.approval_required_tools}
+        filtered_schemas = [schema_by_name[n] for n in survivor_names if n in schema_by_name]
+
+        survivor_count = len(survivor_names)
+        if survivor_count == 0:
+            confidence = RouteConfidence.NO_MATCH
+        elif survivor_count == 1:
+            confidence = RouteConfidence.DETERMINISTIC
+        else:
+            confidence = RouteConfidence.AMBIGUOUS
+
+        route_result = RouteResult(
+            selected_tool=None,
+            confidence=confidence,
+            survivor_count=survivor_count,
+        )
+
+        for _rep in range(repetitions):
+            if should_bypass_llm(route_result):
+                bypass_name = next(iter(survivor_names))
+                metrics = await run_agent_loop(
+                    task_prompt=task.prompt,
+                    tools=filtered_schemas,
+                    mock_executor=mock_exec,
+                    expected_tool=task.expected_tool,
+                    task_name=task.name,
+                    model=model,
+                    bypass_tool=bypass_name,
+                )
+            else:
+                metrics = await run_agent_loop(
+                    task_prompt=task.prompt,
+                    tools=filtered_schemas,
+                    mock_executor=mock_exec,
+                    expected_tool=task.expected_tool,
+                    task_name=task.name,
+                    model=model,
+                )
+
+            # Patch routing metadata onto metrics
+            metrics = replace(
+                metrics,
+                route_confidence=confidence.value,
+                survivor_count=survivor_count,
+            )
+            all_metrics.append(metrics)
+
+    return build_lane_report(all_metrics)
