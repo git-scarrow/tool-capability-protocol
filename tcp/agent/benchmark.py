@@ -622,9 +622,12 @@ async def run_layered_benchmark(
     for at in amb_tasks_raw:
         for tool in at.synthetic_tools:
             records.append(tool)
+            description = tool.rich_metadata.get(
+                "description", tool.tool_name,
+            )
             corpus_schemas.append({
                 "name": tool.tool_name,
-                "description": f"Synthetic tool: {tool.tool_name}",
+                "description": description,
                 "input_schema": {"type": "object", "properties": {}},
             })
 
@@ -694,5 +697,11 @@ async def run_layered_benchmark(
                 survivor_count=survivor_count,
             )
             all_metrics.append(metrics)
+
+            if results_path is not None:
+                tmp = results_path.with_suffix(".tmp")
+                data = {"metrics": [_metrics_to_dict(m) for m in all_metrics]}
+                tmp.write_text(json.dumps(data, indent=2))
+                os.replace(tmp, results_path)
 
     return build_lane_report(all_metrics)

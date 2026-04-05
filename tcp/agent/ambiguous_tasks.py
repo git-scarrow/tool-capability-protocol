@@ -65,7 +65,8 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 name="pattern search",
                 prompt=(
                     "Search for the pattern 'TODO fix auth' across all Python "
-                    "source files in the current directory. Use grep."
+                    "source files in the current directory. I need line numbers "
+                    "and file paths in the output."
                 ),
                 expected_tool="grep",
             ),
@@ -76,7 +77,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             ),
             ambiguity_reason=(
                 "grep, ripgrep, and fs-search-files all support file access; "
-                "prompt explicitly names grep"
+                "grep is best for line-level pattern matching with line numbers"
             ),
             synthetic_tools=(
                 _tool(
@@ -109,8 +110,8 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 name="fetch remote data",
                 prompt=(
                     "Fetch the deployment status from "
-                    "https://api.example.com/deploy and return the result as JSON. "
-                    "Use http-fetch for structured JSON responses."
+                    "https://api.example.com/deploy and return the result as "
+                    "structured JSON. I need the parsed response, not raw text."
                 ),
                 expected_tool="http-fetch",
             ),
@@ -122,7 +123,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             ),
             ambiguity_reason=(
                 "curl, http-fetch, and wget all have SUPPORTS_NETWORK and json output; "
-                "prompt names http-fetch for structured JSON"
+                "http-fetch is the structured JSON client"
             ),
             synthetic_tools=(
                 _tool(
@@ -155,7 +156,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 name="json transform",
                 prompt=(
                     "Extract the 'users[].email' field from the JSON file "
-                    "/tmp/report.json. jq is the preferred tool for JSON transformations."
+                    "/tmp/report.json and output the result as JSON."
                 ),
                 expected_tool="jq",
             ),
@@ -168,7 +169,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             ),
             ambiguity_reason=(
                 "jq, python-exec, and node-exec all accept json input, emit json output, "
-                "and support files; prompt names jq"
+                "and support files; jq is purpose-built for JSON transformation"
             ),
             synthetic_tools=(
                 _tool(
@@ -201,7 +202,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 name="write config file",
                 prompt=(
                     "Write the following YAML content to /etc/myapp/config.yaml. "
-                    "Use fs-write-file to create or overwrite a file directly."
+                    "The file does not exist yet — create it from scratch."
                 ),
                 expected_tool="fs-write-file",
             ),
@@ -212,7 +213,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             ),
             ambiguity_reason=(
                 "fs-write-file, tee, and editor all support file access; "
-                "prompt names fs-write-file for direct file creation"
+                "fs-write-file is safest for atomic file creation"
             ),
             synthetic_tools=(
                 _tool(
@@ -244,8 +245,8 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             agent_task=AgentTask(
                 name="check service status",
                 prompt=(
-                    "Check whether the postgres service is running. "
-                    "Use systemctl for systemd-managed services."
+                    "Check whether the postgres service is running and show "
+                    "its current status. This is a systemd-managed service."
                 ),
                 expected_tool="systemctl",
             ),
@@ -256,7 +257,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             ),
             ambiguity_reason=(
                 "systemctl, ps, and pgrep all have no required flags and pass all filters; "
-                "prompt names systemctl for systemd service management"
+                "systemctl is canonical for systemd-managed services"
             ),
             synthetic_tools=(
                 _tool(
@@ -286,7 +287,8 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 name="diff files",
                 prompt=(
                     "Show the differences between /tmp/config_v1.yaml and "
-                    "/tmp/config_v2.yaml. Use diff for a standard unified diff."
+                    "/tmp/config_v2.yaml. These are standalone files, not in "
+                    "a git repository."
                 ),
                 expected_tool="diff",
             ),
@@ -297,7 +299,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             ),
             ambiguity_reason=(
                 "diff, git-diff, and colordiff all support file access; "
-                "prompt names diff for standard unified diff output"
+                "diff is correct because files are not in a git repo"
             ),
             synthetic_tools=(
                 _tool(
