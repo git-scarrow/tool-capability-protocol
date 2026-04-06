@@ -40,7 +40,8 @@ class LoopMetrics:
     output_tokens: int
     tools_called: tuple[str, ...]
     selected_tool_correct: bool
-    error: str | None
+    expected_tool_any_position: bool = False
+    error: str | None = None
     error_kind: str | None = None
     llm_bypassed: bool = False
     route_confidence: str = ""
@@ -81,7 +82,7 @@ async def run_agent_loop(
             output_tokens=0,
             tools_called=(bypass_tool,),
             selected_tool_correct=correct,
-            error=None,
+            expected_tool_any_position=correct,
             llm_bypassed=True,
         )
 
@@ -179,8 +180,10 @@ async def run_agent_loop(
     first_tool = tools_called[0] if tools_called else None
     if expected_tool is None:
         correct = first_tool is None
+        any_position = not tools_called  # correct if no tools called
     else:
         correct = first_tool == expected_tool
+        any_position = expected_tool in tools_called
 
     return LoopMetrics(
         task_name=task_name,
@@ -192,7 +195,7 @@ async def run_agent_loop(
         output_tokens=total_output_tokens,
         tools_called=tuple(tools_called),
         selected_tool_correct=correct,
-        error=None,
+        expected_tool_any_position=any_position,
     )
 
 

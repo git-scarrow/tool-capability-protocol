@@ -21,6 +21,7 @@ class LaneReport:
 
     ambiguous_count: int
     ambiguous_correct_rate: float
+    ambiguous_correct_any_rate: float
     ambiguous_mean_latency_ms: float
     ambiguous_mean_tokens: float
 
@@ -32,18 +33,21 @@ class LaneReport:
 
     def summary_table(self) -> str:
         lines = [
-            f"{'Lane':<20} {'Count':>6} {'Correct':>8} {'Latency':>10} {'Tokens':>8}",
-            "-" * 55,
+            f"{'Lane':<20} {'Count':>6} {'1st-tool':>9} {'any-pos':>8} {'Latency':>10} {'Tokens':>8}",
+            "-" * 65,
             f"{'Deterministic':<20} {self.deterministic_count:>6} "
-            f"{self.deterministic_correct_rate:>7.0%} "
+            f"{self.deterministic_correct_rate:>8.0%} "
+            f"{'—':>8} "
             f"{self.deterministic_mean_latency_ms:>9.0f}ms {'—':>8}",
             f"{'Ambiguous':<20} {self.ambiguous_count:>6} "
-            f"{self.ambiguous_correct_rate:>7.0%} "
+            f"{self.ambiguous_correct_rate:>8.0%} "
+            f"{self.ambiguous_correct_any_rate:>7.0%} "
             f"{self.ambiguous_mean_latency_ms:>9.0f}ms "
             f"{self.ambiguous_mean_tokens:>8.0f}",
             f"{'No-match':<20} {self.no_match_count:>6} "
-            f"{self.no_match_correct_rate:>7.0%} {'—':>10} {'—':>8}",
-            "-" * 55,
+            f"{self.no_match_correct_rate:>8.0%} "
+            f"{'—':>8} {'—':>10} {'—':>8}",
+            "-" * 65,
             f"Bypass ratio: {self.bypass_ratio:.0%}",
             f"Ambiguous LLM lift: {self.ambiguous_llm_lift:+.0%}",
         ]
@@ -67,6 +71,7 @@ def build_lane_report(
 
     det_correct = sum(1 for m in det if m.selected_tool_correct) / det_n if det_n else 0.0
     amb_correct = sum(1 for m in amb if m.selected_tool_correct) / amb_n if amb_n else 0.0
+    amb_any = sum(1 for m in amb if m.expected_tool_any_position) / amb_n if amb_n else 0.0
     nm_correct = sum(1 for m in nm if m.selected_tool_correct) / nm_n if nm_n else 0.0
 
     det_latency = sum(m.total_response_time_ms for m in det) / det_n if det_n else 0.0
@@ -82,6 +87,7 @@ def build_lane_report(
         deterministic_mean_latency_ms=det_latency,
         ambiguous_count=amb_n,
         ambiguous_correct_rate=amb_correct,
+        ambiguous_correct_any_rate=amb_any,
         ambiguous_mean_latency_ms=amb_latency,
         ambiguous_mean_tokens=amb_tokens,
         no_match_count=nm_n,

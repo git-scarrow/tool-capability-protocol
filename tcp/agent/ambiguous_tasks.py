@@ -68,7 +68,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                     "source files in the current directory. I need line numbers "
                     "and file paths in the output."
                 ),
-                expected_tool="grep",
+                expected_tool="ripgrep",
             ),
             selection_request=ToolSelectionRequest.from_kwargs(
                 required_capability_flags=_files_flag,
@@ -77,7 +77,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             ),
             ambiguity_reason=(
                 "grep, ripgrep, and fs-search-files all support file access; "
-                "grep is best for line-level pattern matching with line numbers"
+                "ripgrep is best for codebase-wide pattern search"
             ),
             synthetic_tools=(
                 _tool(

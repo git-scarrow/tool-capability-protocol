@@ -178,6 +178,7 @@ def _metrics_to_dict(m: LoopMetrics) -> dict:
         "output_tokens": m.output_tokens,
         "tools_called": list(m.tools_called),
         "selected_tool_correct": m.selected_tool_correct,
+        "expected_tool_any_position": m.expected_tool_any_position,
         "error": m.error,
         "error_kind": m.error_kind,
         "llm_bypassed": m.llm_bypassed,
@@ -644,12 +645,24 @@ async def run_layered_benchmark(
         require_auto_approval=False,
     )
 
+    # Map ambiguous task names to their synthetic tool records
+    amb_synthetic: dict[str, list[ToolRecord]] = {}
+    for at in amb_tasks_raw:
+        amb_synthetic[at.agent_task.name] = list(at.synthetic_tools)
+
     mock_exec = get_mock_executor()
     all_metrics: list[LoopMetrics] = []
 
     for task in all_tasks:
         request = task.selection_request or default_request
-        gate_result = gate_tools(records, request, env)
+
+        # Ambiguous tasks gate against their own synthetic tools only;
+        # deterministic tasks gate against the full corpus.
+        if task.name in amb_synthetic:
+            gate_records = amb_synthetic[task.name]
+        else:
+            gate_records = records
+        gate_result = gate_tools(gate_records, request, env)
         survivor_names = {t.tool_name for t in gate_result.approved_tools}
         survivor_names |= {t.tool_name for t in gate_result.approval_required_tools}
         filtered_schemas = [schema_by_name[n] for n in survivor_names if n in schema_by_name]
