@@ -626,10 +626,13 @@ async def run_layered_benchmark(
             description = tool.rich_metadata.get(
                 "description", tool.tool_name,
             )
+            input_schema = tool.rich_metadata.get(
+                "input_schema", {"type": "object", "properties": {}},
+            )
             corpus_schemas.append({
                 "name": tool.tool_name,
                 "description": description,
-                "input_schema": {"type": "object", "properties": {}},
+                "input_schema": input_schema,
             })
 
     schema_by_name = {s["name"]: s for s in corpus_schemas}

@@ -35,8 +35,12 @@ def _tool(
     risk_level: str = "safe",
     input_formats: frozenset[str] | None = None,
     output_formats: frozenset[str] | None = None,
+    input_schema: dict | None = None,
 ) -> ToolRecord:
     """Convenience constructor for synthetic ToolRecord instances."""
+    metadata: dict = {"description": description}
+    if input_schema is not None:
+        metadata["input_schema"] = input_schema
     return ToolRecord(
         tool_name=name,
         descriptor_source="synthetic",
@@ -49,7 +53,7 @@ def _tool(
         permission_level="unknown",
         avg_processing_time_ms=10.0,
         memory_usage_mb=64.0,
-        rich_metadata={"description": description},
+        rich_metadata=metadata,
     )
 
 
@@ -202,7 +206,12 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 name="write config file",
                 prompt=(
                     "Write the following YAML content to /etc/myapp/config.yaml. "
-                    "The file does not exist yet — create it from scratch."
+                    "The file does not exist yet — create it from scratch.\n\n"
+                    "app:\n"
+                    "  name: myapp\n"
+                    "  version: '1.0'\n"
+                    "  debug: false\n"
+                    "  port: 8080\n"
                 ),
                 expected_tool="fs-write-file",
             ),
@@ -218,10 +227,24 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             synthetic_tools=(
                 _tool(
                     "fs-write-file",
-                    "fs-write-file — MCP filesystem tool to write or overwrite a file.",
+                    "fs-write-file — MCP filesystem tool to create or overwrite a file with the given content.",
                     _files_flag,
                     input_formats=frozenset({"text", "json"}),
                     output_formats=frozenset({"json"}),
+                    input_schema={
+                        "type": "object",
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "description": "Absolute path of the file to write",
+                            },
+                            "content": {
+                                "type": "string",
+                                "description": "Text content to write into the file",
+                            },
+                        },
+                        "required": ["path", "content"],
+                    },
                 ),
                 _tool(
                     "tee",
