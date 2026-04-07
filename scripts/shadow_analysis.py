@@ -152,11 +152,19 @@ def analyse_session(session_path: Path) -> list[CallResult]:
             ))
             continue
 
-        # Derive request and gate
+        # Derive request and gate.
+        # Shadow mode: drop output_formats from the request — inventory tools
+        # don't carry format metadata, and format matching would reject everything.
+        # Capability flags are the reliable signal; formats are informational only.
         from tcp.harness.models import ToolSelectionRequest
         from tcp.harness.gating import RuntimeEnvironment, gate_tools
 
-        request = derive_request(prompt, session_event)
+        _full_request = derive_request(prompt, session_event)
+        request = ToolSelectionRequest.from_kwargs(
+            required_capability_flags=_full_request.required_capability_flags,
+            require_auto_approval=_full_request.require_auto_approval,
+            preferred_criteria=_full_request.preferred_criteria,
+        )
         env = RuntimeEnvironment(
             network_enabled=(session_event.permission_mode != "plan"),
             file_access_enabled=True,

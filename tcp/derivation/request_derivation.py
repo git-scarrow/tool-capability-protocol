@@ -38,6 +38,7 @@ class PostToolUseEvent:
 _SYSTEM_TOOLS = frozenset({
     "TodoRead", "TodoWrite", "MemoryRead", "MemoryWrite",
     "TaskCreate", "TaskUpdate", "TaskGet", "TaskList", "TaskOutput", "TaskStop",
+    "Skill",  # Claude Code skill invocation — no TCP descriptor, not a task tool
 })
 
 _CONTINUATION_PROMPTS = frozenset({
