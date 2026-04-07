@@ -361,3 +361,6 @@ def main() -> None:
 
 
 app = build_app()
+
+if __name__ == "__main__":
+    main()
