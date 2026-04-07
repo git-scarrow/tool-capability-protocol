@@ -1,0 +1,90 @@
+# TCP-DS-2: Functional equivalence taxonomy for Claude Code shadow pilot.
+# Tools in the same class are interchangeable for coverage scoring purposes.
+# Version: 1.0 (covers top-20 tools by expected frequency)
+
+classes:
+  FILE_READ:
+    description: "Read file contents from the filesystem"
+    members:
+      - Read
+      - mcp__filesystem__read_file
+      - mcp__filesystem__read_multiple_files
+      - mcp__filesystem__read_text_file
+      - mcp__filesystem__read_media_file
+
+  FILE_WRITE:
+    description: "Create or overwrite files on the filesystem"
+    members:
+      - Write
+      - mcp__filesystem__write_file
+      - mcp__filesystem__create_directory
+
+  FILE_EDIT:
+    description: "Edit existing file contents in-place"
+    members:
+      - Edit
+      - MultiEdit
+      # mcp__filesystem__write_file counts as FILE_EDIT when overwriting;
+      # resolved at scoring time via tool_input context
+
+  SEARCH_TEXT:
+    description: "Search for text patterns within file contents"
+    members:
+      - Grep
+      - mcp__filesystem__search_files
+
+  SEARCH_FILES:
+    description: "List or locate files by name/path patterns"
+    members:
+      - Glob
+      - LS
+      - mcp__filesystem__list_directory
+      - mcp__filesystem__directory_tree
+      - mcp__filesystem__list_directory_with_sizes
+
+  EXEC_COMMAND:
+    description: "Execute shell commands"
+    members:
+      - Bash
+      # Note: Bash is polymorphic; GIT_READ/GIT_WRITE/WEB_FETCH take precedence
+      # when command matches those patterns (see request_derivation.py)
+
+  GIT_READ:
+    description: "Read git repository state (log, diff, status)"
+    members:
+      - mcp__git__git_log
+      - mcp__git__git_diff
+      - mcp__git__git_diff_staged
+      - mcp__git__git_diff_unstaged
+      - mcp__git__git_status
+      - mcp__git__git_show
+      - mcp__git__git_branch
+      # Bash(git log/diff/status/show/branch) → GIT_READ via command inspection
+
+  GIT_WRITE:
+    description: "Mutate git repository state (add, commit, push, checkout)"
+    members:
+      - mcp__git__git_add
+      - mcp__git__git_commit
+      - mcp__git__git_checkout
+      - mcp__git__git_reset
+      - mcp__git__git_create_branch
+      # Bash(git add/commit/push/checkout -b/rebase/merge) → GIT_WRITE
+
+  WEB_FETCH:
+    description: "Fetch remote content over HTTP/HTTPS"
+    members:
+      - WebFetch
+      - WebSearch
+      - mcp__fetch__fetch
+      # Bash(curl/wget/fetch) → WEB_FETCH via command inspection
+
+  THINK:
+    description: "Extended internal reasoning (no external side effects)"
+    members:
+      - Think
+
+# Extension rule:
+# Any MCP tool whose server name + method maps to an existing class joins that
+# class. Tools not matching any class are singletons (class = tool_name).
+# Update this file when new MCP servers are added to the shadow environment.
