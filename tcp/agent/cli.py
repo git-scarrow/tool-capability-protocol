@@ -58,6 +58,11 @@ def main() -> None:
         action="store_true",
         help="Run layered benchmark (deterministic bypass + ambiguous LLM)",
     )
+    mode.add_argument(
+        "--exp3",
+        action="store_true",
+        help="Run EXP-3 4-arm behavioral description ablation",
+    )
     parser.add_argument(
         "--reps",
         type=int,
@@ -108,6 +113,10 @@ def main() -> None:
         if not _cmd_preflight():
             sys.exit(1)
         asyncio.run(_cmd_layered(args.reps, args.model, args.output))
+    elif args.exp3:
+        if not _cmd_preflight():
+            sys.exit(1)
+        asyncio.run(_cmd_exp3(args.reps, args.model, args.output))
 
 
 def _cmd_preflight() -> bool:
@@ -328,6 +337,43 @@ async def _cmd_scale(reps: int, model: str, output: Path | None) -> None:
             for arm, m in [("F", t.filtered), ("U", t.unfiltered)]:
                 if m.error:
                     print(f"  [{arm}] {t.task_name}: [{m.error_kind}] {m.error[:80]}")
+
+
+async def _cmd_exp3(reps: int, model: str, output: Path | None) -> None:
+    """Run EXP-3 4-arm behavioral description ablation."""
+    from tcp.agent.exp3 import build_exp3_tasks, run_exp3_ablation
+
+    tasks = build_exp3_tasks()
+    total_calls = len(tasks) * reps * 4
+    print(
+        f"\n--- EXP-3: 4-arm behavioral description ablation ---"
+        f"\n  Tasks: {len(tasks)} (6 built-in + 6 MCP)"
+        f"\n  Arms: A (realistic ungated) / B (realistic filtered) / "
+        f"C (minimal filtered) / D (brief filtered)"
+        f"\n  Reps: {reps}"
+        f"\n  Model: {model}"
+        f"\n  Total API calls: {total_calls}"
+    )
+    if output:
+        print(f"  Results: {output}")
+
+    report = await run_exp3_ablation(
+        repetitions=reps,
+        model=model,
+        results_path=output,
+    )
+
+    print(f"\n{report.summary_table()}")
+
+    arm_stats = report.arm_summary()
+    print("\nArm summary:")
+    for arm, stats in arm_stats.items():
+        print(
+            f"  Arm {arm}: correctness={stats['correctness']:.0%}  "
+            f"mean_tokens={stats['mean_input_tokens']:.0f}  "
+            f"mean_tools={stats['mean_tool_count']:.1f}  "
+            f"errors={stats['error_rate']:.0%}"
+        )
 
 
 async def _cmd_layered(reps: int, model: str, output: Path | None) -> None:
