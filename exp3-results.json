@@ -1,0 +1,2425 @@
+{
+  "trials": [
+    {
+      "task_name": "builtin read file",
+      "arm_a": {
+        "task_name": "builtin read file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1969.727483,
+        "total_response_time_ms": 6112.154036,
+        "input_tokens": 24611,
+        "output_tokens": 161,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1855.969704,
+        "total_response_time_ms": 3991.710615,
+        "input_tokens": 17493,
+        "output_tokens": 122,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2137.060553,
+        "total_response_time_ms": 5270.647843,
+        "input_tokens": 11981,
+        "output_tokens": 148,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2596.318479,
+        "total_response_time_ms": 5164.795694,
+        "input_tokens": 11947,
+        "output_tokens": 160,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin read file",
+      "arm_a": {
+        "task_name": "builtin read file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1653.53875,
+        "total_response_time_ms": 5796.313784,
+        "input_tokens": 24611,
+        "output_tokens": 168,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1722.267042,
+        "total_response_time_ms": 3453.642862,
+        "input_tokens": 17493,
+        "output_tokens": 122,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1335.433989,
+        "total_response_time_ms": 3479.195526,
+        "input_tokens": 11999,
+        "output_tokens": 147,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1293.728407,
+        "total_response_time_ms": 3992.290921,
+        "input_tokens": 11947,
+        "output_tokens": 153,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin read file",
+      "arm_a": {
+        "task_name": "builtin read file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2593.215699,
+        "total_response_time_ms": 6976.722153,
+        "input_tokens": 24611,
+        "output_tokens": 133,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1656.842242,
+        "total_response_time_ms": 3361.814162,
+        "input_tokens": 17493,
+        "output_tokens": 122,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1438.515709,
+        "total_response_time_ms": 4329.320171,
+        "input_tokens": 11981,
+        "output_tokens": 148,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin read file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1210.469101,
+        "total_response_time_ms": 4989.153302,
+        "input_tokens": 11947,
+        "output_tokens": 197,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin grep search",
+      "arm_a": {
+        "task_name": "builtin grep search",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2243.97839,
+        "total_response_time_ms": 6314.436795,
+        "input_tokens": 24693,
+        "output_tokens": 323,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1993.67138,
+        "total_response_time_ms": 7151.760881,
+        "input_tokens": 17575,
+        "output_tokens": 332,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2203.318707,
+        "total_response_time_ms": 7043.610018,
+        "input_tokens": 12062,
+        "output_tokens": 351,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1976.977205,
+        "total_response_time_ms": 8372.883488,
+        "input_tokens": 12028,
+        "output_tokens": 273,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin grep search",
+      "arm_a": {
+        "task_name": "builtin grep search",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2354.343152,
+        "total_response_time_ms": 7462.470249,
+        "input_tokens": 24693,
+        "output_tokens": 343,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1954.860425,
+        "total_response_time_ms": 5553.388741,
+        "input_tokens": 17575,
+        "output_tokens": 275,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 4958.072853,
+        "total_response_time_ms": 9420.086417,
+        "input_tokens": 12062,
+        "output_tokens": 322,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2103.571209,
+        "total_response_time_ms": 6829.507796,
+        "input_tokens": 12028,
+        "output_tokens": 346,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin grep search",
+      "arm_a": {
+        "task_name": "builtin grep search",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2830.733291,
+        "total_response_time_ms": 6881.60134,
+        "input_tokens": 24693,
+        "output_tokens": 316,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2327.893909,
+        "total_response_time_ms": 5430.94472,
+        "input_tokens": 17594,
+        "output_tokens": 302,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2503.710592,
+        "total_response_time_ms": 6963.921015,
+        "input_tokens": 12089,
+        "output_tokens": 362,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin grep search",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2485.134377,
+        "total_response_time_ms": 13100.463599,
+        "input_tokens": 12028,
+        "output_tokens": 358,
+        "tools_called": [
+          "Grep"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin glob find",
+      "arm_a": {
+        "task_name": "builtin glob find",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1602.420828,
+        "total_response_time_ms": 6673.743973,
+        "input_tokens": 24603,
+        "output_tokens": 268,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1597.509804,
+        "total_response_time_ms": 6899.672903,
+        "input_tokens": 17485,
+        "output_tokens": 261,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1991.356745,
+        "total_response_time_ms": 6701.404339,
+        "input_tokens": 11996,
+        "output_tokens": 268,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1275.538717,
+        "total_response_time_ms": 5619.789469,
+        "input_tokens": 11939,
+        "output_tokens": 253,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin glob find",
+      "arm_a": {
+        "task_name": "builtin glob find",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2585.725009,
+        "total_response_time_ms": 7949.580291,
+        "input_tokens": 24603,
+        "output_tokens": 254,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1419.541974,
+        "total_response_time_ms": 5157.551241,
+        "input_tokens": 17485,
+        "output_tokens": 202,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2301.192528,
+        "total_response_time_ms": 7156.742427,
+        "input_tokens": 11996,
+        "output_tokens": 284,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1311.57298,
+        "total_response_time_ms": 5465.33868,
+        "input_tokens": 11939,
+        "output_tokens": 233,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin glob find",
+      "arm_a": {
+        "task_name": "builtin glob find",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1125.087654,
+        "total_response_time_ms": 5954.325529,
+        "input_tokens": 24603,
+        "output_tokens": 253,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1153.404515,
+        "total_response_time_ms": 4729.193833,
+        "input_tokens": 17485,
+        "output_tokens": 206,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1456.327274,
+        "total_response_time_ms": 6697.373193,
+        "input_tokens": 11973,
+        "output_tokens": 291,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin glob find",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1306.698097,
+        "total_response_time_ms": 6126.703361,
+        "input_tokens": 11939,
+        "output_tokens": 251,
+        "tools_called": [
+          "Glob"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin bash run",
+      "arm_a": {
+        "task_name": "builtin bash run",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2565.212682,
+        "total_response_time_ms": 6102.590971,
+        "input_tokens": 24645,
+        "output_tokens": 224,
+        "tools_called": [
+          "Bash"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1167.689098,
+        "total_response_time_ms": 3376.611432,
+        "input_tokens": 17512,
+        "output_tokens": 112,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1690.600134,
+        "total_response_time_ms": 3471.699411,
+        "input_tokens": 12004,
+        "output_tokens": 142,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1311.82128,
+        "total_response_time_ms": 3812.422796,
+        "input_tokens": 11966,
+        "output_tokens": 134,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin bash run",
+      "arm_a": {
+        "task_name": "builtin bash run",
+        "tool_count": 119,
+        "turns": 3,
+        "first_token_latency_ms": 2066.448245,
+        "total_response_time_ms": 8863.281398,
+        "input_tokens": 37222,
+        "output_tokens": 396,
+        "tools_called": [
+          "Bash",
+          "Bash"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1313.542101,
+        "total_response_time_ms": 4014.369244,
+        "input_tokens": 17512,
+        "output_tokens": 128,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2021.603525,
+        "total_response_time_ms": 4582.235088,
+        "input_tokens": 12004,
+        "output_tokens": 152,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1743.590489,
+        "total_response_time_ms": 4572.996283,
+        "input_tokens": 11983,
+        "output_tokens": 206,
+        "tools_called": [
+          "Bash"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin bash run",
+      "arm_a": {
+        "task_name": "builtin bash run",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 5527.709719,
+        "total_response_time_ms": 8762.638932,
+        "input_tokens": 24645,
+        "output_tokens": 208,
+        "tools_called": [
+          "Bash"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1719.363171,
+        "total_response_time_ms": 6549.097334,
+        "input_tokens": 17512,
+        "output_tokens": 138,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1629.694638,
+        "total_response_time_ms": 3942.506989,
+        "input_tokens": 12004,
+        "output_tokens": 140,
+        "tools_called": [
+          "git-log"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin bash run",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1829.977188,
+        "total_response_time_ms": 4823.944207,
+        "input_tokens": 11983,
+        "output_tokens": 237,
+        "tools_called": [
+          "Bash"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin write file",
+      "arm_a": {
+        "task_name": "builtin write file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2295.863252,
+        "total_response_time_ms": 3771.582056,
+        "input_tokens": 24656,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1366.049923,
+        "total_response_time_ms": 2411.659847,
+        "input_tokens": 17538,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1417.233863,
+        "total_response_time_ms": 2421.15171,
+        "input_tokens": 12026,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1819.725408,
+        "total_response_time_ms": 3280.134341,
+        "input_tokens": 11992,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin write file",
+      "arm_a": {
+        "task_name": "builtin write file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1808.034601,
+        "total_response_time_ms": 3174.879723,
+        "input_tokens": 24656,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1549.191758,
+        "total_response_time_ms": 3077.119022,
+        "input_tokens": 17538,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1691.867398,
+        "total_response_time_ms": 2776.253246,
+        "input_tokens": 12026,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 3068.175015,
+        "total_response_time_ms": 4449.406804,
+        "input_tokens": 11992,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin write file",
+      "arm_a": {
+        "task_name": "builtin write file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2509.560711,
+        "total_response_time_ms": 3927.851512,
+        "input_tokens": 24656,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1671.090525,
+        "total_response_time_ms": 3020.752341,
+        "input_tokens": 17538,
+        "output_tokens": 122,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1590.261371,
+        "total_response_time_ms": 2613.945969,
+        "input_tokens": 12026,
+        "output_tokens": 121,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin write file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1828.647204,
+        "total_response_time_ms": 3752.871179,
+        "input_tokens": 11992,
+        "output_tokens": 122,
+        "tools_called": [
+          "Write"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin edit file",
+      "arm_a": {
+        "task_name": "builtin edit file",
+        "tool_count": 119,
+        "turns": 3,
+        "first_token_latency_ms": 3069.353986,
+        "total_response_time_ms": 6819.8881,
+        "input_tokens": 37113,
+        "output_tokens": 208,
+        "tools_called": [
+          "Read",
+          "Edit"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 3,
+        "first_token_latency_ms": 1495.473354,
+        "total_response_time_ms": 4399.044788,
+        "input_tokens": 26436,
+        "output_tokens": 208,
+        "tools_called": [
+          "Read",
+          "Edit"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1820.371652,
+        "total_response_time_ms": 2821.777255,
+        "input_tokens": 12056,
+        "output_tokens": 150,
+        "tools_called": [
+          "Edit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1680.777961,
+        "total_response_time_ms": 3610.428451,
+        "input_tokens": 12022,
+        "output_tokens": 172,
+        "tools_called": [
+          "Edit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin edit file",
+      "arm_a": {
+        "task_name": "builtin edit file",
+        "tool_count": 119,
+        "turns": 3,
+        "first_token_latency_ms": 1504.884613,
+        "total_response_time_ms": 5547.880901,
+        "input_tokens": 37113,
+        "output_tokens": 208,
+        "tools_called": [
+          "Read",
+          "Edit"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 3,
+        "first_token_latency_ms": 1248.642037,
+        "total_response_time_ms": 4198.382396,
+        "input_tokens": 26436,
+        "output_tokens": 208,
+        "tools_called": [
+          "Read",
+          "Edit"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1868.717613,
+        "total_response_time_ms": 3583.761397,
+        "input_tokens": 12056,
+        "output_tokens": 150,
+        "tools_called": [
+          "Edit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1861.182127,
+        "total_response_time_ms": 3685.606437,
+        "input_tokens": 12022,
+        "output_tokens": 171,
+        "tools_called": [
+          "Edit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "builtin edit file",
+      "arm_a": {
+        "task_name": "builtin edit file",
+        "tool_count": 119,
+        "turns": 3,
+        "first_token_latency_ms": 1219.016204,
+        "total_response_time_ms": 4688.767418,
+        "input_tokens": 37113,
+        "output_tokens": 208,
+        "tools_called": [
+          "Read",
+          "Edit"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 3,
+        "first_token_latency_ms": 1276.307093,
+        "total_response_time_ms": 4019.706193,
+        "input_tokens": 26436,
+        "output_tokens": 208,
+        "tools_called": [
+          "Read",
+          "Edit"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 1879.793617,
+        "total_response_time_ms": 2777.684074,
+        "input_tokens": 12056,
+        "output_tokens": 150,
+        "tools_called": [
+          "Edit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "builtin edit file",
+        "tool_count": 62,
+        "turns": 2,
+        "first_token_latency_ms": 2046.306733,
+        "total_response_time_ms": 3209.783358,
+        "input_tokens": 12022,
+        "output_tokens": 150,
+        "tools_called": [
+          "Edit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp read file",
+      "arm_a": {
+        "task_name": "mcp read file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2356.53988,
+        "total_response_time_ms": 4014.480622,
+        "input_tokens": 24603,
+        "output_tokens": 113,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1545.810174,
+        "total_response_time_ms": 3276.672171,
+        "input_tokens": 13937,
+        "output_tokens": 110,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1542.924515,
+        "total_response_time_ms": 3774.728165,
+        "input_tokens": 7761,
+        "output_tokens": 167,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1387.452339,
+        "total_response_time_ms": 2978.263319,
+        "input_tokens": 8391,
+        "output_tokens": 111,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp read file",
+      "arm_a": {
+        "task_name": "mcp read file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1329.308574,
+        "total_response_time_ms": 2722.149344,
+        "input_tokens": 24603,
+        "output_tokens": 109,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1480.437497,
+        "total_response_time_ms": 3804.232833,
+        "input_tokens": 13937,
+        "output_tokens": 110,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1375.555921,
+        "total_response_time_ms": 3275.273558,
+        "input_tokens": 7761,
+        "output_tokens": 167,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1383.387967,
+        "total_response_time_ms": 2794.089899,
+        "input_tokens": 8391,
+        "output_tokens": 115,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp read file",
+      "arm_a": {
+        "task_name": "mcp read file",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1457.781867,
+        "total_response_time_ms": 3118.040884,
+        "input_tokens": 24603,
+        "output_tokens": 113,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1614.838669,
+        "total_response_time_ms": 2993.769612,
+        "input_tokens": 13937,
+        "output_tokens": 113,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1456.510022,
+        "total_response_time_ms": 2927.251081,
+        "input_tokens": 7761,
+        "output_tokens": 154,
+        "tools_called": [
+          "fs-read-file"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp read file",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1471.229875,
+        "total_response_time_ms": 2856.554808,
+        "input_tokens": 8391,
+        "output_tokens": 113,
+        "tools_called": [
+          "Read"
+        ],
+        "selected_tool_correct": false,
+        "expected_tool_any_position": false,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp json transform",
+      "arm_a": {
+        "task_name": "mcp json transform",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1696.756468,
+        "total_response_time_ms": 3783.361804,
+        "input_tokens": 24635,
+        "output_tokens": 167,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 3,
+        "first_token_latency_ms": 2876.157185,
+        "total_response_time_ms": 9203.838827,
+        "input_tokens": 21308,
+        "output_tokens": 323,
+        "tools_called": [
+          "jq",
+          "Read",
+          "Bash"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1236.124685,
+        "total_response_time_ms": 4983.133945,
+        "input_tokens": 7754,
+        "output_tokens": 205,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1424.962897,
+        "total_response_time_ms": 3939.189368,
+        "input_tokens": 8406,
+        "output_tokens": 184,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp json transform",
+      "arm_a": {
+        "task_name": "mcp json transform",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1688.322463,
+        "total_response_time_ms": 6607.825491,
+        "input_tokens": 24635,
+        "output_tokens": 183,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1865.783631,
+        "total_response_time_ms": 4300.530231,
+        "input_tokens": 13955,
+        "output_tokens": 163,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1672.939007,
+        "total_response_time_ms": 4099.255059,
+        "input_tokens": 7757,
+        "output_tokens": 154,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1204.014105,
+        "total_response_time_ms": 3950.052762,
+        "input_tokens": 8406,
+        "output_tokens": 181,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp json transform",
+      "arm_a": {
+        "task_name": "mcp json transform",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2007.682533,
+        "total_response_time_ms": 4304.366352,
+        "input_tokens": 24635,
+        "output_tokens": 183,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 2027.245533,
+        "total_response_time_ms": 3714.882929,
+        "input_tokens": 13955,
+        "output_tokens": 136,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1338.988628,
+        "total_response_time_ms": 3960.02341,
+        "input_tokens": 7757,
+        "output_tokens": 177,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp json transform",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 2502.355957,
+        "total_response_time_ms": 5017.721406,
+        "input_tokens": 8406,
+        "output_tokens": 179,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp git status",
+      "arm_a": {
+        "task_name": "mcp git status",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1219.946467,
+        "total_response_time_ms": 3906.095575,
+        "input_tokens": 24594,
+        "output_tokens": 131,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1187.086962,
+        "total_response_time_ms": 3071.807538,
+        "input_tokens": 13910,
+        "output_tokens": 108,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1532.055223,
+        "total_response_time_ms": 3398.699102,
+        "input_tokens": 7710,
+        "output_tokens": 105,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1065.306821,
+        "total_response_time_ms": 4117.754048,
+        "input_tokens": 8364,
+        "output_tokens": 99,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp git status",
+      "arm_a": {
+        "task_name": "mcp git status",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1158.508283,
+        "total_response_time_ms": 7758.554859,
+        "input_tokens": 24593,
+        "output_tokens": 116,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1626.084303,
+        "total_response_time_ms": 3772.728345,
+        "input_tokens": 13910,
+        "output_tokens": 100,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1628.03115,
+        "total_response_time_ms": 3420.768391,
+        "input_tokens": 7710,
+        "output_tokens": 102,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1042.687024,
+        "total_response_time_ms": 3446.640067,
+        "input_tokens": 8364,
+        "output_tokens": 102,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp git status",
+      "arm_a": {
+        "task_name": "mcp git status",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1579.423795,
+        "total_response_time_ms": 3303.726451,
+        "input_tokens": 24593,
+        "output_tokens": 110,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1198.692542,
+        "total_response_time_ms": 3040.809047,
+        "input_tokens": 13910,
+        "output_tokens": 99,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 891.990331,
+        "total_response_time_ms": 2629.56077,
+        "input_tokens": 7710,
+        "output_tokens": 94,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp git status",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 979.30381,
+        "total_response_time_ms": 2975.674354,
+        "input_tokens": 8364,
+        "output_tokens": 99,
+        "tools_called": [
+          "git-status"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp file search",
+      "arm_a": {
+        "task_name": "mcp file search",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1632.015291,
+        "total_response_time_ms": 6627.197882,
+        "input_tokens": 24641,
+        "output_tokens": 285,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1652.38289,
+        "total_response_time_ms": 8096.82077,
+        "input_tokens": 13977,
+        "output_tokens": 275,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 2199.93532,
+        "total_response_time_ms": 7225.603017,
+        "input_tokens": 7805,
+        "output_tokens": 326,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 2475.746661,
+        "total_response_time_ms": 7611.238526,
+        "input_tokens": 8455,
+        "output_tokens": 333,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp file search",
+      "arm_a": {
+        "task_name": "mcp file search",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1336.451954,
+        "total_response_time_ms": 5660.536325,
+        "input_tokens": 24641,
+        "output_tokens": 269,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1801.967384,
+        "total_response_time_ms": 6732.748541,
+        "input_tokens": 13977,
+        "output_tokens": 276,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 2190.88153,
+        "total_response_time_ms": 7119.033361,
+        "input_tokens": 7805,
+        "output_tokens": 309,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1815.093611,
+        "total_response_time_ms": 7467.444263,
+        "input_tokens": 8455,
+        "output_tokens": 331,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp file search",
+      "arm_a": {
+        "task_name": "mcp file search",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1433.203753,
+        "total_response_time_ms": 5952.788072,
+        "input_tokens": 24641,
+        "output_tokens": 254,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1231.062825,
+        "total_response_time_ms": 5772.37724,
+        "input_tokens": 13977,
+        "output_tokens": 268,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1942.587952,
+        "total_response_time_ms": 6867.132629,
+        "input_tokens": 7805,
+        "output_tokens": 329,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp file search",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1691.908413,
+        "total_response_time_ms": 6934.997993,
+        "input_tokens": 8455,
+        "output_tokens": 320,
+        "tools_called": [
+          "fs-search-files"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp git commit",
+      "arm_a": {
+        "task_name": "mcp git commit",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1622.105927,
+        "total_response_time_ms": 2615.407802,
+        "input_tokens": 24611,
+        "output_tokens": 89,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1404.864246,
+        "total_response_time_ms": 4123.255422,
+        "input_tokens": 13939,
+        "output_tokens": 87,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1345.187205,
+        "total_response_time_ms": 2928.967728,
+        "input_tokens": 7748,
+        "output_tokens": 94,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1333.098784,
+        "total_response_time_ms": 2715.042941,
+        "input_tokens": 8393,
+        "output_tokens": 89,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp git commit",
+      "arm_a": {
+        "task_name": "mcp git commit",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1209.538507,
+        "total_response_time_ms": 3177.8744,
+        "input_tokens": 24611,
+        "output_tokens": 98,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1589.421731,
+        "total_response_time_ms": 3242.464554,
+        "input_tokens": 13939,
+        "output_tokens": 98,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1318.043423,
+        "total_response_time_ms": 3461.423717,
+        "input_tokens": 7748,
+        "output_tokens": 94,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1765.636603,
+        "total_response_time_ms": 3941.269079,
+        "input_tokens": 8393,
+        "output_tokens": 100,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp git commit",
+      "arm_a": {
+        "task_name": "mcp git commit",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1386.044074,
+        "total_response_time_ms": 2979.486965,
+        "input_tokens": 24611,
+        "output_tokens": 101,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1497.211477,
+        "total_response_time_ms": 2895.494786,
+        "input_tokens": 13939,
+        "output_tokens": 89,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 2099.586736,
+        "total_response_time_ms": 3755.335545,
+        "input_tokens": 7748,
+        "output_tokens": 94,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp git commit",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1172.718561,
+        "total_response_time_ms": 2593.422036,
+        "input_tokens": 8393,
+        "output_tokens": 89,
+        "tools_called": [
+          "git-commit"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp json output",
+      "arm_a": {
+        "task_name": "mcp json output",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1644.484988,
+        "total_response_time_ms": 5656.348136,
+        "input_tokens": 24658,
+        "output_tokens": 244,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1164.583286,
+        "total_response_time_ms": 3989.305801,
+        "input_tokens": 13960,
+        "output_tokens": 142,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1545.972119,
+        "total_response_time_ms": 4127.346069,
+        "input_tokens": 7767,
+        "output_tokens": 159,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1156.025524,
+        "total_response_time_ms": 3845.8908,
+        "input_tokens": 8416,
+        "output_tokens": 149,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp json output",
+      "arm_a": {
+        "task_name": "mcp json output",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 2546.168441,
+        "total_response_time_ms": 5382.418757,
+        "input_tokens": 24647,
+        "output_tokens": 161,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1216.111203,
+        "total_response_time_ms": 3411.681912,
+        "input_tokens": 13960,
+        "output_tokens": 135,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1584.250486,
+        "total_response_time_ms": 4616.150447,
+        "input_tokens": 7763,
+        "output_tokens": 193,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1578.023391,
+        "total_response_time_ms": 4178.373391,
+        "input_tokens": 8414,
+        "output_tokens": 177,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    },
+    {
+      "task_name": "mcp json output",
+      "arm_a": {
+        "task_name": "mcp json output",
+        "tool_count": 119,
+        "turns": 2,
+        "first_token_latency_ms": 1722.040362,
+        "total_response_time_ms": 5552.221327,
+        "input_tokens": 24651,
+        "output_tokens": 214,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_b": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1631.597729,
+        "total_response_time_ms": 4415.20952,
+        "input_tokens": 13960,
+        "output_tokens": 159,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_c": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1475.705581,
+        "total_response_time_ms": 3861.001427,
+        "input_tokens": 7764,
+        "output_tokens": 145,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      },
+      "arm_d": {
+        "task_name": "mcp json output",
+        "tool_count": 30,
+        "turns": 2,
+        "first_token_latency_ms": 1355.676672,
+        "total_response_time_ms": 5457.408504,
+        "input_tokens": 8416,
+        "output_tokens": 214,
+        "tools_called": [
+          "jq"
+        ],
+        "selected_tool_correct": true,
+        "expected_tool_any_position": true,
+        "error": null,
+        "error_kind": null
+      }
+    }
+  ]
+}
