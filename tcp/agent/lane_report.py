@@ -33,23 +33,24 @@ class LaneReport:
 
     def summary_table(self) -> str:
         lines = [
-            f"{'Lane':<20} {'Count':>6} {'1st-tool':>9} {'any-pos':>8} {'Latency':>10} {'Tokens':>8}",
+            f"{'Lane':<20} {'Count':>6} {'1st-tool':>9} {'any-pos*':>9} {'Latency':>10} {'Tokens':>8}",
             "-" * 65,
             f"{'Deterministic':<20} {self.deterministic_count:>6} "
             f"{self.deterministic_correct_rate:>8.0%} "
-            f"{'—':>8} "
+            f"{'—':>9} "
             f"{self.deterministic_mean_latency_ms:>9.0f}ms {'—':>8}",
             f"{'Ambiguous':<20} {self.ambiguous_count:>6} "
             f"{self.ambiguous_correct_rate:>8.0%} "
-            f"{self.ambiguous_correct_any_rate:>7.0%} "
+            f"{self.ambiguous_correct_any_rate:>8.0%} "
             f"{self.ambiguous_mean_latency_ms:>9.0f}ms "
             f"{self.ambiguous_mean_tokens:>8.0f}",
             f"{'No-match':<20} {self.no_match_count:>6} "
             f"{self.no_match_correct_rate:>8.0%} "
-            f"{'—':>8} {'—':>10} {'—':>8}",
+            f"{'—':>9} {'—':>10} {'—':>8}",
             "-" * 65,
             f"Bypass ratio: {self.bypass_ratio:.0%}",
             f"Ambiguous LLM lift: {self.ambiguous_llm_lift:+.0%}",
+            "* any-pos is primary for ambiguous lane (multi-tool calls are valid)",
         ]
         return "\n".join(lines)
 

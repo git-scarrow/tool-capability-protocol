@@ -93,7 +93,7 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 ),
                 _tool(
                     "ripgrep",
-                    "ripgrep (rg) — fast regex search optimised for large codebases.",
+                    "ripgrep (rg) — recursive regex search across codebases; faster than grep for directory-wide searches and supports JSON output.",
                     _files_flag,
                     input_formats=frozenset({"text"}),
                     output_formats=frozenset({"json", "text"}),
