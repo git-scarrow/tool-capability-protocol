@@ -237,14 +237,29 @@ def _derive_capability_flags_from_prompt_only(prompt: str) -> int:
     if too_short:
         return 0
 
+    return _derive_capability_flags_unconditional(prompt)
+
+
+def _derive_capability_flags_unconditional(text: str) -> int:
+    """Apply FILE/NETWORK/AUTH pattern rules without the short-prompt early exit."""
     flags = 0
-    if _FILE_PATTERNS.search(prompt):
+    if _FILE_PATTERNS.search(text):
         flags |= int(CapabilityFlags.SUPPORTS_FILES)
-    if _NETWORK_PATTERNS.search(prompt):
+    if _NETWORK_PATTERNS.search(text):
         flags |= int(CapabilityFlags.SUPPORTS_NETWORK)
-    if _AUTH_PATTERNS.search(prompt):
+    if _AUTH_PATTERNS.search(text):
         flags |= int(CapabilityFlags.AUTH_REQUIRED)
     return flags
+
+
+def derive_capability_flags_from_description(description: str) -> int:
+    """Tier-2 tool projection: infer flags from the tool's description text.
+
+    Omits the user-prompt length gate so short MCP descriptions still participate.
+    """
+    if not (description or "").strip():
+        return 0
+    return _derive_capability_flags_unconditional(description.strip())
 
 
 def _derive_output_formats(prompt: str) -> frozenset[str]:
