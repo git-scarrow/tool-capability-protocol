@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/sam/projects/tool-capability-protocol/.venv/bin/python3
 """TCP shadow pilot — PostToolUse hook.
 
 Fires on: PostToolUse (after every tool call)

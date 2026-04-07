@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/sam/projects/tool-capability-protocol/.venv/bin/python3
 """TCP shadow pilot — UserPromptSubmit hook.
 
 Fires on: UserPromptSubmit (BEFORE any tool fires — independent of tool choice)
