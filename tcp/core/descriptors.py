@@ -5,9 +5,12 @@ import json
 import struct
 import warnings
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from enum import IntEnum
 from typing import Any, Dict, List, Optional, Union
+
+
+UTC = timezone.utc
 
 
 class ParameterType(IntEnum):

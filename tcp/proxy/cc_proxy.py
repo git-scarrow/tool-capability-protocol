@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import Any, Mapping
@@ -26,10 +27,13 @@ from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.models import ToolSelectionRequest
 from tcp.proxy.pack_manifest import (
     DEFAULT_ACTIVE_MCP_SERVERS,
+    PackInspection,
+    PackManifestError,
     STATE_ACTIVE,
     STATE_DEFERRED,
     STATE_SUPPRESSED,
     default_manifest_path,
+    inspect_pack_state,
     load_pack_manifest,
     pack_context_from_env,
     resolve_pack_decisions,
@@ -132,7 +136,14 @@ def _prompt_mentions_server(prompt: str, tool_name: str) -> bool:
         server_l,
         server_l.replace("-", " "),
         server_l.replace("_", " "),
+        server_l.replace(":", " "),
     }
+    parts = tuple(part for part in re.split(r"[^a-z0-9]+", server_l) if part)
+    unique_parts = tuple(dict.fromkeys(parts))
+    if len(unique_parts) >= 2:
+        pair = " ".join(unique_parts[:2])
+        server_tokens.add(pair)
+        server_tokens.add(" ".join(reversed(unique_parts[:2])))
     return any(token in prompt_l for token in server_tokens)
 
 
@@ -639,6 +650,50 @@ def build_app() -> Starlette:
     )
 
 
+def _doctor_payload(inspection: PackInspection) -> dict[str, Any]:
+    return {
+        "manifest_source": inspection.manifest_source,
+        "default_manifest_path": inspection.default_manifest_path,
+        "explicit_manifest_path": inspection.explicit_manifest_path,
+        "explicit_manifest_in_effect": inspection.explicit_manifest_in_effect,
+        "workspace_name": inspection.workspace_name,
+        "workspace_path": inspection.workspace_path,
+        "profile": inspection.profile,
+        "workspace_allowed_servers": list(inspection.workspace_allowed_servers),
+        "packs": [
+            {
+                "pack_id": decision.pack_id,
+                "state": decision.state,
+                "reasons": list(decision.reasons),
+                "servers": list(decision.servers),
+            }
+            for decision in inspection.pack_decisions
+        ],
+    }
+
+
+def _render_doctor_text(inspection: PackInspection) -> str:
+    lines = [
+        "TCP proxy pack manifest doctor",
+        f"manifest_source: {inspection.manifest_source}",
+        f"default_manifest_path: {inspection.default_manifest_path}",
+        f"explicit_manifest_path: {inspection.explicit_manifest_path or '-'}",
+        f"explicit_manifest_in_effect: {'yes' if inspection.explicit_manifest_in_effect else 'no'}",
+        f"workspace_name: {inspection.workspace_name}",
+        f"workspace_path: {inspection.workspace_path}",
+        f"profile: {inspection.profile}",
+        "workspace_allowed_servers: "
+        + (", ".join(inspection.workspace_allowed_servers) or "-"),
+        "",
+        "packs:",
+    ]
+    for decision in inspection.pack_decisions:
+        lines.append(f"  - {decision.pack_id}: {decision.state}")
+        lines.append(f"    servers: {', '.join(decision.servers)}")
+        lines.append(f"    reasons: {', '.join(decision.reasons)}")
+    return "\n".join(lines)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="TCP-CC Proxy for Claude Code")
     parser.add_argument(
@@ -652,7 +707,30 @@ def main() -> None:
         default=int(os.environ.get("TCP_CC_PROXY_PORT", "8742")),
         help="Listen port (set ANTHROPIC_BASE_URL=http://host:port)",
     )
+    parser.add_argument(
+        "--doctor",
+        action="store_true",
+        help="Print the resolved pack-manifest state for the current workspace and exit",
+    )
+    parser.add_argument(
+        "--doctor-format",
+        choices=("text", "json"),
+        default="text",
+        help="Output format for --doctor (default: text)",
+    )
     args = parser.parse_args()
+    if args.doctor:
+        try:
+            inspection = inspect_pack_state(
+                workspace_allowed_servers=_get_workspace_allowed_mcp_servers(),
+            )
+        except PackManifestError as exc:
+            parser.exit(2, f"error: {exc}\n")
+        if args.doctor_format == "json":
+            print(json.dumps(_doctor_payload(inspection), indent=2, sort_keys=True))
+            return
+        print(_render_doctor_text(inspection))
+        return
     import uvicorn
 
     uvicorn.run(

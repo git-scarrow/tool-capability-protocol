@@ -1,11 +1,14 @@
 """Capability registry for managing tool descriptors."""
 
 import logging
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from threading import RLock
 from typing import Dict, List, Optional, Set, Tuple
 
 from .descriptors import CapabilityDescriptor
+
+
+UTC = timezone.utc
 
 logger = logging.getLogger(__name__)
 
