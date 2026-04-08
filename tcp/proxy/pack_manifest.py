@@ -3,14 +3,22 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from functools import lru_cache
 import os
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Literal, Mapping
 
 import yaml
 
 
-VALID_PACK_STATES = frozenset({"active", "deferred", "suppressed"})
+PackState = Literal["active", "deferred", "suppressed"]
+
+MANIFEST_VERSION = 1
+DEFAULT_PROFILE = "default"
+STATE_ACTIVE: PackState = "active"
+STATE_DEFERRED: PackState = "deferred"
+STATE_SUPPRESSED: PackState = "suppressed"
+VALID_PACK_STATES = frozenset({STATE_ACTIVE, STATE_DEFERRED, STATE_SUPPRESSED})
 
 DEFAULT_ACTIVE_MCP_SERVERS: frozenset[str] = frozenset(
     {
@@ -33,7 +41,7 @@ DEFAULT_ACTIVE_MCP_SERVERS: frozenset[str] = frozenset(
 class PackRule:
     pack_id: str
     servers: frozenset[str]
-    default_state: str
+    default_state: PackState
     allow_workspace: bool = False
     active_workspaces: frozenset[str] = frozenset()
     active_profiles: frozenset[str] = frozenset()
@@ -59,7 +67,7 @@ class PackContext:
 @dataclass(frozen=True)
 class PackDecision:
     pack_id: str
-    state: str
+    state: PackState
     reasons: tuple[str, ...]
     servers: tuple[str, ...]
 
@@ -74,16 +82,16 @@ def default_manifest_path() -> Path:
 
 def _default_manifest_data() -> dict[str, Any]:
     return {
-        "version": 1,
+        "version": MANIFEST_VERSION,
         "packs": [
             {
                 "pack_id": "core-coding",
-                "default_state": "active",
+                "default_state": STATE_ACTIVE,
                 "servers": sorted(DEFAULT_ACTIVE_MCP_SERVERS),
             },
             {
                 "pack_id": "workspace-critical",
-                "default_state": "suppressed",
+                "default_state": STATE_SUPPRESSED,
                 "allow_workspace": True,
                 "servers": ["bay-view-graph"],
                 "activation": {
@@ -140,13 +148,13 @@ def _as_str_set(raw: Any, *, field_name: str) -> frozenset[str]:
     return frozenset(values)
 
 
-def _normalize_state(raw: Any, *, field_name: str) -> str:
+def _normalize_state(raw: Any, *, field_name: str) -> PackState:
     if not isinstance(raw, str):
         raise ValueError(f"{field_name} must be a string")
     state = raw.strip().lower()
     if state not in VALID_PACK_STATES:
         raise ValueError(f"{field_name} must be one of {sorted(VALID_PACK_STATES)}")
-    return state
+    return state  # type: ignore[return-value]
 
 
 def _parse_active_env(raw: Any) -> dict[str, frozenset[str]]:
@@ -192,7 +200,7 @@ def _parse_pack_rule(raw: Any) -> PackRule:
         pack_id=pack_id.strip(),
         servers=_as_str_set(raw.get("servers"), field_name=f"{pack_id}.servers"),
         default_state=_normalize_state(
-            raw.get("default_state", "suppressed"),
+            raw.get("default_state", STATE_SUPPRESSED),
             field_name=f"{pack_id}.default_state",
         ),
         allow_workspace=allow_workspace,
@@ -212,9 +220,9 @@ def _build_manifest(data: Any, *, source_path: str) -> PackManifest:
     if not isinstance(data, Mapping):
         raise ValueError("pack manifest root must be a mapping")
 
-    version = data.get("version", 1)
-    if version != 1:
-        raise ValueError("pack manifest version must be 1")
+    version = data.get("version", MANIFEST_VERSION)
+    if version != MANIFEST_VERSION:
+        raise ValueError(f"pack manifest version must be {MANIFEST_VERSION}")
 
     raw_packs = data.get("packs")
     if not isinstance(raw_packs, list) or not raw_packs:
@@ -237,16 +245,34 @@ def _build_manifest(data: Any, *, source_path: str) -> PackManifest:
                 )
             seen_servers[server] = pack.pack_id
 
-    return PackManifest(version=1, source_path=source_path, packs=packs)
+    return PackManifest(version=MANIFEST_VERSION, source_path=source_path, packs=packs)
 
 
-def load_pack_manifest() -> PackManifest:
+@lru_cache(maxsize=16)
+def _load_manifest_from_cache_key(
+    source_key: str,
+    source_mtime_ns: int,
+) -> PackManifest:
+    if source_key == "<embedded-default>":
+        return _build_manifest(_default_manifest_data(), source_path=source_key)
+    path = Path(source_key)
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return _build_manifest(raw, source_path=source_key)
+
+
+def load_pack_manifest(*, use_cache: bool = True) -> PackManifest:
     for path in _candidate_manifest_paths():
         if not path.exists():
             continue
-        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-        return _build_manifest(raw, source_path=str(path))
-    return _build_manifest(_default_manifest_data(), source_path="<embedded-default>")
+        try:
+            stat = path.stat()
+            if use_cache:
+                return _load_manifest_from_cache_key(str(path), stat.st_mtime_ns)
+            raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+            return _build_manifest(raw, source_path=str(path))
+        except (OSError, ValueError, yaml.YAMLError):
+            continue
+    return _load_manifest_from_cache_key("<embedded-default>", 0)
 
 
 def pack_context_from_env(
@@ -261,7 +287,7 @@ def pack_context_from_env(
         profile
         or os.environ.get("TCP_PROXY_WORKSPACE_PROFILE")
         or os.environ.get("TCP_PROXY_PROFILE")
-        or "default"
+        or DEFAULT_PROFILE
     )
     return PackContext(
         workspace_name=workspace_name,
@@ -296,11 +322,11 @@ def resolve_pack_decisions(
             or context.workspace_path in pack.active_workspaces
         )
         if workspace_match:
-            state = "active"
+            state = STATE_ACTIVE
             reasons.append(f"workspace:{context.workspace_name}")
 
         if context.profile in pack.active_profiles:
-            state = "active"
+            state = STATE_ACTIVE
             reasons.append(f"profile:{context.profile}")
 
         matched_env: list[str] = []
@@ -309,15 +335,15 @@ def resolve_pack_decisions(
             if _env_matches(expected, raw):
                 matched_env.append(f"{key}={raw}")
         if matched_env:
-            state = "active"
+            state = STATE_ACTIVE
             reasons.extend(f"env:{item}" for item in matched_env)
 
         if (
-            state != "active"
+            state != STATE_ACTIVE
             and pack.allow_workspace
             and (pack.servers & context.workspace_allowed_servers)
         ):
-            state = "deferred"
+            state = STATE_DEFERRED
             reasons.append("workspace_allow")
 
         decision = PackDecision(

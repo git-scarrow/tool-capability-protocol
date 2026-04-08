@@ -26,6 +26,9 @@ from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.models import ToolSelectionRequest
 from tcp.proxy.pack_manifest import (
     DEFAULT_ACTIVE_MCP_SERVERS,
+    STATE_ACTIVE,
+    STATE_DEFERRED,
+    STATE_SUPPRESSED,
     default_manifest_path,
     load_pack_manifest,
     pack_context_from_env,
@@ -280,12 +283,14 @@ def _process_tools_array(
                 stage2_survivors.discard(name)
                 server_filtered.add(name)
                 continue
-            pack_decision = server_pack_decisions.get(server or "")
-            pack_state = pack_decision.state if pack_decision is not None else "suppressed"
-            if server and pack_state == "active":
+            pack_decision = None if server is None else server_pack_decisions.get(server)
+            pack_state = (
+                pack_decision.state if pack_decision is not None else STATE_SUPPRESSED
+            )
+            if server and pack_state == STATE_ACTIVE:
                 server_allow_source.setdefault(server, "pack_active")
                 continue
-            if server and pack_state == "deferred":
+            if server and pack_state == STATE_DEFERRED:
                 deferred_visible.add(name)
                 server_allow_source.setdefault(server, "workspace_allow")
                 if "workspace_allow" in pack_decision.reasons:
@@ -388,13 +393,13 @@ def _process_tools_array(
             for pack_id, decision in sorted(pack_decisions.items())
         },
         "active_packs": sorted(
-            pack_id for pack_id, decision in pack_decisions.items() if decision.state == "active"
+            pack_id for pack_id, decision in pack_decisions.items() if decision.state == STATE_ACTIVE
         ),
         "deferred_packs": sorted(
-            pack_id for pack_id, decision in pack_decisions.items() if decision.state == "deferred"
+            pack_id for pack_id, decision in pack_decisions.items() if decision.state == STATE_DEFERRED
         ),
         "suppressed_packs": sorted(
-            pack_id for pack_id, decision in pack_decisions.items() if decision.state == "suppressed"
+            pack_id for pack_id, decision in pack_decisions.items() if decision.state == STATE_SUPPRESSED
         ),
         "workspace_allowed_servers": sorted(workspace_allowed_servers),
         "workspace_rescued": sorted(workspace_rescued) if workspace_rescued else [],
