@@ -5,6 +5,8 @@
 PORT=8742
 PROXY_LOG="$HOME/.tcp-shadow/proxy/proxy.log"
 PROXY_DIR="$HOME/projects/tool-capability-protocol"
+WORKSPACE_MCP_SERVERS="${TCP_PROXY_WORKSPACE_MCP_SERVERS:-bay-view-graph}"
+PACK_MANIFEST="${TCP_PROXY_PACK_MANIFEST:-$PROXY_DIR/.tcp-proxy-packs.yaml}"
 
 mkdir -p "$HOME/.tcp-shadow/proxy"
 
@@ -14,7 +16,10 @@ if ss -tlnp 2>/dev/null | grep -q ":${PORT}"; then
 fi
 
 # Start proxy in background, detached from this shell
-nohup "$PROXY_DIR/.venv/bin/python" -m tcp.proxy.cc_proxy \
+nohup env TCP_PROXY_WORKSPACE_MCP_SERVERS="$WORKSPACE_MCP_SERVERS" \
+    TCP_PROXY_PACK_MANIFEST="$PACK_MANIFEST" \
+    TCP_PROXY_CWD="$PROXY_DIR" \
+    "$PROXY_DIR/.venv/bin/python" -m tcp.proxy.cc_proxy \
     --host 127.0.0.1 --port "$PORT" \
     >> "$PROXY_LOG" 2>&1 &
 
