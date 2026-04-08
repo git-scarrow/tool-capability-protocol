@@ -1,0 +1,32 @@
+version: 1
+packs:
+  - pack_id: core-coding
+    default_state: active
+    servers:
+      - filesystem
+      - git
+      - fetch
+      - context7
+      - exa
+      - nixos
+      - chatsearch
+      - writing-rag
+      - claude-projects
+      - notion-agents
+      - oracle-remote
+  - pack_id: workspace-critical
+    default_state: suppressed
+    allow_workspace: true
+    servers:
+      - bay-view-graph
+    activation:
+      profiles:
+        - bay-view
+      workspaces:
+        - bay-view
+      env:
+        TCP_PROXY_ENABLE_BAY_VIEW_GRAPH:
+          - "1"
+          - "true"
+          - "yes"
+          - "on"

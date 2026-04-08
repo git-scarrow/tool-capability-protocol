@@ -11,6 +11,7 @@ Merge bar:
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 import pytest
@@ -359,8 +360,94 @@ class TestServerLevelFiltering:
         assert _is_mcp_server_allowed("mcp__git__git_log", allowed)
         assert not _is_mcp_server_allowed("mcp__proxmox__get_vms", allowed)
 
+    def test_workspace_allowed_server_preserved_in_live(self):
+        old = os.environ.get("TCP_PROXY_WORKSPACE_MCP_SERVERS")
+        os.environ["TCP_PROXY_WORKSPACE_MCP_SERVERS"] = "bay-view-graph"
+        try:
+            prompt_body = {"messages": [{"role": "user", "content": [
+                {"type": "text", "text": "Check email from Jason from today"}
+            ]}]}
+            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            surviving = _tool_names(result_tools)
+            assert "mcp__bay-view-graph__list_emails" in surviving
+            assert "mcp__bay-view-graph__send_email" in surviving
+            assert meta["pack_states"]["workspace-critical"] == "deferred"
+            assert "workspace_allow" in meta["pack_activation_reasons"]["workspace-critical"]
+            assert "bay-view-graph" in meta["workspace_allowed_servers"]
+            assert "mcp__bay-view-graph__list_emails" in meta["workspace_rescued"]
+            assert "mcp__bay-view-graph__list_emails" in meta["deferred_visible"]
+            assert meta["server_allow_source"]["bay-view-graph"] == "workspace_allow"
+        finally:
+            if old is None:
+                os.environ.pop("TCP_PROXY_WORKSPACE_MCP_SERVERS", None)
+            else:
+                os.environ["TCP_PROXY_WORKSPACE_MCP_SERVERS"] = old
+
+    def test_workspace_profile_activates_workspace_critical_pack(self):
+        old = os.environ.get("TCP_PROXY_WORKSPACE_PROFILE")
+        os.environ["TCP_PROXY_WORKSPACE_PROFILE"] = "bay-view"
+        try:
+            prompt_body = {"messages": [{"role": "user", "content": [
+                {"type": "text", "text": "Check email from Jason from today"}
+            ]}]}
+            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            surviving = _tool_names(result_tools)
+            assert "mcp__bay-view-graph__list_emails" in surviving
+            assert meta["pack_states"]["workspace-critical"] == "active"
+            assert "profile:bay-view" in meta["pack_activation_reasons"]["workspace-critical"]
+            assert meta["server_allow_source"]["bay-view-graph"] == "pack_active"
+        finally:
+            if old is None:
+                os.environ.pop("TCP_PROXY_WORKSPACE_PROFILE", None)
+            else:
+                os.environ["TCP_PROXY_WORKSPACE_PROFILE"] = old
+
+    def test_tcp_proxy_profile_activates_workspace_critical_pack(self):
+        old_ws = os.environ.get("TCP_PROXY_WORKSPACE_PROFILE")
+        old_profile = os.environ.get("TCP_PROXY_PROFILE")
+        os.environ.pop("TCP_PROXY_WORKSPACE_PROFILE", None)
+        os.environ["TCP_PROXY_PROFILE"] = "bay-view"
+        try:
+            prompt_body = {"messages": [{"role": "user", "content": [
+                {"type": "text", "text": "Check email from Jason from today"}
+            ]}]}
+            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            surviving = _tool_names(result_tools)
+            assert "mcp__bay-view-graph__list_emails" in surviving
+            assert meta["pack_states"]["workspace-critical"] == "active"
+            assert "profile:bay-view" in meta["pack_activation_reasons"]["workspace-critical"]
+            assert meta["server_allow_source"]["bay-view-graph"] == "pack_active"
+        finally:
+            if old_ws is None:
+                os.environ.pop("TCP_PROXY_WORKSPACE_PROFILE", None)
+            else:
+                os.environ["TCP_PROXY_WORKSPACE_PROFILE"] = old_ws
+            if old_profile is None:
+                os.environ.pop("TCP_PROXY_PROFILE", None)
+            else:
+                os.environ["TCP_PROXY_PROFILE"] = old_profile
+
+    def test_explicit_tool_name_rescues_server_in_live(self):
+        prompt_body = {"messages": [{"role": "user", "content": [
+            {"type": "text", "text": "use mcp__bay-view-graph__list_emails to check email from Jason"}
+        ]}]}
+        result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+        surviving = _tool_names(result_tools)
+        assert "mcp__bay-view-graph__list_emails" in surviving
+        assert "mcp__bay-view-graph__list_emails" in meta["explicit_server_rescued"]
+        assert meta["server_allow_source"]["bay-view-graph"] == "explicit_request"
+
+    def test_mixed_case_server_name_rescues_server_in_live(self):
+        prompt_body = {"messages": [{"role": "user", "content": [
+            {"type": "text", "text": "please use claude_ai_vercel for deployment status"}
+        ]}]}
+        result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+        surviving = _tool_names(result_tools)
+        assert "mcp__claude_ai_Vercel__deploy_to_vercel" in surviving
+        assert "mcp__claude_ai_Vercel__deploy_to_vercel" in meta["explicit_server_rescued"]
+        assert meta["server_allow_source"]["claude_ai_Vercel"] == "explicit_request"
+
     def test_env_override_allowed_servers(self):
-        import os
         old = os.environ.get("TCP_PROXY_ALLOWED_MCP_SERVERS")
         os.environ["TCP_PROXY_ALLOWED_MCP_SERVERS"] = "filesystem,git"
         try:
@@ -379,3 +466,26 @@ class TestServerLevelFiltering:
                 os.environ.pop("TCP_PROXY_ALLOWED_MCP_SERVERS", None)
             else:
                 os.environ["TCP_PROXY_ALLOWED_MCP_SERVERS"] = old
+
+    def test_hard_allow_override_beats_workspace_allow(self):
+        old_hard = os.environ.get("TCP_PROXY_ALLOWED_MCP_SERVERS")
+        old_ws = os.environ.get("TCP_PROXY_WORKSPACE_MCP_SERVERS")
+        os.environ["TCP_PROXY_ALLOWED_MCP_SERVERS"] = "filesystem,git"
+        os.environ["TCP_PROXY_WORKSPACE_MCP_SERVERS"] = "bay-view-graph"
+        try:
+            prompt_body = {"messages": [{"role": "user", "content": [
+                {"type": "text", "text": "Check email from Jason from today"}
+            ]}]}
+            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            surviving = _tool_names(result_tools)
+            assert "mcp__bay-view-graph__list_emails" not in surviving
+            assert meta["workspace_allowed_servers"] == []
+        finally:
+            if old_hard is None:
+                os.environ.pop("TCP_PROXY_ALLOWED_MCP_SERVERS", None)
+            else:
+                os.environ["TCP_PROXY_ALLOWED_MCP_SERVERS"] = old_hard
+            if old_ws is None:
+                os.environ.pop("TCP_PROXY_WORKSPACE_MCP_SERVERS", None)
+            else:
+                os.environ["TCP_PROXY_WORKSPACE_MCP_SERVERS"] = old_ws
