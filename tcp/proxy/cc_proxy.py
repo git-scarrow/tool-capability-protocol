@@ -1,4 +1,10 @@
-"""HTTP proxy: Claude Code → Anthropic with TCP gating (shadow or live)."""
+"""HTTP proxy: Claude Code → Anthropic with TCP gating (shadow or live).
+
+Runtime defaults: file, network, and stdin are enabled unless you explicitly
+disable them via TCP_PROXY_* env vars. A previous default of network_enabled=False
+rejected every tool that carries SUPPORTS_NETWORK (including Bash), which breaks
+Claude Code in live mode.
+"""
 
 from __future__ import annotations
 
@@ -35,22 +41,89 @@ HOP_BY_HOP = frozenset(
         "trailers",
         "transfer-encoding",
         "upgrade",
+        # Never forward client-derived lengths: live mode rewrites JSON so byte size
+        # changes; httpx must set Content-Length from the bytes we actually send.
+        "content-length",
     }
 )
+
+
+VALID_MODES = ("shadow", "live", "live-strict")
 
 
 def _read_mode() -> str:
     if MODE_PATH.exists():
         raw = MODE_PATH.read_text(encoding="utf-8").strip().lower()
-        if raw in ("shadow", "live"):
+        if raw in VALID_MODES:
             return raw
     env = os.environ.get("TCP_CC_PROXY_MODE", "shadow").strip().lower()
-    return env if env in ("shadow", "live") else "shadow"
+    return env if env in VALID_MODES else "shadow"
 
 
 def _write_mode(mode: str) -> None:
     PROXY_STATE_DIR.mkdir(parents=True, exist_ok=True)
     MODE_PATH.write_text(mode + "\n", encoding="utf-8")
+
+
+# ── Budget-aware MCP server filtering ─────────────────────────────────────────
+# MCP servers whose tools are always relevant in a coding/development session.
+# Tools from unlisted servers are removed in live mode (Stage 2).
+# Non-MCP built-ins are never affected by this filter.
+# Configurable via TCP_PROXY_ALLOWED_MCP_SERVERS (comma-separated prefixes).
+
+_DEFAULT_ALLOWED_MCP_SERVERS: frozenset[str] = frozenset({
+    "filesystem",       # file read/write/search — always relevant
+    "git",              # version control — always relevant
+    "fetch",            # web fetch — general purpose
+    "context7",         # library docs — relevant for code generation
+    "exa",              # web search — general purpose
+    "nixos",            # system packages — relevant for this environment
+    "chatsearch",       # conversation history — relevant for context
+    "writing-rag",      # corpus search — project-specific
+    "claude-projects",  # Claude.ai project management
+    "notion-agents",    # Lab workspace integration
+    "oracle-remote",    # Oracle DB access
+})
+
+
+def _get_allowed_mcp_servers() -> frozenset[str]:
+    """Return the set of MCP server prefixes whose tools survive live filtering."""
+    env = os.environ.get("TCP_PROXY_ALLOWED_MCP_SERVERS")
+    if env is not None:
+        return frozenset(s.strip() for s in env.split(",") if s.strip())
+    return _DEFAULT_ALLOWED_MCP_SERVERS
+
+
+def _is_mcp_server_allowed(tool_name: str, allowed: frozenset[str]) -> bool:
+    """Check if an MCP tool belongs to an allowed server."""
+    if not tool_name.startswith("mcp__"):
+        return True  # non-MCP tools are never filtered by this mechanism
+    parts = tool_name.split("__")
+    if len(parts) < 2:
+        return True
+    server = parts[1]
+    return server in allowed
+
+
+# ── Safety floor: core local coding tools that must survive live filtering ────
+
+_SAFETY_FLOOR_TOOLS = frozenset({
+    "Read", "Edit", "MultiEdit", "Write", "Glob", "Grep", "Bash",
+    "Agent", "EnterPlanMode", "ExitPlanMode", "AskUserQuestion",
+    "Skill", "TaskCreate", "TaskUpdate", "TaskList", "TaskGet",
+    "NotebookEdit", "Think",
+    # MCP filesystem / git equivalents
+    "mcp__filesystem__read_file", "mcp__filesystem__write_file",
+    "mcp__filesystem__read_multiple_files", "mcp__filesystem__list_directory",
+    "mcp__filesystem__search_files", "mcp__filesystem__directory_tree",
+    "mcp__filesystem__create_directory", "mcp__filesystem__list_directory_with_sizes",
+    "mcp__filesystem__get_file_info",
+    "mcp__git__git_log", "mcp__git__git_diff", "mcp__git__git_status",
+    "mcp__git__git_show", "mcp__git__git_branch",
+    "mcp__git__git_diff_staged", "mcp__git__git_diff_unstaged",
+    "mcp__git__git_add", "mcp__git__git_commit", "mcp__git__git_checkout",
+    "mcp__git__git_reset", "mcp__git__git_create_branch",
+})
 
 
 def _session_from_env() -> SessionStartEvent:
@@ -62,11 +135,23 @@ def _session_from_env() -> SessionStartEvent:
 
 
 def _runtime_from_env() -> RuntimeEnvironment:
+    """Match unrestricted Claude Code unless the user tightens the sandbox with env."""
+
+    def _bool_env(key: str, *, default: bool) -> bool:
+        raw = os.environ.get(key)
+        if raw is None or str(raw).strip() == "":
+            return default
+        v = str(raw).strip().lower()
+        if v in ("0", "false", "no", "off"):
+            return False
+        if v in ("1", "true", "yes", "on"):
+            return True
+        return default
+
     return RuntimeEnvironment(
-        network_enabled=os.environ.get("TCP_PROXY_NETWORK", "").lower()
-        in ("1", "true", "yes"),
-        file_access_enabled=os.environ.get("TCP_PROXY_FILE_ACCESS", "true").lower()
-        not in ("0", "false", "no"),
+        network_enabled=_bool_env("TCP_PROXY_NETWORK", default=True),
+        file_access_enabled=_bool_env("TCP_PROXY_FILE_ACCESS", default=True),
+        stdin_enabled=_bool_env("TCP_PROXY_STDIN", default=True),
     )
 
 
@@ -75,30 +160,34 @@ def _tool_name(tool: Mapping[str, Any]) -> str:
     return str(n) if n is not None else ""
 
 
-def _gate_request_for_prompt(prompt: str, session: SessionStartEvent) -> ToolSelectionRequest:
-    """Capability flags only — avoids false rejects when ToolRecords lack format metadata."""
-    full = derive_request(prompt, session)
-    return ToolSelectionRequest.from_kwargs(
-        required_capability_flags=full.required_capability_flags,
-        require_auto_approval=full.require_auto_approval,
-    )
-
-
 def _process_tools_array(
     tools: list[Any],
     body: Mapping[str, Any],
     mode: str,
 ) -> tuple[list[Any], dict[str, Any]]:
-    """Run projection + gate_tools; in live mode return filtered tools list."""
+    """Run 4-stage projection + gating pipeline.
+
+    Stages (live/live-strict only; shadow logs but returns all tools):
+      1. Hard environment gating     — deterministic, can reject (network/file/stdin off)
+      2. Budget-aware server shaping — remove MCP tools from irrelevant servers
+      3. Heuristic scoring           — audit/ranking metadata, never prunes
+      4. Safety floor                — guarantees core coding tools survive
+
+    ``live`` (default): Stages 1+2+4. Server-level filtering removes domain
+    tools (Proxmox, Playwright, Tally, etc.) while preserving all coding tools.
+    ``live-strict``: Stages 1+2 + full capability-flag gating (benchmark-style).
+    ``shadow``: Logs all stages, returns original tools unchanged.
+    """
     messages = body.get("messages")
     prompt = extract_task_prompt(messages if isinstance(messages, list) else None)
     session = _session_from_env()
-    tsel = _gate_request_for_prompt(prompt, session)
+    tsel = derive_request(prompt, session)
     env = _runtime_from_env()
 
+    # ── Project all tools ────────────────────────────────────────────────
     entries: list[tuple[Any, Any, Any, Any]] = []
-    records = []
-    tiers = []
+    records: list[Any] = []
+    tiers: list[Any] = []
     for t in tools:
         if not isinstance(t, Mapping):
             entries.append((t, None, None, None))
@@ -108,22 +197,88 @@ def _process_tools_array(
         tiers.append(tier)
         entries.append((t, rec, tier, rec.tool_name))
 
-    gate = gate_tools(records, tsel, env) if records else None
-    survivors: set[str] = set()
+    # ── Stage 1: Hard environment gating ─────────────────────────────────
+    # Use only environment-derived hard flags (not prompt heuristics).
+    hard_tsel = ToolSelectionRequest.from_kwargs(
+        required_capability_flags=tsel.hard_capability_flags,
+        require_auto_approval=tsel.require_auto_approval,
+    )
+    gate = gate_tools(records, hard_tsel, env) if records else None
+
+    stage1_survivors: set[str] = set()
     if gate:
-        survivors = {x.tool_name for x in gate.approved_tools} | {
+        stage1_survivors = {x.tool_name for x in gate.approved_tools} | {
             x.tool_name for x in gate.approval_required_tools
         }
 
+    # ── Stage 2: Budget-aware server-level filtering ────────────────────
+    # In live mode: remove MCP tools from servers not in the allowed set.
+    # Non-MCP built-ins are never affected. Safety floor is applied later.
+    # In live-strict: also apply full capability flag gating (benchmark-style).
+    allowed_servers = _get_allowed_mcp_servers()
+    stage2_survivors = set(stage1_survivors)
+    server_filtered: set[str] = set()
+
+    if mode in ("live", "live-strict"):
+        for name in stage1_survivors:
+            if not _is_mcp_server_allowed(name, allowed_servers):
+                stage2_survivors.discard(name)
+                server_filtered.add(name)
+
+    if mode == "live-strict" and records:
+        strict_tsel = ToolSelectionRequest.from_kwargs(
+            required_capability_flags=tsel.required_capability_flags,
+            required_commands=set(tsel.required_commands) or None,
+            required_input_formats=set(tsel.required_input_formats) or None,
+            required_output_formats=set(tsel.required_output_formats) or None,
+            required_processing_modes=set(tsel.required_processing_modes) or None,
+            require_auto_approval=tsel.require_auto_approval,
+        )
+        strict_gate = gate_tools(records, strict_tsel, env)
+        stage2_survivors = {x.tool_name for x in strict_gate.approved_tools} | {
+            x.tool_name for x in strict_gate.approval_required_tools
+        }
+
+    # ── Stage 3: Heuristic scoring (audit only, never prunes) ────────────
+    # Record what prompt-derived flags would have done, for telemetry.
+    heuristic_would_reject: set[str] = set()
+    if tsel.heuristic_capability_flags and gate:
+        for rec_item in records:
+            if tsel.heuristic_capability_flags and (
+                rec_item.capability_flags & tsel.heuristic_capability_flags
+            ) != tsel.heuristic_capability_flags:
+                heuristic_would_reject.add(rec_item.tool_name)
+
+    # ── Stage 4: Safety floor ────────────────────────────────────────────
+    # Ensure core coding tools survive unless Stage 1 made them
+    # environmentally impossible.
+    active_survivors = set(stage2_survivors)
+    safety_floor_activated = False
+    floor_rescued: set[str] = set()
+
+    if mode == "live" and env.file_access_enabled:
+        all_names = {rec.tool_name for (_, rec, _, _) in entries if rec is not None}
+        floor_names = _SAFETY_FLOOR_TOOLS & all_names
+        missing_floor = floor_names - active_survivors
+        if missing_floor:
+            safety_floor_activated = True
+            floor_rescued = missing_floor
+            active_survivors = active_survivors | missing_floor
+
+    # ── Build output tool list ───────────────────────────────────────────
     live_tools: list[Any] = []
     for item in entries:
         orig, rec, tier, _name = item
         if rec is None:
             live_tools.append(orig)
             continue
-        if tier == ProjectionTier.FALLBACK or rec.tool_name in survivors:
+        if rec.tool_name in active_survivors:
+            live_tools.append(orig)
+        elif tier == ProjectionTier.FALLBACK and rec.tool_name not in server_filtered:
+            # FALLBACK tools pass through unless explicitly server-filtered
             live_tools.append(orig)
 
+    # ── Serialize audit log ──────────────────────────────────────────────
     audit_serial = []
     if gate:
         for a in gate.audit_log:
@@ -136,25 +291,41 @@ def _process_tools_array(
                 }
             )
 
+    # ── Decision metadata ────────────────────────────────────────────────
     meta: dict[str, Any] = {
         "mode": mode,
+        "strategy": "conservative" if mode == "live" else ("strict" if mode == "live-strict" else "shadow"),
         "prompt_excerpt": prompt[:240],
         "required_capability_flags": tsel.required_capability_flags,
+        "hard_capability_flags": tsel.hard_capability_flags,
+        "heuristic_capability_flags": tsel.heuristic_capability_flags,
         "tool_count_before": len(tools),
-        "tool_count_after": len(live_tools) if mode == "live" else len(tools),
-        "survivor_names_sorted": sorted(survivors),
+        "stage1_survivor_count": len(stage1_survivors),
+        "stage2_survivor_count": len(stage2_survivors),
+        "server_filtered_count": len(server_filtered),
+        "server_filtered": sorted(server_filtered) if server_filtered else [],
+        "heuristic_would_reject_count": len(heuristic_would_reject),
+        "heuristic_would_reject": sorted(heuristic_would_reject) if heuristic_would_reject else [],
+        "safety_floor_activated": safety_floor_activated,
+        "safety_floor_rescued": sorted(floor_rescued) if floor_rescued else [],
+        "tool_count_after": len(live_tools) if mode in ("live", "live-strict") else len(tools),
+        # Backward-compat aliases for TCP-MT-10 / shadow pilot scripts.
+        "full_tool_count": len(tools),
+        "survivor_count": len(active_survivors),
+        "survivor_names_sorted": sorted(active_survivors),
         "projection_tiers": [
             tier.name for (_o, _r, tier, _n) in entries if tier is not None
         ],
         "audit": audit_serial,
     }
 
-    if mode == "live" and len(tools) > 0 and len(live_tools) == 0:
+    # ── Empty-set guardrail ──────────────────────────────────────────────
+    if mode in ("live", "live-strict") and len(tools) > 0 and len(live_tools) == 0:
         meta["live_empty_fallback"] = True
         meta["tool_count_after"] = len(tools)
         return list(tools), meta
 
-    if mode == "live":
+    if mode in ("live", "live-strict"):
         return live_tools, meta
     return list(tools), meta
 
@@ -206,6 +377,25 @@ def _response_headers_from_httpx(response: httpx.Response) -> dict[str, str]:
     return out
 
 
+def _streaming_response_headers(response: httpx.Response) -> dict[str, str]:
+    """Headers when piping httpx ``aiter_raw()`` to the client.
+
+    Drop ``content-length`` so uvicorn/chunked encoding matches how we stream;
+    keep ``content-encoding`` so the client decompresses wire-format once.
+    """
+    hdrs = _response_headers_from_httpx(response)
+    return {k: v for k, v in hdrs.items() if k.lower() != "content-length"}
+
+
+def _buffered_response_headers(response: httpx.Response, body: bytes) -> dict[str, str]:
+    """Headers after ``aread()`` — httpx has already decoded Content-Encoding."""
+    hdrs = _response_headers_from_httpx(response)
+    drop = frozenset({"content-encoding", "content-length", "transfer-encoding"})
+    out = {k: v for k, v in hdrs.items() if k.lower() not in drop}
+    out["content-length"] = str(len(body))
+    return out
+
+
 def _upstream_base() -> str:
     return os.environ.get("ANTHROPIC_UPSTREAM_BASE", "https://api.anthropic.com").rstrip("/")
 
@@ -221,6 +411,8 @@ async def proxy_post_messages(request: Request) -> Response:
         )
 
     url = f"{_upstream_base()}/v1/messages"
+    if request.url.query:
+        url = f"{url}?{request.url.query}"
     headers = _forward_headers(request)
     stream = False
     try:
@@ -246,7 +438,9 @@ async def proxy_post_messages(request: Request) -> Response:
 
         async def body_iter() -> Any:
             try:
-                async for chunk in response.aiter_bytes():
+                # Wire bytes only — aiter_bytes() would gzip-decode here and break
+                # clients that still see Content-Encoding: gzip (ZlibError).
+                async for chunk in response.aiter_raw():
                     yield chunk
             finally:
                 await response.aclose()
@@ -255,13 +449,13 @@ async def proxy_post_messages(request: Request) -> Response:
         return StreamingResponse(
             body_iter(),
             status_code=response.status_code,
-            headers=_response_headers_from_httpx(response),
+            headers=_streaming_response_headers(response),
             media_type=response.headers.get("content-type"),
         )
 
     try:
         content = await response.aread()
-        hdrs = _response_headers_from_httpx(response)
+        hdrs = _buffered_response_headers(response, content)
         return Response(
             content=content,
             status_code=response.status_code,
@@ -289,7 +483,7 @@ async def proxy_pass_through(request: Request) -> Response:
 
     async def body_iter() -> Any:
         try:
-            async for chunk in response.aiter_bytes():
+            async for chunk in response.aiter_raw():
                 yield chunk
         finally:
             await response.aclose()
@@ -298,7 +492,7 @@ async def proxy_pass_through(request: Request) -> Response:
     return StreamingResponse(
         body_iter(),
         status_code=response.status_code,
-        headers=_response_headers_from_httpx(response),
+        headers=_streaming_response_headers(response),
         media_type=response.headers.get("content-type"),
     )
 
@@ -313,8 +507,8 @@ async def handle_tcp_mode_post(request: Request) -> JSONResponse:
     except json.JSONDecodeError:
         return JSONResponse({"error": "invalid JSON"}, status_code=400)
     mode = data.get("mode", "")
-    if mode not in ("shadow", "live"):
-        return JSONResponse({"error": "mode must be shadow or live"}, status_code=400)
+    if mode not in VALID_MODES:
+        return JSONResponse({"error": f"mode must be one of: {', '.join(VALID_MODES)}"}, status_code=400)
     _write_mode(mode)
     return JSONResponse({"mode": mode, "ok": True})
 

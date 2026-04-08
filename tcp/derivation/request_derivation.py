@@ -121,6 +121,9 @@ _EXACT_CLASSES: dict[str, str] = {
     "mcp__git__git_checkout": "GIT_WRITE",
     "mcp__git__git_reset": "GIT_WRITE",
     "mcp__git__git_create_branch": "GIT_WRITE",
+    # Other MCP surfaces (singleton equivalence classes; include in shadow inventory)
+    "mcp__notion-agents__start_agent_run": "MCP_NOTION_AGENT_RUN",
+    "mcp__proxmox__get_vms": "MCP_PROXMOX_READ",
 }
 
 _GIT_WRITE_COMMANDS = re.compile(
@@ -133,6 +136,27 @@ _WEB_COMMANDS = re.compile(r'^(curl|wget|fetch)\b', re.IGNORECASE)
 
 # ── Public API ────────────────────────────────────────────────────────────────
 
+def normalize_mcp_git_tool_name(tool_name: str) -> str:
+    """Map ``mcp__<server-slug>__git__…`` to ``mcp__git__…`` for stable matching.
+
+    Some MCP installs register git as ``mcp__agents__git__git_add`` while tables
+    and shadow inventory use the shorter ``mcp__git__`` prefix.
+    """
+    if not tool_name.startswith("mcp__"):
+        return tool_name
+    parts = tool_name.split("__")
+    if len(parts) < 3:
+        return tool_name
+    try:
+        git_idx = parts.index("git")
+    except ValueError:
+        return tool_name
+    suffix = parts[git_idx + 1 :]
+    if not suffix:
+        return tool_name
+    return "mcp__git__" + "__".join(suffix)
+
+
 def derive_request(
     prompt: str,
     session: SessionStartEvent,
@@ -140,13 +164,28 @@ def derive_request(
     """Convert a UserPromptSubmit prompt + SessionStart into a ToolSelectionRequest.
 
     Implements the v1 rule-based derivation from TCP-DS-2.
+
+    The returned request exposes two tiers:
+    - ``required_capability_flags``: union of all derived flags (backward-compat
+      with benchmark/offline consumers).
+    - ``heuristic_capability_flags``: the subset derived from prompt text alone
+      (SUPPORTS_FILES, SUPPORTS_NETWORK, AUTH_REQUIRED from regex patterns).
+      These are useful for scoring but unsafe as live hard gates because words
+      like "endpoint" trigger SUPPORTS_NETWORK even for local code edits.
+
+    Live-conservative mode should use ``hard_capability_flags`` (the property
+    that masks out heuristic bits) for rejection decisions.
     """
-    capability_flags = _derive_capability_flags(prompt, session)
+    prompt_flags = _derive_capability_flags_from_prompt_only(prompt)
+    env_flags = _derive_env_flags(prompt, session)
+    all_flags = prompt_flags | env_flags
+
     output_formats = _derive_output_formats(prompt)
     require_auto_approval = _derive_approval_mode(session)
 
     return ToolSelectionRequest.from_kwargs(
-        required_capability_flags=capability_flags,
+        required_capability_flags=all_flags,
+        heuristic_capability_flags=prompt_flags,
         required_output_formats=output_formats,
         require_auto_approval=require_auto_approval,
         preferred_criteria="speed",
@@ -159,6 +198,7 @@ def get_equivalence_class(tool_name: str, tool_input: dict) -> str:
     Uses the taxonomy defined in TCP-DS-2 §4. Bash is disambiguated by
     inspecting tool_input['command'].
     """
+    tool_name = normalize_mcp_git_tool_name(tool_name)
     # Direct lookup first
     if tool_name in _EXACT_CLASSES:
         return _EXACT_CLASSES[tool_name]
@@ -216,13 +256,16 @@ def classify_unscorable(prompt: str, tool_event: PostToolUseEvent) -> bool:
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
 def _derive_capability_flags(prompt: str, session: SessionStartEvent) -> int:
-    flags = _derive_capability_flags_from_prompt_only(prompt)
+    """Legacy: returns union of prompt + env flags. Kept for classify_unscorable."""
+    return _derive_capability_flags_from_prompt_only(prompt) | _derive_env_flags(prompt, session)
 
-    # System cwd implies AUTH_REQUIRED even for neutral prompts
+
+def _derive_env_flags(_prompt: str, session: SessionStartEvent) -> int:
+    """Environment-derived flags only — safe for live hard rejection."""
+    flags = 0
     cwd = session.cwd.rstrip("/")
     if any(cwd == sd or cwd.startswith(sd + "/") for sd in _SYSTEM_DIRS):
         flags |= int(CapabilityFlags.AUTH_REQUIRED)
-
     return flags
 
 

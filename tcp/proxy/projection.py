@@ -5,7 +5,10 @@ from __future__ import annotations
 from enum import IntEnum
 from typing import Any, Mapping
 
-from tcp.derivation.request_derivation import derive_capability_flags_from_description
+from tcp.derivation.request_derivation import (
+    derive_capability_flags_from_description,
+    normalize_mcp_git_tool_name,
+)
 from tcp.harness.models import ToolRecord
 from tcp.proxy.tool_flag_map import STATIC_FLAG_BY_NAME
 
@@ -34,8 +37,13 @@ def project_single_anthropic_tool(
     name = _tool_name(tool)
     desc = _tool_description(tool)
 
-    if name in STATIC_FLAG_BY_NAME:
-        flags = STATIC_FLAG_BY_NAME[name]
+    static_key = (
+        name
+        if name in STATIC_FLAG_BY_NAME
+        else normalize_mcp_git_tool_name(name)
+    )
+    if static_key in STATIC_FLAG_BY_NAME:
+        flags = STATIC_FLAG_BY_NAME[static_key]
         tier = ProjectionTier.STATIC
     else:
         inferred = derive_capability_flags_from_description(desc)
