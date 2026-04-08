@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from tcp.proxy.pack_manifest import (
     DEFAULT_PROFILE,
     MANIFEST_VERSION,
@@ -17,9 +19,15 @@ from tcp.proxy.pack_manifest import (
 )
 
 
-def test_load_pack_manifest_prefers_workspace_file() -> None:
-    manifest = load_pack_manifest()
-    assert manifest.source_path == str(default_manifest_path())
+def test_load_pack_manifest_prefers_workspace_file(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("TCP_PROXY_PACK_MANIFEST", raising=False)
+    monkeypatch.delenv("TCP_PROXY_CWD", raising=False)
+    monkeypatch.delenv("TCP_PROXY_WORKSPACE_PROFILE", raising=False)
+    monkeypatch.delenv("TCP_PROXY_PROFILE", raising=False)
+    manifest = load_pack_manifest(use_cache=False)
+    assert Path(manifest.source_path).resolve() == default_manifest_path().resolve()
     assert manifest.version == MANIFEST_VERSION
     assert any(pack.pack_id == "workspace-critical" for pack in manifest.packs)
 
@@ -57,15 +65,24 @@ def test_pack_context_defaults_to_default_profile(monkeypatch) -> None:
     assert context.profile == DEFAULT_PROFILE
 
 
+def test_pack_context_uses_tcp_proxy_profile_when_workspace_profile_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.delenv("TCP_PROXY_WORKSPACE_PROFILE", raising=False)
+    monkeypatch.setenv("TCP_PROXY_PROFILE", "bay-view")
+    context = pack_context_from_env(cwd="/home/sam/projects/tool-capability-protocol")
+    assert context.profile == "bay-view"
+
+
 def test_malformed_explicit_manifest_falls_back_to_default(
-    monkeypatch,
+    monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
     bad_manifest = tmp_path / ".tcp-proxy-packs.yaml"
     bad_manifest.write_text("version: [\npacks:\n  - pack_id: bad\n", encoding="utf-8")
     monkeypatch.setenv("TCP_PROXY_PACK_MANIFEST", str(bad_manifest))
     manifest = load_pack_manifest(use_cache=False)
-    assert manifest.source_path == str(default_manifest_path())
+    assert Path(manifest.source_path).resolve() == default_manifest_path().resolve()
     assert any(pack.pack_id == "workspace-critical" for pack in manifest.packs)
 
 

@@ -127,7 +127,12 @@ def _prompt_mentions_server(prompt: str, tool_name: str) -> bool:
     server = _extract_mcp_server(tool_name)
     if not server:
         return False
-    server_tokens = {server, server.replace("-", " "), server.replace("_", " ")}
+    server_l = server.lower()
+    server_tokens = {
+        server_l,
+        server_l.replace("-", " "),
+        server_l.replace("_", " "),
+    }
     return any(token in prompt_l for token in server_tokens)
 
 
@@ -258,7 +263,10 @@ def _process_tools_array(
     )
     pack_context = pack_context_from_env(
         cwd=session.cwd,
-        profile=os.environ.get("TCP_PROXY_WORKSPACE_PROFILE") or session.permission_mode,
+        profile=(
+            os.environ.get("TCP_PROXY_WORKSPACE_PROFILE")
+            or os.environ.get("TCP_PROXY_PROFILE")
+        ),
         workspace_allowed_servers=workspace_allowed_servers,
     )
     pack_decisions, server_pack_decisions = resolve_pack_decisions(
