@@ -281,6 +281,7 @@ FULL_TOOL_SET = _make_tools(
     "mcp__playwright__browser_click", "mcp__playwright__browser_snapshot",
     "mcp__claude_ai_tally__list_forms", "mcp__claude_ai_tally__create_blocks",
     "mcp__claude_ai_Vercel__deploy_to_vercel", "mcp__claude_ai_Vercel__list_projects",
+    "mcp__plugin:Notion:notion__notion-create-pages",
     "mcp__bay-view-graph__list_emails", "mcp__bay-view-graph__send_email",
     "mcp__claude_ai_Google_Calendar__gcal_list_events",
     "mcp__claude_ai_Gmail__gmail_search_messages",
@@ -446,6 +447,19 @@ class TestServerLevelFiltering:
         assert "mcp__claude_ai_Vercel__deploy_to_vercel" in surviving
         assert "mcp__claude_ai_Vercel__deploy_to_vercel" in meta["explicit_server_rescued"]
         assert meta["server_allow_source"]["claude_ai_Vercel"] == "explicit_request"
+
+    def test_plugin_server_phrase_rescues_plugin_tools_in_live(self):
+        prompt_body = {"messages": [{"role": "user", "content": [
+            {"type": "text", "text": "try notion plugin and log the admin work"}
+        ]}]}
+        result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+        surviving = _tool_names(result_tools)
+        assert "mcp__plugin:Notion:notion__notion-create-pages" in surviving
+        assert (
+            "mcp__plugin:Notion:notion__notion-create-pages"
+            in meta["explicit_server_rescued"]
+        )
+        assert meta["server_allow_source"]["plugin:Notion:notion"] == "explicit_request"
 
     def test_env_override_allowed_servers(self):
         old = os.environ.get("TCP_PROXY_ALLOWED_MCP_SERVERS")
