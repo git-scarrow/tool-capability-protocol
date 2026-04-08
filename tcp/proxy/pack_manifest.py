@@ -72,6 +72,23 @@ class PackDecision:
     servers: tuple[str, ...]
 
 
+@dataclass(frozen=True)
+class PackInspection:
+    manifest_source: str
+    default_manifest_path: str
+    explicit_manifest_path: str | None
+    explicit_manifest_in_effect: bool
+    workspace_name: str
+    workspace_path: str
+    profile: str
+    workspace_allowed_servers: tuple[str, ...]
+    pack_decisions: tuple[PackDecision, ...]
+
+
+class PackManifestError(ValueError):
+    """Operator-readable manifest inspection/load error."""
+
+
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
@@ -260,16 +277,38 @@ def _load_manifest_from_cache_key(
     return _build_manifest(raw, source_path=source_key)
 
 
-def load_pack_manifest(*, use_cache: bool = True) -> PackManifest:
+def _load_manifest_file(path: Path, *, use_cache: bool = True) -> PackManifest:
+    stat = path.stat()
+    if use_cache:
+        return _load_manifest_from_cache_key(str(path), stat.st_mtime_ns)
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    return _build_manifest(raw, source_path=str(path))
+
+
+def load_pack_manifest(
+    *,
+    use_cache: bool = True,
+    strict_explicit: bool = False,
+) -> PackManifest:
+    explicit_raw = os.environ.get("TCP_PROXY_PACK_MANIFEST")
+    if explicit_raw:
+        explicit_path = Path(explicit_raw).expanduser()
+        if explicit_path.exists():
+            try:
+                return _load_manifest_file(explicit_path, use_cache=use_cache)
+            except (OSError, ValueError, yaml.YAMLError) as exc:
+                if strict_explicit:
+                    raise PackManifestError(
+                        f"explicit pack manifest is invalid: {explicit_path} ({exc})"
+                    ) from exc
+
     for path in _candidate_manifest_paths():
+        if explicit_raw and path == Path(explicit_raw).expanduser():
+            continue
         if not path.exists():
             continue
         try:
-            stat = path.stat()
-            if use_cache:
-                return _load_manifest_from_cache_key(str(path), stat.st_mtime_ns)
-            raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-            return _build_manifest(raw, source_path=str(path))
+            return _load_manifest_file(path, use_cache=use_cache)
         except (OSError, ValueError, yaml.YAMLError):
             continue
     return _load_manifest_from_cache_key("<embedded-default>", 0)
@@ -357,3 +396,40 @@ def resolve_pack_decisions(
             server_decisions[server] = decision
 
     return pack_decisions, server_decisions
+
+
+def inspect_pack_state(
+    *,
+    cwd: str | None = None,
+    profile: str | None = None,
+    workspace_allowed_servers: frozenset[str] | None = None,
+    use_cache: bool = True,
+    strict_explicit: bool = True,
+) -> PackInspection:
+    manifest = load_pack_manifest(use_cache=use_cache, strict_explicit=strict_explicit)
+    context = pack_context_from_env(
+        cwd=cwd,
+        profile=profile,
+        workspace_allowed_servers=workspace_allowed_servers,
+    )
+    pack_decisions, _ = resolve_pack_decisions(manifest, context)
+    explicit_raw = os.environ.get("TCP_PROXY_PACK_MANIFEST")
+    explicit_path = (
+        str(Path(explicit_raw).expanduser().resolve()) if explicit_raw else None
+    )
+    manifest_source = manifest.source_path
+    if manifest_source not in ("<embedded-default>",):
+        manifest_source = str(Path(manifest_source).resolve())
+    return PackInspection(
+        manifest_source=manifest_source,
+        default_manifest_path=str(default_manifest_path().resolve()),
+        explicit_manifest_path=explicit_path,
+        explicit_manifest_in_effect=bool(
+            explicit_path and manifest_source == explicit_path
+        ),
+        workspace_name=context.workspace_name,
+        workspace_path=context.workspace_path,
+        profile=context.profile,
+        workspace_allowed_servers=tuple(sorted(context.workspace_allowed_servers)),
+        pack_decisions=tuple(pack_decisions[pack.pack_id] for pack in manifest.packs),
+    )

@@ -13,6 +13,7 @@ from tcp.proxy.pack_manifest import (
     STATE_DEFERRED,
     _load_manifest_from_cache_key,
     default_manifest_path,
+    inspect_pack_state,
     load_pack_manifest,
     pack_context_from_env,
     resolve_pack_decisions,
@@ -111,3 +112,20 @@ def test_manifest_cache_refreshes_when_file_changes(tmp_path: Path) -> None:
     second_stat = manifest_path.stat()
     second = _load_manifest_from_cache_key(str(manifest_path), second_stat.st_mtime_ns)
     assert second.packs[0].pack_id == "cache-test-updated"
+
+
+def test_inspect_pack_state_reports_manifest_source_and_pack_reasons() -> None:
+    inspection = inspect_pack_state(
+        cwd="/home/sam/projects/tool-capability-protocol",
+        profile="bay-view",
+        workspace_allowed_servers=frozenset(),
+        use_cache=False,
+    )
+    assert Path(inspection.manifest_source).resolve() == default_manifest_path().resolve()
+    assert inspection.profile == "bay-view"
+    assert inspection.pack_decisions
+    workspace_critical = next(
+        decision for decision in inspection.pack_decisions if decision.pack_id == "workspace-critical"
+    )
+    assert workspace_critical.state == STATE_ACTIVE
+    assert "profile:bay-view" in workspace_critical.reasons
