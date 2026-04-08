@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import time
 from pathlib import Path
 from typing import Any, Mapping
@@ -132,7 +133,14 @@ def _prompt_mentions_server(prompt: str, tool_name: str) -> bool:
         server_l,
         server_l.replace("-", " "),
         server_l.replace("_", " "),
+        server_l.replace(":", " "),
     }
+    parts = tuple(part for part in re.split(r"[^a-z0-9]+", server_l) if part)
+    unique_parts = tuple(dict.fromkeys(parts))
+    if len(unique_parts) >= 2:
+        pair = " ".join(unique_parts[:2])
+        server_tokens.add(pair)
+        server_tokens.add(" ".join(reversed(unique_parts[:2])))
     return any(token in prompt_l for token in server_tokens)
 
 
