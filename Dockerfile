@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     curl \
     wget \
+    zstd \
     man-db \
     manpages \
     manpages-dev \
