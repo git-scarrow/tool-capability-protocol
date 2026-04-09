@@ -20,7 +20,12 @@ from typing import Any, Mapping
 import httpx
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import JSONResponse, PlainTextResponse, Response, StreamingResponse
+from starlette.responses import (
+    JSONResponse,
+    PlainTextResponse,
+    Response,
+    StreamingResponse,
+)
 from starlette.routing import Route
 
 from tcp.derivation.request_derivation import SessionStartEvent, derive_request
@@ -149,13 +154,15 @@ def _server_alias_tokens(server_l: str) -> set[str]:
     unique_parts = tuple(dict.fromkeys(parts))
     if len(unique_parts) >= 2:
         for idx in range(len(unique_parts) - 1):
-            pair = " ".join(unique_parts[idx:idx + 2])
+            pair = " ".join(unique_parts[idx : idx + 2])
             tokens.add(pair)
-            tokens.add(" ".join(reversed(unique_parts[idx:idx + 2])))
+            tokens.add(" ".join(reversed(unique_parts[idx : idx + 2])))
         tokens.add(" ".join(unique_parts))
 
     wrapper_parts = {"plugin", "claude", "ai", "mcp"}
-    informative_parts = tuple(part for part in unique_parts if part not in wrapper_parts)
+    informative_parts = tuple(
+        part for part in unique_parts if part not in wrapper_parts
+    )
     if informative_parts:
         tokens.add(" ".join(informative_parts))
         if len(informative_parts) == 1:
@@ -173,7 +180,7 @@ def _server_alias_tokens(server_l: str) -> set[str]:
                 tokens.add(f"{informative} claude")
         elif len(informative_parts) >= 2:
             for idx in range(len(informative_parts) - 1):
-                phrase = " ".join(informative_parts[idx:idx + 2])
+                phrase = " ".join(informative_parts[idx : idx + 2])
                 tokens.add(phrase)
     return {token for token in tokens if token}
 
@@ -191,23 +198,50 @@ def _is_mcp_server_allowed(tool_name: str, allowed: frozenset[str]) -> bool:
 
 # ── Safety floor: core local coding tools that must survive live filtering ────
 
-_SAFETY_FLOOR_TOOLS = frozenset({
-    "Read", "Edit", "MultiEdit", "Write", "Glob", "Grep", "Bash",
-    "Agent", "EnterPlanMode", "ExitPlanMode", "AskUserQuestion",
-    "Skill", "TaskCreate", "TaskUpdate", "TaskList", "TaskGet",
-    "NotebookEdit", "Think",
-    # MCP filesystem / git equivalents
-    "mcp__filesystem__read_file", "mcp__filesystem__write_file",
-    "mcp__filesystem__read_multiple_files", "mcp__filesystem__list_directory",
-    "mcp__filesystem__search_files", "mcp__filesystem__directory_tree",
-    "mcp__filesystem__create_directory", "mcp__filesystem__list_directory_with_sizes",
-    "mcp__filesystem__get_file_info",
-    "mcp__git__git_log", "mcp__git__git_diff", "mcp__git__git_status",
-    "mcp__git__git_show", "mcp__git__git_branch",
-    "mcp__git__git_diff_staged", "mcp__git__git_diff_unstaged",
-    "mcp__git__git_add", "mcp__git__git_commit", "mcp__git__git_checkout",
-    "mcp__git__git_reset", "mcp__git__git_create_branch",
-})
+_SAFETY_FLOOR_TOOLS = frozenset(
+    {
+        "Read",
+        "Edit",
+        "MultiEdit",
+        "Write",
+        "Glob",
+        "Grep",
+        "Bash",
+        "Agent",
+        "EnterPlanMode",
+        "ExitPlanMode",
+        "AskUserQuestion",
+        "Skill",
+        "TaskCreate",
+        "TaskUpdate",
+        "TaskList",
+        "TaskGet",
+        "NotebookEdit",
+        "Think",
+        # MCP filesystem / git equivalents
+        "mcp__filesystem__read_file",
+        "mcp__filesystem__write_file",
+        "mcp__filesystem__read_multiple_files",
+        "mcp__filesystem__list_directory",
+        "mcp__filesystem__search_files",
+        "mcp__filesystem__directory_tree",
+        "mcp__filesystem__create_directory",
+        "mcp__filesystem__list_directory_with_sizes",
+        "mcp__filesystem__get_file_info",
+        "mcp__git__git_log",
+        "mcp__git__git_diff",
+        "mcp__git__git_status",
+        "mcp__git__git_show",
+        "mcp__git__git_branch",
+        "mcp__git__git_diff_staged",
+        "mcp__git__git_diff_unstaged",
+        "mcp__git__git_add",
+        "mcp__git__git_commit",
+        "mcp__git__git_checkout",
+        "mcp__git__git_reset",
+        "mcp__git__git_create_branch",
+    }
+)
 
 
 _DEFERRED_INPUT_SCHEMA = {
@@ -326,7 +360,8 @@ def _manifest_hash() -> str:
                     "active_workspaces": sorted(pack.active_workspaces),
                     "active_profiles": sorted(pack.active_profiles),
                     "active_env": {
-                        key: sorted(values) for key, values in sorted(pack.active_env.items())
+                        key: sorted(values)
+                        for key, values in sorted(pack.active_env.items())
                     },
                 }
                 for pack in _PACK_MANIFEST.packs
@@ -424,7 +459,9 @@ def _process_tools_array(
                 stage2_survivors.discard(name)
                 server_filtered.add(name)
                 continue
-            pack_decision = None if server is None else server_pack_decisions.get(server)
+            pack_decision = (
+                None if server is None else server_pack_decisions.get(server)
+            )
             pack_state = (
                 pack_decision.state if pack_decision is not None else STATE_SUPPRESSED
             )
@@ -463,9 +500,11 @@ def _process_tools_array(
     heuristic_would_reject: set[str] = set()
     if tsel.heuristic_capability_flags and gate:
         for rec_item in records:
-            if tsel.heuristic_capability_flags and (
-                rec_item.capability_flags & tsel.heuristic_capability_flags
-            ) != tsel.heuristic_capability_flags:
+            if (
+                tsel.heuristic_capability_flags
+                and (rec_item.capability_flags & tsel.heuristic_capability_flags)
+                != tsel.heuristic_capability_flags
+            ):
                 heuristic_would_reject.add(rec_item.tool_name)
 
     # ── Stage 4: Safety floor ────────────────────────────────────────────
@@ -510,7 +549,9 @@ def _process_tools_array(
 
         if mode in ("live", "live-strict") and schema_state == STATE_DEFERRED:
             server = _extract_mcp_server(rec.tool_name)
-            pack_decision = None if server is None else server_pack_decisions.get(server)
+            pack_decision = (
+                None if server is None else server_pack_decisions.get(server)
+            )
             live_tools.append(
                 _deferred_tool_surface(
                     orig,
@@ -541,7 +582,11 @@ def _process_tools_array(
     # ── Decision metadata ────────────────────────────────────────────────
     meta: dict[str, Any] = {
         "mode": mode,
-        "strategy": "conservative" if mode == "live" else ("strict" if mode == "live-strict" else "shadow"),
+        "strategy": (
+            "conservative"
+            if mode == "live"
+            else ("strict" if mode == "live-strict" else "shadow")
+        ),
         "prompt_excerpt": prompt[:240],
         "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16],
         "workspace_path": session.cwd,
@@ -567,13 +612,19 @@ def _process_tools_array(
             for pack_id, decision in sorted(pack_decisions.items())
         },
         "active_packs": sorted(
-            pack_id for pack_id, decision in pack_decisions.items() if decision.state == STATE_ACTIVE
+            pack_id
+            for pack_id, decision in pack_decisions.items()
+            if decision.state == STATE_ACTIVE
         ),
         "deferred_packs": sorted(
-            pack_id for pack_id, decision in pack_decisions.items() if decision.state == STATE_DEFERRED
+            pack_id
+            for pack_id, decision in pack_decisions.items()
+            if decision.state == STATE_DEFERRED
         ),
         "suppressed_packs": sorted(
-            pack_id for pack_id, decision in pack_decisions.items() if decision.state == STATE_SUPPRESSED
+            pack_id
+            for pack_id, decision in pack_decisions.items()
+            if decision.state == STATE_SUPPRESSED
         ),
         "workspace_allowed_servers": sorted(workspace_allowed_servers),
         "hard_allowed_servers": sorted(allowed_servers),
@@ -582,7 +633,9 @@ def _process_tools_array(
         "explicit_server_rescued": sorted(explicit_rescued) if explicit_rescued else [],
         "server_allow_source": dict(sorted(server_allow_source.items())),
         "heuristic_would_reject_count": len(heuristic_would_reject),
-        "heuristic_would_reject": sorted(heuristic_would_reject) if heuristic_would_reject else [],
+        "heuristic_would_reject": (
+            sorted(heuristic_would_reject) if heuristic_would_reject else []
+        ),
         "safety_floor_activated": safety_floor_activated,
         "safety_floor_rescued": sorted(floor_rescued) if floor_rescued else [],
         "materialized_schema_count": len(materialized_schema_tools),
@@ -590,9 +643,15 @@ def _process_tools_array(
         "deferred_schema_count": len(deferred_schema_tools),
         "deferred_schema_tools": sorted(deferred_schema_tools),
         "surface_state_by_tool": dict(sorted(surface_state_by_tool.items())),
-        "tool_surface_bytes_before": len(json.dumps(tools, sort_keys=True, default=str)),
-        "tool_surface_bytes_after": len(json.dumps(live_tools, sort_keys=True, default=str)),
-        "tool_count_after": len(live_tools) if mode in ("live", "live-strict") else len(tools),
+        "tool_surface_bytes_before": len(
+            json.dumps(tools, sort_keys=True, default=str)
+        ),
+        "tool_surface_bytes_after": len(
+            json.dumps(live_tools, sort_keys=True, default=str)
+        ),
+        "tool_count_after": (
+            len(live_tools) if mode in ("live", "live-strict") else len(tools)
+        ),
         # Backward-compat aliases for TCP-MT-10 / shadow pilot scripts.
         "full_tool_count": len(tools),
         "survivor_count": len(active_survivors),
@@ -614,7 +673,9 @@ def _process_tools_array(
     return list(tools), meta
 
 
-def _maybe_transform_messages_body(raw: bytes, mode: str) -> tuple[bytes, dict[str, Any] | None]:
+def _maybe_transform_messages_body(
+    raw: bytes, mode: str
+) -> tuple[bytes, dict[str, Any] | None]:
     try:
         body = json.loads(raw)
     except json.JSONDecodeError:
@@ -681,7 +742,9 @@ def _buffered_response_headers(response: httpx.Response, body: bytes) -> dict[st
 
 
 def _upstream_base() -> str:
-    return os.environ.get("ANTHROPIC_UPSTREAM_BASE", "https://api.anthropic.com").rstrip("/")
+    return os.environ.get(
+        "ANTHROPIC_UPSTREAM_BASE", "https://api.anthropic.com"
+    ).rstrip("/")
 
 
 async def proxy_post_messages(request: Request) -> Response:
@@ -792,7 +855,9 @@ async def handle_tcp_mode_post(request: Request) -> JSONResponse:
         return JSONResponse({"error": "invalid JSON"}, status_code=400)
     mode = data.get("mode", "")
     if mode not in VALID_MODES:
-        return JSONResponse({"error": f"mode must be one of: {', '.join(VALID_MODES)}"}, status_code=400)
+        return JSONResponse(
+            {"error": f"mode must be one of: {', '.join(VALID_MODES)}"}, status_code=400
+        )
     _write_mode(mode)
     return JSONResponse({"mode": mode, "ok": True})
 

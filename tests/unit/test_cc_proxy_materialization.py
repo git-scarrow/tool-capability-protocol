@@ -41,13 +41,17 @@ RICH_TOOL_SET = [
 ]
 
 
-def test_active_pack_keeps_full_schema_while_workspace_allow_is_deferred(monkeypatch) -> None:
+def test_active_pack_keeps_full_schema_while_workspace_allow_is_deferred(
+    monkeypatch,
+) -> None:
     monkeypatch.setenv("TCP_PROXY_WORKSPACE_MCP_SERVERS", "bay-view-graph")
     body = {
         "messages": [
             {
                 "role": "user",
-                "content": [{"type": "text", "text": "Check email from Jason from today"}],
+                "content": [
+                    {"type": "text", "text": "Check email from Jason from today"}
+                ],
             }
         ]
     }
@@ -64,17 +68,23 @@ def test_active_pack_keeps_full_schema_while_workspace_allow_is_deferred(monkeyp
     assert "mcp__filesystem__read_file" in meta["materialized_schema_tools"]
     assert "mcp__bay-view-graph__list_emails" in meta["deferred_schema_tools"]
     assert meta["surface_state_by_tool"]["mcp__filesystem__read_file"] == "active"
-    assert meta["surface_state_by_tool"]["mcp__bay-view-graph__list_emails"] == "deferred"
+    assert (
+        meta["surface_state_by_tool"]["mcp__bay-view-graph__list_emails"] == "deferred"
+    )
     assert meta["tool_surface_bytes_after"] < meta["tool_surface_bytes_before"]
 
 
-def test_workspace_profile_promotes_workspace_critical_pack_to_full_schema(monkeypatch) -> None:
+def test_workspace_profile_promotes_workspace_critical_pack_to_full_schema(
+    monkeypatch,
+) -> None:
     monkeypatch.setenv("TCP_PROXY_WORKSPACE_PROFILE", "bay-view")
     body = {
         "messages": [
             {
                 "role": "user",
-                "content": [{"type": "text", "text": "Check email from Jason from today"}],
+                "content": [
+                    {"type": "text", "text": "Check email from Jason from today"}
+                ],
             }
         ]
     }
@@ -112,7 +122,9 @@ def test_explicitly_rescued_server_stays_visible_but_deferred(monkeypatch) -> No
     assert bay_tool["input_schema"]["additionalProperties"] is True
     assert "mcp__bay-view-graph__list_emails" in meta["explicit_server_rescued"]
     assert "mcp__bay-view-graph__list_emails" in meta["deferred_schema_tools"]
-    assert meta["surface_state_by_tool"]["mcp__bay-view-graph__list_emails"] == "deferred"
+    assert (
+        meta["surface_state_by_tool"]["mcp__bay-view-graph__list_emails"] == "deferred"
+    )
 
 
 def test_suppressed_pack_remains_hidden_without_workspace_allow(monkeypatch) -> None:
