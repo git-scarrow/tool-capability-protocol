@@ -9,6 +9,7 @@ Claude Code in live mode.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -239,6 +240,34 @@ def _tool_name(tool: Mapping[str, Any]) -> str:
     return str(n) if n is not None else ""
 
 
+def _short_sha256_json(data: Any) -> str:
+    payload = json.dumps(data, sort_keys=True, default=str)
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def _manifest_hash() -> str:
+    return _short_sha256_json(
+        {
+            "version": _PACK_MANIFEST.version,
+            "source_path": _PACK_MANIFEST.source_path,
+            "packs": [
+                {
+                    "pack_id": pack.pack_id,
+                    "servers": sorted(pack.servers),
+                    "default_state": pack.default_state,
+                    "allow_workspace": pack.allow_workspace,
+                    "active_workspaces": sorted(pack.active_workspaces),
+                    "active_profiles": sorted(pack.active_profiles),
+                    "active_env": {
+                        key: sorted(values) for key, values in sorted(pack.active_env.items())
+                    },
+                }
+                for pack in _PACK_MANIFEST.packs
+            ],
+        }
+    )
+
+
 def _process_tools_array(
     tools: list[Any],
     body: Mapping[str, Any],
@@ -419,6 +448,10 @@ def _process_tools_array(
         "mode": mode,
         "strategy": "conservative" if mode == "live" else ("strict" if mode == "live-strict" else "shadow"),
         "prompt_excerpt": prompt[:240],
+        "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16],
+        "workspace_path": session.cwd,
+        "workspace_name": pack_context.workspace_name,
+        "resolved_profile": pack_context.profile,
         "required_capability_flags": tsel.required_capability_flags,
         "hard_capability_flags": tsel.hard_capability_flags,
         "heuristic_capability_flags": tsel.heuristic_capability_flags,
@@ -428,6 +461,7 @@ def _process_tools_array(
         "server_filtered_count": len(server_filtered),
         "server_filtered": sorted(server_filtered) if server_filtered else [],
         "pack_manifest_source": _PACK_MANIFEST.source_path,
+        "pack_manifest_hash": _manifest_hash(),
         "pack_manifest_default_path": str(default_manifest_path()),
         "pack_states": {
             pack_id: decision.state
@@ -447,6 +481,7 @@ def _process_tools_array(
             pack_id for pack_id, decision in pack_decisions.items() if decision.state == STATE_SUPPRESSED
         ),
         "workspace_allowed_servers": sorted(workspace_allowed_servers),
+        "hard_allowed_servers": sorted(allowed_servers),
         "workspace_rescued": sorted(workspace_rescued) if workspace_rescued else [],
         "deferred_visible": sorted(deferred_visible) if deferred_visible else [],
         "explicit_server_rescued": sorted(explicit_rescued) if explicit_rescued else [],

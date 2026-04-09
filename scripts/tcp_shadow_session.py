@@ -9,7 +9,6 @@ Install in ~/.claude/settings.json:
     "command": "/path/to/tcp_shadow_session.py"}]}]
 """
 
-import hashlib
 import json
 import os
 import sys
@@ -31,12 +30,9 @@ def main() -> None:
     SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
     INVENTORIES_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Build inventory snapshot from the known Claude Code tool list.
-    # In a real session the tools are fixed at startup, so we enumerate them
-    # statically here. A future version could read from the MCP server manifest.
     inventory = _build_inventory()
     inventory_json = json.dumps(inventory, sort_keys=True)
-    snapshot_id = hashlib.sha256(inventory_json.encode()).hexdigest()[:16]
+    snapshot_id = _short_sha256(inventory_json)
 
     inventory_path = INVENTORIES_DIR / f"{snapshot_id}.json"
     if not inventory_path.exists():
@@ -49,6 +45,9 @@ def main() -> None:
         "permission_mode": permission_mode,
         "cwd": cwd,
         "inventory_snapshot_id": snapshot_id,
+        "inventory_artifact_version": inventory.get("version"),
+        "inventory_tool_count": len(inventory.get("tools", [])),
+        "inventory_sha256": _short_sha256(inventory_json),
     }
 
     log_path = SESSIONS_DIR / f"{session_id}.jsonl"
@@ -56,41 +55,16 @@ def main() -> None:
 
 
 def _build_inventory() -> dict:
-    """Return a static snapshot of known Claude Code tools with capability hints."""
-    from tcp.core.descriptors import CapabilityFlags
+    """Return the canonical inventory artifact used by shadow replay."""
+    from tcp.proxy.tool_flag_map import build_static_inventory
 
-    F = CapabilityFlags
-    tools = [
-        {"name": "Read",       "flags": int(F.SUPPORTS_FILES)},
-        {"name": "Write",      "flags": int(F.SUPPORTS_FILES)},
-        {"name": "Edit",       "flags": int(F.SUPPORTS_FILES)},
-        {"name": "MultiEdit",  "flags": int(F.SUPPORTS_FILES)},
-        {"name": "Glob",       "flags": int(F.SUPPORTS_FILES)},
-        {"name": "Grep",       "flags": int(F.SUPPORTS_FILES)},
-        {"name": "Bash",       "flags": int(F.SUPPORTS_FILES) | int(F.SUPPORTS_NETWORK)},
-        {"name": "WebFetch",   "flags": int(F.SUPPORTS_NETWORK)},
-        {"name": "WebSearch",  "flags": int(F.SUPPORTS_NETWORK)},
-        {"name": "Think",      "flags": 0},
-        # MCP filesystem
-        {"name": "mcp__filesystem__read_file",       "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__filesystem__write_file",      "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__filesystem__read_multiple_files", "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__filesystem__list_directory",  "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__filesystem__search_files",    "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__filesystem__directory_tree",  "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__filesystem__create_directory","flags": int(F.SUPPORTS_FILES)},
-        # MCP git
-        {"name": "mcp__git__git_log",          "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__git__git_diff",         "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__git__git_status",       "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__git__git_commit",       "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__git__git_add",          "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__git__git_branch",       "flags": int(F.SUPPORTS_FILES)},
-        {"name": "mcp__git__git_checkout",     "flags": int(F.SUPPORTS_FILES)},
-        # MCP fetch
-        {"name": "mcp__fetch__fetch",          "flags": int(F.SUPPORTS_NETWORK)},
-    ]
-    return {"tools": tools, "version": "1.0"}
+    return build_static_inventory()
+
+
+def _short_sha256(content: str) -> str:
+    import hashlib
+
+    return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
 def _atomic_write(path: Path, content: str) -> None:
