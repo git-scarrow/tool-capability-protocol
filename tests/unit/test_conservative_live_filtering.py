@@ -461,6 +461,22 @@ class TestServerLevelFiltering:
         )
         assert meta["server_allow_source"]["plugin:Notion:notion"] == "explicit_request"
 
+    def test_notion_api_phrase_rescues_plugin_tools_in_live(self):
+        prompt_body = {"messages": [{"role": "user", "content": [
+            {
+                "type": "text",
+                "text": "the skill requires a notionapi mcp server so try the notion api path",
+            }
+        ]}]}
+        result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+        surviving = _tool_names(result_tools)
+        assert "mcp__plugin:Notion:notion__notion-create-pages" in surviving
+        assert (
+            "mcp__plugin:Notion:notion__notion-create-pages"
+            in meta["explicit_server_rescued"]
+        )
+        assert meta["server_allow_source"]["plugin:Notion:notion"] == "explicit_request"
+
     def test_claude_connector_phrase_rescues_gmail_server_in_live(self):
         prompt_body = {"messages": [{"role": "user", "content": [
             {"type": "text", "text": "use the claude gmail plugin to find the renewal email"}

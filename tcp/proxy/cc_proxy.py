@@ -163,6 +163,10 @@ def _server_alias_tokens(server_l: str) -> set[str]:
             if "plugin" in unique_parts:
                 tokens.add(f"{informative} plugin")
                 tokens.add(f"plugin {informative}")
+                # Claude often refers to plugin-backed Notion access as
+                # "notion api"/"notionApi" rather than the raw plugin server id.
+                tokens.add(f"{informative} api")
+                tokens.add(f"{informative}api")
             if "claude" in unique_parts:
                 tokens.add(f"claude {informative}")
                 tokens.add(f"{informative} claude")
