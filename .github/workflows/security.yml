@@ -88,12 +88,21 @@ jobs:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
-    - name: GitLeaks scan
+
+    - name: GitLeaks scan (licensed action)
+      if: ${{ secrets.GITLEAKS_LICENSE != '' }}
       uses: gitleaks/gitleaks-action@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+    - name: GitLeaks scan (OSS fallback)
+      if: ${{ secrets.GITLEAKS_LICENSE == '' }}
+      run: |
+        docker run --rm \
+          -v "$PWD:/repo" \
+          zricethezav/gitleaks:latest \
+          detect --source=/repo --no-banner --redact --exit-code=1
 
   tcp-security-validation:
     runs-on: ubuntu-latest

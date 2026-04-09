@@ -13,14 +13,19 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
-from dataclasses import asdict, dataclass
+from collections import Counter, defaultdict
+from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
 SHADOW_DIR = Path.home() / ".tcp-shadow"
 SESSIONS_DIR = SHADOW_DIR / "sessions"
 INVENTORIES_DIR = SHADOW_DIR / "inventories"
+PROXY_DIR = SHADOW_DIR / "proxy"
+DECISIONS_LOG = PROXY_DIR / "decisions.jsonl"
 
 # Rough token cost: 1 token ≈ 4 chars for tool descriptions
 CHARS_PER_TOKEN = 4
@@ -44,6 +49,8 @@ class CallResult:
     full_inventory_tokens: Optional[int]
     filtered_inventory_tokens: Optional[int]
     token_delta: Optional[int]
+    benchmark_eligible: bool
+    exclusion_reason: Optional[str]
 
 
 def main() -> None:
@@ -69,9 +76,8 @@ def main() -> None:
 def analyse_session(session_path: Path) -> list[CallResult]:
     from tcp.derivation.request_derivation import (
         SessionStartEvent, PostToolUseEvent,
-        derive_request, classify_unscorable, get_equivalence_class,
+        classify_unscorable, get_equivalence_class,
     )
-    from tcp.harness.gating import RuntimeEnvironment, gate_tools
     from tcp.harness.models import ToolRecord
 
     records = [json.loads(l) for l in session_path.read_text().splitlines() if l.strip()]
@@ -91,13 +97,15 @@ def analyse_session(session_path: Path) -> list[CallResult]:
     snapshot_id = session_start.get("inventory_snapshot_id", "")
     inventory_path = INVENTORIES_DIR / f"{snapshot_id}.json"
     tool_records: list[ToolRecord] = []
+    inventory_available = False
     if inventory_path.exists():
         inv = json.loads(inventory_path.read_text())
+        inventory_available = bool(inv.get("tools"))
         for t in inv.get("tools", []):
             tool_records.append(ToolRecord(
                 tool_name=t["name"],
                 descriptor_source="shadow",
-                descriptor_version="1.0",
+                descriptor_version=str(inv.get("version", "unknown")),
                 capability_flags=t.get("flags", 0),
                 risk_level="safe",
             ))
@@ -105,8 +113,8 @@ def analyse_session(session_path: Path) -> list[CallResult]:
     full_inventory_size = len(tool_records)
 
     # Build prompt lookup by turn_id
-    prompts: dict[int, str] = {
-        r["turn_id"]: r["prompt"]
+    prompts: dict[int, tuple[str, float]] = {
+        r["turn_id"]: (r["prompt"], float(r.get("timestamp", 0.0)))
         for r in records if r["event"] == "user_prompt"
     }
 
@@ -116,7 +124,7 @@ def analyse_session(session_path: Path) -> list[CallResult]:
             continue
 
         turn_id = r["turn_id"]
-        prompt = prompts.get(turn_id, "")
+        prompt, prompt_ts = prompts.get(turn_id, ("", 0.0))
         tool_name = r["tool_name"]
         tool_input = {}  # features only logged, reconstruct as empty for class lookup
 
@@ -134,7 +142,22 @@ def analyse_session(session_path: Path) -> list[CallResult]:
         unscorable = classify_unscorable(prompt, tool_event)
         unscorable_reason = _unscorable_reason(prompt, tool_event) if unscorable else None
 
-        if unscorable or not tool_records:
+        exclusion_reason = None
+        decision = None
+        if not inventory_available:
+            exclusion_reason = "missing_inventory_artifact"
+        else:
+            decision = _match_decision_record(
+                workspace_path=session_event.cwd,
+                prompt_hash=_prompt_hash(prompt),
+                prompt_ts=prompt_ts,
+            )
+            if decision is None:
+                exclusion_reason = "missing_turn_context"
+            elif not _decision_has_freshness_context(decision):
+                exclusion_reason = "incomplete_turn_context"
+
+        if unscorable or exclusion_reason is not None:
             results.append(CallResult(
                 session_id=r["session_id"],
                 turn_id=turn_id,
@@ -149,32 +172,12 @@ def analyse_session(session_path: Path) -> list[CallResult]:
                 full_inventory_tokens=None,
                 filtered_inventory_tokens=None,
                 token_delta=None,
+                benchmark_eligible=False,
+                exclusion_reason=exclusion_reason,
             ))
             continue
 
-        # Derive request and gate.
-        # Shadow mode: drop output_formats from the request — inventory tools
-        # don't carry format metadata, and format matching would reject everything.
-        # Capability flags are the reliable signal; formats are informational only.
-        from tcp.harness.models import ToolSelectionRequest
-        from tcp.harness.gating import RuntimeEnvironment, gate_tools
-
-        _full_request = derive_request(prompt, session_event)
-        request = ToolSelectionRequest.from_kwargs(
-            required_capability_flags=_full_request.required_capability_flags,
-            require_auto_approval=_full_request.require_auto_approval,
-            preferred_criteria=_full_request.preferred_criteria,
-        )
-        env = RuntimeEnvironment(
-            network_enabled=(session_event.permission_mode != "plan"),
-            file_access_enabled=True,
-            stdin_enabled=True,
-            installed_tools=frozenset(t.tool_name for t in tool_records),
-        )
-
-        gate_result = gate_tools(tool_records, request, env)
-        survivors = {t.tool_name for t in gate_result.approved_tools}
-        survivors |= {t.tool_name for t in gate_result.approval_required_tools}
+        survivors = set(decision.get("survivor_names_sorted") or [])
 
         # Coverage: does survivor set contain a tool in the same equivalence class?
         from tcp.derivation.request_derivation import get_equivalence_class as geq
@@ -201,6 +204,8 @@ def analyse_session(session_path: Path) -> list[CallResult]:
             full_inventory_tokens=full_tokens,
             filtered_inventory_tokens=filtered_tokens,
             token_delta=token_delta,
+            benchmark_eligible=True,
+            exclusion_reason=None,
         ))
 
     return results
@@ -208,17 +213,28 @@ def analyse_session(session_path: Path) -> list[CallResult]:
 
 def print_report(results: list[CallResult]) -> None:
     scorable = [r for r in results if not r.unscorable]
+    benchmark_rows = [r for r in scorable if r.benchmark_eligible]
     total = len(results)
     n_unscorable = total - len(scorable)
+    n_excluded = len(scorable) - len(benchmark_rows)
 
     if not scorable:
         print(f"No scorable turns in {total} total events.")
         return
+    if not benchmark_rows:
+        reasons = Counter(r.exclusion_reason for r in scorable if r.exclusion_reason)
+        print(f"No benchmark-eligible turns in {total} total events.")
+        if reasons:
+            print("Excluded reasons:")
+            for reason, count in sorted(reasons.items()):
+                print(f"  - {reason}: {count}")
+        return
 
-    covered = sum(1 for r in scorable if r.in_survivor_set)
-    coverage = covered / len(scorable)
-    mean_delta = sum(r.token_delta for r in scorable if r.token_delta) / len(scorable)
+    covered = sum(1 for r in benchmark_rows if r.in_survivor_set)
+    coverage = covered / len(benchmark_rows)
+    mean_delta = sum(r.token_delta for r in benchmark_rows if r.token_delta) / len(benchmark_rows)
     unscorable_rate = n_unscorable / total if total else 0
+    excluded_rate = n_excluded / len(scorable) if scorable else 0
 
     print("=" * 60)
     print("TCP Shadow Analysis Report")
@@ -226,11 +242,14 @@ def print_report(results: list[CallResult]) -> None:
     print(f"Total tool calls:    {total}")
     print(f"Scorable turns:      {len(scorable)} ({1-unscorable_rate:.0%} of total)")
     print(f"Unscorable turns:    {n_unscorable} ({unscorable_rate:.0%}) [target: <15%]")
+    print(f"Freshness-excluded:  {n_excluded} ({excluded_rate:.0%} of scorable)")
     print()
-    print(f"Coverage (any-pos):  {coverage:.1%}  ({covered}/{len(scorable)})")
+    print(f"Coverage (any-pos):  {coverage:.1%}  ({covered}/{len(benchmark_rows)})")
     print(f"Mean token delta:    {mean_delta:.0f} tokens/call")
-    if scorable and scorable[0].full_inventory_tokens:
-        avg_full = sum(r.full_inventory_tokens for r in scorable if r.full_inventory_tokens) / len(scorable)
+    if benchmark_rows and benchmark_rows[0].full_inventory_tokens:
+        avg_full = sum(
+            r.full_inventory_tokens for r in benchmark_rows if r.full_inventory_tokens
+        ) / len(benchmark_rows)
         print(f"Est. token savings:  {mean_delta/avg_full:.0%}")
     print()
 
@@ -238,11 +257,15 @@ def print_report(results: list[CallResult]) -> None:
         print("⚠️  Coverage below 95% threshold")
     if unscorable_rate > 0.15:
         print("⚠️  Unscorable rate exceeds 15% — check derivation contract")
+    if n_excluded:
+        reasons = Counter(r.exclusion_reason for r in scorable if r.exclusion_reason)
+        print("Excluded reasons:")
+        for reason, count in sorted(reasons.items()):
+            print(f"  - {reason}: {count}")
 
     # Per-class breakdown
-    from collections import defaultdict, Counter
     by_class: dict[str, list[CallResult]] = defaultdict(list)
-    for r in scorable:
+    for r in benchmark_rows:
         by_class[r.equivalence_class].append(r)
 
     print(f"{'Class':<20} {'Calls':>6} {'Covered':>8} {'Coverage':>9}")
@@ -251,6 +274,54 @@ def print_report(results: list[CallResult]) -> None:
         n = len(items)
         c = sum(1 for r in items if r.in_survivor_set)
         print(f"{cls:<20} {n:>6} {c:>8} {c/n:>8.0%}")
+
+
+def _prompt_hash(prompt: str) -> str:
+    return hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16]
+
+
+@lru_cache(maxsize=1)
+def _load_decision_index() -> dict[tuple[str, str], list[dict]]:
+    index: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    if not DECISIONS_LOG.exists():
+        return index
+    for line in DECISIONS_LOG.read_text().splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
+        workspace_path = row.get("workspace_path")
+        prompt_hash = row.get("prompt_hash")
+        if not workspace_path or not prompt_hash:
+            continue
+        index[(str(workspace_path), str(prompt_hash))].append(row)
+    for rows in index.values():
+        rows.sort(key=lambda item: float(item.get("ts", 0.0)))
+    return index
+
+
+def _match_decision_record(
+    *,
+    workspace_path: str,
+    prompt_hash: str,
+    prompt_ts: float,
+) -> Optional[dict]:
+    candidates = _load_decision_index().get((workspace_path, prompt_hash), [])
+    if not candidates:
+        return None
+    return min(candidates, key=lambda item: abs(float(item.get("ts", 0.0)) - prompt_ts))
+
+
+def _decision_has_freshness_context(row: dict) -> bool:
+    required = (
+        "workspace_path",
+        "prompt_hash",
+        "pack_manifest_source",
+        "pack_manifest_hash",
+        "resolved_profile",
+        "pack_states",
+        "survivor_names_sorted",
+    )
+    return all(key in row for key in required)
 
 
 def run_audit() -> None:
