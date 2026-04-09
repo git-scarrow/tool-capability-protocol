@@ -50,9 +50,20 @@ jobs:
     - name: Install Dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --with dev,test,docs
-      
+
+    - name: Determine Python files to format-check
+      id: black-targets
+      run: |
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          files=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- '*.py' | tr '\n' ' ')
+        else
+          files="tcp tests scripts"
+        fi
+        echo "files=$files" >> "$GITHUB_OUTPUT"
+
     - name: Code Formatting Check (Black)
-      run: poetry run black --check --diff tcp tests
+      if: ${{ steps.black-targets.outputs.files != '' }}
+      run: poetry run black --check --diff ${{ steps.black-targets.outputs.files }}
       
     - name: Import Sorting Check (isort)  
       run: poetry run isort --check-only --diff tcp tests
