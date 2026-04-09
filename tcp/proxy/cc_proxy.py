@@ -132,7 +132,13 @@ def _prompt_mentions_server(prompt: str, tool_name: str) -> bool:
     if not server:
         return False
     server_l = server.lower()
-    server_tokens = {
+    server_tokens = _server_alias_tokens(server_l)
+    return any(token in prompt_l for token in server_tokens)
+
+
+def _server_alias_tokens(server_l: str) -> set[str]:
+    """Generate human-typed aliases for wrapper-prefixed MCP server names."""
+    tokens = {
         server_l,
         server_l.replace("-", " "),
         server_l.replace("_", " "),
@@ -141,10 +147,30 @@ def _prompt_mentions_server(prompt: str, tool_name: str) -> bool:
     parts = tuple(part for part in re.split(r"[^a-z0-9]+", server_l) if part)
     unique_parts = tuple(dict.fromkeys(parts))
     if len(unique_parts) >= 2:
-        pair = " ".join(unique_parts[:2])
-        server_tokens.add(pair)
-        server_tokens.add(" ".join(reversed(unique_parts[:2])))
-    return any(token in prompt_l for token in server_tokens)
+        for idx in range(len(unique_parts) - 1):
+            pair = " ".join(unique_parts[idx:idx + 2])
+            tokens.add(pair)
+            tokens.add(" ".join(reversed(unique_parts[idx:idx + 2])))
+        tokens.add(" ".join(unique_parts))
+
+    wrapper_parts = {"plugin", "claude", "ai", "mcp"}
+    informative_parts = tuple(part for part in unique_parts if part not in wrapper_parts)
+    if informative_parts:
+        tokens.add(" ".join(informative_parts))
+        if len(informative_parts) == 1:
+            informative = informative_parts[0]
+            tokens.add(informative)
+            if "plugin" in unique_parts:
+                tokens.add(f"{informative} plugin")
+                tokens.add(f"plugin {informative}")
+            if "claude" in unique_parts:
+                tokens.add(f"claude {informative}")
+                tokens.add(f"{informative} claude")
+        elif len(informative_parts) >= 2:
+            for idx in range(len(informative_parts) - 1):
+                phrase = " ".join(informative_parts[idx:idx + 2])
+                tokens.add(phrase)
+    return {token for token in tokens if token}
 
 
 def _is_mcp_server_allowed(tool_name: str, allowed: frozenset[str]) -> bool:

@@ -461,6 +461,35 @@ class TestServerLevelFiltering:
         )
         assert meta["server_allow_source"]["plugin:Notion:notion"] == "explicit_request"
 
+    def test_claude_connector_phrase_rescues_gmail_server_in_live(self):
+        prompt_body = {"messages": [{"role": "user", "content": [
+            {"type": "text", "text": "use the claude gmail plugin to find the renewal email"}
+        ]}]}
+        result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+        surviving = _tool_names(result_tools)
+        assert "mcp__claude_ai_Gmail__gmail_search_messages" in surviving
+        assert (
+            "mcp__claude_ai_Gmail__gmail_search_messages"
+            in meta["explicit_server_rescued"]
+        )
+        assert meta["server_allow_source"]["claude_ai_Gmail"] == "explicit_request"
+
+    def test_claude_connector_phrase_rescues_google_calendar_server_in_live(self):
+        prompt_body = {"messages": [{"role": "user", "content": [
+            {"type": "text", "text": "check the google calendar claude plugin for next rehearsal"}
+        ]}]}
+        result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+        surviving = _tool_names(result_tools)
+        assert "mcp__claude_ai_Google_Calendar__gcal_list_events" in surviving
+        assert (
+            "mcp__claude_ai_Google_Calendar__gcal_list_events"
+            in meta["explicit_server_rescued"]
+        )
+        assert (
+            meta["server_allow_source"]["claude_ai_Google_Calendar"]
+            == "explicit_request"
+        )
+
     def test_env_override_allowed_servers(self):
         old = os.environ.get("TCP_PROXY_ALLOWED_MCP_SERVERS")
         os.environ["TCP_PROXY_ALLOWED_MCP_SERVERS"] = "filesystem,git"
