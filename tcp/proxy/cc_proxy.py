@@ -210,12 +210,75 @@ _SAFETY_FLOOR_TOOLS = frozenset({
 })
 
 
+_DEFERRED_INPUT_SCHEMA = {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": True,
+}
+
+
 def _session_from_env() -> SessionStartEvent:
     return SessionStartEvent(
         session_id="tcp_cc_proxy",
         permission_mode=os.environ.get("TCP_PROXY_PERMISSION_MODE", "default"),
         cwd=os.environ.get("TCP_PROXY_CWD", os.getcwd()),
     )
+
+
+def _deferred_tool_surface(
+    tool: Mapping[str, Any],
+    *,
+    pack_id: str | None,
+    server: str | None,
+    reason: str | None,
+) -> dict[str, Any]:
+    """Return a minimal visible representation for a deferred tool surface.
+
+    The local runtime still knows the full tool definition; this only shrinks the
+    model-visible schema surface sent upstream.
+    """
+    name = _tool_name(tool)
+    pack_label = pack_id or "deferred-pack"
+    server_label = server or "deferred-server"
+    reason_suffix = f" via {reason}" if reason else ""
+    return {
+        "name": name,
+        "description": (
+            f"Deferred schema for {name} ({pack_label}/{server_label}{reason_suffix})."
+        ),
+        "input_schema": dict(_DEFERRED_INPUT_SCHEMA),
+    }
+
+
+def _schema_materialization_state(
+    tool_name: str,
+    *,
+    allowed_servers: frozenset[str],
+    server_pack_decisions: Mapping[str, Any],
+    server_allow_source: Mapping[str, str],
+) -> str:
+    """Classify whether a visible tool should keep full schema or deferred schema."""
+    server = _extract_mcp_server(tool_name)
+    if server is None:
+        return STATE_ACTIVE
+
+    pack_decision = server_pack_decisions.get(server)
+    allow_source = server_allow_source.get(server)
+
+    if pack_decision is not None:
+        if pack_decision.state != STATE_ACTIVE and allow_source in {
+            "workspace_allow",
+            "explicit_request",
+        }:
+            return STATE_DEFERRED
+        return pack_decision.state
+
+    if server in allowed_servers:
+        return STATE_ACTIVE
+
+    if allow_source in {"workspace_allow", "explicit_request"}:
+        return STATE_DEFERRED
+    return STATE_SUPPRESSED
 
 
 def _runtime_from_env() -> RuntimeEnvironment:
@@ -423,16 +486,44 @@ def _process_tools_array(
 
     # ── Build output tool list ───────────────────────────────────────────
     live_tools: list[Any] = []
+    materialized_schema_tools: list[str] = []
+    deferred_schema_tools: list[str] = []
+    surface_state_by_tool: dict[str, str] = {}
     for item in entries:
         orig, rec, tier, _name = item
         if rec is None:
             live_tools.append(orig)
             continue
-        if rec.tool_name in active_survivors:
-            live_tools.append(orig)
-        elif tier == ProjectionTier.FALLBACK and rec.tool_name not in server_filtered:
-            # FALLBACK tools pass through unless explicitly server-filtered
-            live_tools.append(orig)
+        survives = rec.tool_name in active_survivors or (
+            tier == ProjectionTier.FALLBACK and rec.tool_name not in server_filtered
+        )
+        if not survives:
+            continue
+
+        schema_state = _schema_materialization_state(
+            rec.tool_name,
+            allowed_servers=allowed_servers,
+            server_pack_decisions=server_pack_decisions,
+            server_allow_source=server_allow_source,
+        )
+        surface_state_by_tool[rec.tool_name] = schema_state
+
+        if mode in ("live", "live-strict") and schema_state == STATE_DEFERRED:
+            server = _extract_mcp_server(rec.tool_name)
+            pack_decision = None if server is None else server_pack_decisions.get(server)
+            live_tools.append(
+                _deferred_tool_surface(
+                    orig,
+                    pack_id=None if pack_decision is None else pack_decision.pack_id,
+                    server=server,
+                    reason=server_allow_source.get(server) if server else None,
+                )
+            )
+            deferred_schema_tools.append(rec.tool_name)
+            continue
+
+        live_tools.append(orig)
+        materialized_schema_tools.append(rec.tool_name)
 
     # ── Serialize audit log ──────────────────────────────────────────────
     audit_serial = []
@@ -494,6 +585,13 @@ def _process_tools_array(
         "heuristic_would_reject": sorted(heuristic_would_reject) if heuristic_would_reject else [],
         "safety_floor_activated": safety_floor_activated,
         "safety_floor_rescued": sorted(floor_rescued) if floor_rescued else [],
+        "materialized_schema_count": len(materialized_schema_tools),
+        "materialized_schema_tools": sorted(materialized_schema_tools),
+        "deferred_schema_count": len(deferred_schema_tools),
+        "deferred_schema_tools": sorted(deferred_schema_tools),
+        "surface_state_by_tool": dict(sorted(surface_state_by_tool.items())),
+        "tool_surface_bytes_before": len(json.dumps(tools, sort_keys=True, default=str)),
+        "tool_surface_bytes_after": len(json.dumps(live_tools, sort_keys=True, default=str)),
         "tool_count_after": len(live_tools) if mode in ("live", "live-strict") else len(tools),
         # Backward-compat aliases for TCP-MT-10 / shadow pilot scripts.
         "full_tool_count": len(tools),
