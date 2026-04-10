@@ -42,7 +42,27 @@ make analyze-sudo   # Analyze 'sudo' command security
 make logs           # View container logs
 make restart        # Restart containers
 make clean          # Clean up containers and volumes
+
+# TCP Proxy Troubleshooting
+./scripts/tcp_proxy_container.sh rebuild  # Force rebuild without cache (fixes stale code)
+./scripts/tcp_proxy_container.sh status   # Check if proxy is running
+./scripts/tcp_proxy_container.sh logs     # View proxy logs (check for 405 Method Not Allowed)
 ```
+
+## Troubleshooting TCP Proxy
+
+### Issue: 405 Method Not Allowed on new endpoints (e.g., /v1/messages/count_tokens)
+- **Symptoms**: Claude Code fails with 405 errors in proxy logs when calling new Anthropic endpoints.
+- **Cause**: The `proxy_pass_through` (catch-all) route in `tcp/proxy/cc_proxy.py` was missing explicit method support (defaulted to GET/HEAD).
+- **Fix**: Ensure `Route("/{path:path}", proxy_pass_through, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"])` is present in `build_app()`.
+- **Validation**: Run `pytest tests/unit/test_cc_proxy_headers.py`.
+
+### Issue: Missing MCP tools (e.g., notion-agents) in live mode
+- **Symptoms**: Expected MCP tools are missing from the session even if they are in the `active` pack.
+- **Cause**: The `TCP_PROXY_ALLOWED_MCP_SERVERS` environment variable was being passed as an empty string in the container start script, which overrode the code's default safety allowed list.
+- **Fix**: Updated `scripts/tcp_proxy_container.sh` to only pass the variable if it's non-empty.
+- **Validation**: Check `survivor_names_sorted` in `$HOME/.tcp-shadow/proxy/decisions.jsonl`.
+
 
 ### Testing Commands
 ```bash

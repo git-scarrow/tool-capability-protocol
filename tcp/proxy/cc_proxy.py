@@ -873,7 +873,7 @@ def build_app() -> Starlette:
             Route("/tcp/mode", handle_tcp_mode_get, methods=["GET"]),
             Route("/tcp/mode", handle_tcp_mode_post, methods=["POST"]),
             Route("/v1/messages", proxy_post_messages, methods=["POST"]),
-            Route("/{path:path}", proxy_pass_through),
+            Route("/{path:path}", proxy_pass_through, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"]),
         ],
     )
 
