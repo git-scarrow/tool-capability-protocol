@@ -31,6 +31,10 @@ from starlette.routing import Route
 from tcp.derivation.request_derivation import SessionStartEvent, derive_request
 from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.models import ToolSelectionRequest
+from tcp.proxy.controller import (
+    ToolPackController,
+    schema_materialization_state,
+)
 from tcp.proxy.pack_manifest import (
     DEFAULT_ACTIVE_MCP_SERVERS,
     PackInspection,
@@ -42,7 +46,6 @@ from tcp.proxy.pack_manifest import (
     inspect_pack_state,
     load_pack_manifest,
     pack_context_from_env,
-    resolve_pack_decisions,
 )
 from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
 from tcp.proxy.prompt_select import extract_task_prompt
@@ -284,36 +287,6 @@ def _deferred_tool_surface(
     }
 
 
-def _schema_materialization_state(
-    tool_name: str,
-    *,
-    allowed_servers: frozenset[str],
-    server_pack_decisions: Mapping[str, Any],
-    server_allow_source: Mapping[str, str],
-) -> str:
-    """Classify whether a visible tool should keep full schema or deferred schema."""
-    server = _extract_mcp_server(tool_name)
-    if server is None:
-        return STATE_ACTIVE
-
-    pack_decision = server_pack_decisions.get(server)
-    allow_source = server_allow_source.get(server)
-
-    if pack_decision is not None:
-        if pack_decision.state != STATE_ACTIVE and allow_source in {
-            "workspace_allow",
-            "explicit_request",
-        }:
-            return STATE_DEFERRED
-        return pack_decision.state
-
-    if server in allowed_servers:
-        return STATE_ACTIVE
-
-    if allow_source in {"workspace_allow", "explicit_request"}:
-        return STATE_DEFERRED
-    return STATE_SUPPRESSED
-
 
 def _runtime_from_env() -> RuntimeEnvironment:
     """Match unrestricted Claude Code unless the user tightens the sandbox with env."""
@@ -437,10 +410,11 @@ def _process_tools_array(
         ),
         workspace_allowed_servers=workspace_allowed_servers,
     )
-    pack_decisions, server_pack_decisions = resolve_pack_decisions(
-        _PACK_MANIFEST,
-        pack_context,
-    )
+    controller = ToolPackController(_PACK_MANIFEST, pack_context)
+    ctrl_result = controller.resolve(prompt=prompt)
+    pack_decisions = ctrl_result.pack_decisions
+    server_pack_decisions = ctrl_result.server_decisions
+    server_tpc_rules = ctrl_result.server_tpc_rules
     stage2_survivors = set(stage1_survivors)
     server_filtered: set[str] = set()
     workspace_rescued: set[str] = set()
@@ -539,7 +513,7 @@ def _process_tools_array(
         if not survives:
             continue
 
-        schema_state = _schema_materialization_state(
+        schema_state = schema_materialization_state(
             rec.tool_name,
             allowed_servers=allowed_servers,
             server_pack_decisions=server_pack_decisions,
@@ -632,6 +606,7 @@ def _process_tools_array(
         "deferred_visible": sorted(deferred_visible) if deferred_visible else [],
         "explicit_server_rescued": sorted(explicit_rescued) if explicit_rescued else [],
         "server_allow_source": dict(sorted(server_allow_source.items())),
+        "server_tpc_rules": dict(sorted(server_tpc_rules.items())),
         "heuristic_would_reject_count": len(heuristic_would_reject),
         "heuristic_would_reject": (
             sorted(heuristic_would_reject) if heuristic_would_reject else []
