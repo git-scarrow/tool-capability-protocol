@@ -140,12 +140,12 @@ def test_monotonicity_heuristic_cannot_downgrade_active_pack() -> None:
     context = _make_context()
 
     # A predicate that would return False (could naively "downgrade" to DEFERRED)
-    def never_trigger(server: str, prompt: str) -> bool:
+    def reject_all_servers(server: str, prompt: str) -> bool:
         return False
 
     result = ToolPackController(manifest, context).resolve(
         prompt="irrelevant",
-        heuristic_server_predicate=never_trigger,
+        heuristic_server_predicate=reject_all_servers,
     )
     assert result.server_decisions["active-server"].state == STATE_ACTIVE
 
@@ -163,12 +163,12 @@ def test_monotonicity_heuristic_upgrades_deferred_to_active() -> None:
         workspace_allowed_servers=frozenset({"bay-view-graph"}),
     )
 
-    def always_trigger(server: str, prompt: str) -> bool:
+    def accept_all_servers(server: str, prompt: str) -> bool:
         return True
 
     result = ToolPackController(manifest, context).resolve(
         prompt="use bay-view-graph",
-        heuristic_server_predicate=always_trigger,
+        heuristic_server_predicate=accept_all_servers,
     )
     assert result.server_decisions["bay-view-graph"].state == STATE_ACTIVE
     assert result.server_tpc_rules["bay-view-graph"] == RULE_HEURISTIC_UPGRADE
@@ -184,12 +184,12 @@ def test_monotonicity_heuristic_does_not_affect_suppressed_pack() -> None:
     manifest = _make_manifest(rule)
     context = _make_context()
 
-    def always_trigger(server: str, prompt: str) -> bool:
+    def accept_all_for_suppressed_test(server: str, prompt: str) -> bool:
         return True
 
     result = ToolPackController(manifest, context).resolve(
         prompt="use secret-server please",
-        heuristic_server_predicate=always_trigger,
+        heuristic_server_predicate=accept_all_for_suppressed_test,
     )
     assert result.server_decisions["secret-server"].state == STATE_SUPPRESSED
 
