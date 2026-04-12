@@ -12,7 +12,6 @@ import argparse
 import hashlib
 import json
 import os
-import re
 import time
 from pathlib import Path
 from typing import Any, Mapping
@@ -31,6 +30,11 @@ from starlette.routing import Route
 from tcp.derivation.request_derivation import SessionStartEvent, derive_request
 from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.models import ToolSelectionRequest
+from tcp.proxy.controller import (
+    ToolPackController,
+    TPC_RULE_HEURISTIC_UPGRADE,
+    _server_alias_tokens,
+)
 from tcp.proxy.pack_manifest import (
     DEFAULT_ACTIVE_MCP_SERVERS,
     PackInspection,
@@ -42,7 +46,6 @@ from tcp.proxy.pack_manifest import (
     inspect_pack_state,
     load_pack_manifest,
     pack_context_from_env,
-    resolve_pack_decisions,
 )
 from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
 from tcp.proxy.prompt_select import extract_task_prompt
@@ -128,61 +131,7 @@ def _extract_mcp_server(tool_name: str) -> str | None:
     return server or None
 
 
-def _prompt_mentions_server(prompt: str, tool_name: str) -> bool:
-    """Treat exact tool ids or server/family names as an explicit rescue signal."""
-    prompt_l = prompt.lower()
-    tool_l = tool_name.lower()
-    if tool_l and tool_l in prompt_l:
-        return True
-    server = _extract_mcp_server(tool_name)
-    if not server:
-        return False
-    server_l = server.lower()
-    server_tokens = _server_alias_tokens(server_l)
-    return any(token in prompt_l for token in server_tokens)
-
-
-def _server_alias_tokens(server_l: str) -> set[str]:
-    """Generate human-typed aliases for wrapper-prefixed MCP server names."""
-    tokens = {
-        server_l,
-        server_l.replace("-", " "),
-        server_l.replace("_", " "),
-        server_l.replace(":", " "),
-    }
-    parts = tuple(part for part in re.split(r"[^a-z0-9]+", server_l) if part)
-    unique_parts = tuple(dict.fromkeys(parts))
-    if len(unique_parts) >= 2:
-        for idx in range(len(unique_parts) - 1):
-            pair = " ".join(unique_parts[idx : idx + 2])
-            tokens.add(pair)
-            tokens.add(" ".join(reversed(unique_parts[idx : idx + 2])))
-        tokens.add(" ".join(unique_parts))
-
-    wrapper_parts = {"plugin", "claude", "ai", "mcp"}
-    informative_parts = tuple(
-        part for part in unique_parts if part not in wrapper_parts
-    )
-    if informative_parts:
-        tokens.add(" ".join(informative_parts))
-        if len(informative_parts) == 1:
-            informative = informative_parts[0]
-            tokens.add(informative)
-            if "plugin" in unique_parts:
-                tokens.add(f"{informative} plugin")
-                tokens.add(f"plugin {informative}")
-                # Claude often refers to plugin-backed Notion access as
-                # "notion api"/"notionApi" rather than the raw plugin server id.
-                tokens.add(f"{informative} api")
-                tokens.add(f"{informative}api")
-            if "claude" in unique_parts:
-                tokens.add(f"claude {informative}")
-                tokens.add(f"{informative} claude")
-        elif len(informative_parts) >= 2:
-            for idx in range(len(informative_parts) - 1):
-                phrase = " ".join(informative_parts[idx : idx + 2])
-                tokens.add(phrase)
-    return {token for token in tokens if token}
+# _server_alias_tokens and server-level prompt matching are in tcp.proxy.controller.
 
 
 def _is_mcp_server_allowed(tool_name: str, allowed: frozenset[str]) -> bool:
@@ -284,35 +233,8 @@ def _deferred_tool_surface(
     }
 
 
-def _schema_materialization_state(
-    tool_name: str,
-    *,
-    allowed_servers: frozenset[str],
-    server_pack_decisions: Mapping[str, Any],
-    server_allow_source: Mapping[str, str],
-) -> str:
-    """Classify whether a visible tool should keep full schema or deferred schema."""
-    server = _extract_mcp_server(tool_name)
-    if server is None:
-        return STATE_ACTIVE
-
-    pack_decision = server_pack_decisions.get(server)
-    allow_source = server_allow_source.get(server)
-
-    if pack_decision is not None:
-        if pack_decision.state != STATE_ACTIVE and allow_source in {
-            "workspace_allow",
-            "explicit_request",
-        }:
-            return STATE_DEFERRED
-        return pack_decision.state
-
-    if server in allowed_servers:
-        return STATE_ACTIVE
-
-    if allow_source in {"workspace_allow", "explicit_request"}:
-        return STATE_DEFERRED
-    return STATE_SUPPRESSED
+# Schema materialization state is now derived from ToolPackController.server_state()
+# in _process_tools_array — see controller_decisions lookup below.
 
 
 def _runtime_from_env() -> RuntimeEnvironment:
@@ -437,10 +359,26 @@ def _process_tools_array(
         ),
         workspace_allowed_servers=workspace_allowed_servers,
     )
-    pack_decisions, server_pack_decisions = resolve_pack_decisions(
+    controller = ToolPackController(
         _PACK_MANIFEST,
         pack_context,
+        allowed_servers=allowed_servers,
+        hard_allow_override=hard_allow_override,
     )
+    pack_decisions = controller.pack_decisions
+
+    # Pre-resolve all unique servers seen in the tool list (one pass, cached).
+    all_tool_servers: frozenset[str] = frozenset(
+        s
+        for (_, rec, _, _) in entries
+        if rec is not None
+        for s in (_extract_mcp_server(rec.tool_name),)
+        if s is not None
+    )
+    controller_decisions: dict[str, Any] = controller.bulk_resolve(
+        all_tool_servers, prompt=prompt
+    )
+
     stage2_survivors = set(stage1_survivors)
     server_filtered: set[str] = set()
     workspace_rescued: set[str] = set()
@@ -451,35 +389,27 @@ def _process_tools_array(
     if mode in ("live", "live-strict"):
         for name in stage1_survivors:
             server = _extract_mcp_server(name)
-            if _is_mcp_server_allowed(name, allowed_servers):
-                if server:
-                    server_allow_source.setdefault(server, "hard_allow")
+            if server is None:
+                # Non-MCP built-in: always passes through Stage 2.
                 continue
-            if hard_allow_override:
+            decision = controller_decisions.get(server)
+            if decision is None:
+                # Unknown server not in tool list — should not happen, but safe fallback.
                 stage2_survivors.discard(name)
                 server_filtered.add(name)
                 continue
-            pack_decision = (
-                None if server is None else server_pack_decisions.get(server)
-            )
-            pack_state = (
-                pack_decision.state if pack_decision is not None else STATE_SUPPRESSED
-            )
-            if server and pack_state == STATE_ACTIVE:
-                server_allow_source.setdefault(server, "pack_active")
-                continue
-            if server and pack_state == STATE_DEFERRED:
+            if decision.state == STATE_SUPPRESSED:
+                stage2_survivors.discard(name)
+                server_filtered.add(name)
+            elif decision.state == STATE_DEFERRED:
                 deferred_visible.add(name)
-                server_allow_source.setdefault(server, "workspace_allow")
-                if "workspace_allow" in pack_decision.reasons:
+                server_allow_source.setdefault(server, decision.legacy_allow_source)
+                if decision.tpc_rule == TPC_RULE_HEURISTIC_UPGRADE:
+                    explicit_rescued.add(name)
+                else:
                     workspace_rescued.add(name)
-                continue
-            if server and _prompt_mentions_server(prompt, name):
-                explicit_rescued.add(name)
-                server_allow_source.setdefault(server, "explicit_request")
-                continue
-            stage2_survivors.discard(name)
-            server_filtered.add(name)
+            else:  # ACTIVE
+                server_allow_source.setdefault(server, decision.legacy_allow_source)
 
     if mode == "live-strict" and records:
         strict_tsel = ToolSelectionRequest.from_kwargs(
@@ -539,25 +469,28 @@ def _process_tools_array(
         if not survives:
             continue
 
-        schema_state = _schema_materialization_state(
-            rec.tool_name,
-            allowed_servers=allowed_servers,
-            server_pack_decisions=server_pack_decisions,
-            server_allow_source=server_allow_source,
+        tool_server = _extract_mcp_server(rec.tool_name)
+        ctrl_decision = (
+            None if tool_server is None else controller_decisions.get(tool_server)
+        )
+        schema_state = (
+            STATE_ACTIVE
+            if ctrl_decision is None
+            else ctrl_decision.state
         )
         surface_state_by_tool[rec.tool_name] = schema_state
 
         if mode in ("live", "live-strict") and schema_state == STATE_DEFERRED:
-            server = _extract_mcp_server(rec.tool_name)
-            pack_decision = (
-                None if server is None else server_pack_decisions.get(server)
-            )
             live_tools.append(
                 _deferred_tool_surface(
                     orig,
-                    pack_id=None if pack_decision is None else pack_decision.pack_id,
-                    server=server,
-                    reason=server_allow_source.get(server) if server else None,
+                    pack_id=(
+                        None if ctrl_decision is None else ctrl_decision.pack_id
+                    ),
+                    server=tool_server,
+                    reason=(
+                        server_allow_source.get(tool_server) if tool_server else None
+                    ),
                 )
             )
             deferred_schema_tools.append(rec.tool_name)
@@ -632,6 +565,11 @@ def _process_tools_array(
         "deferred_visible": sorted(deferred_visible) if deferred_visible else [],
         "explicit_server_rescued": sorted(explicit_rescued) if explicit_rescued else [],
         "server_allow_source": dict(sorted(server_allow_source.items())),
+        "tpc_rule_by_server": {
+            s: d.tpc_rule
+            for s, d in sorted(controller_decisions.items())
+            if d.state != STATE_SUPPRESSED
+        },
         "heuristic_would_reject_count": len(heuristic_would_reject),
         "heuristic_would_reject": (
             sorted(heuristic_would_reject) if heuristic_would_reject else []
