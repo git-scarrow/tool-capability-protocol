@@ -666,8 +666,12 @@ async def run_layered_benchmark(
         else:
             gate_records = records
         gate_result = gate_tools(gate_records, request, env)
-        survivor_names = {t.tool_name for t in gate_result.approved_tools}
-        survivor_names |= {t.tool_name for t in gate_result.approval_required_tools}
+        _seen: set[str] = set()
+        survivor_names: list[str] = []
+        for _t in list(gate_result.approved_tools) + list(gate_result.approval_required_tools):
+            if _t.tool_name not in _seen:
+                _seen.add(_t.tool_name)
+                survivor_names.append(_t.tool_name)
         filtered_schemas = [schema_by_name[n] for n in survivor_names if n in schema_by_name]
 
         survivor_count = len(survivor_names)

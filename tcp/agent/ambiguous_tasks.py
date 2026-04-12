@@ -85,18 +85,18 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
             ),
             synthetic_tools=(
                 _tool(
-                    "grep",
-                    "POSIX grep — search for patterns in files using regular expressions.",
-                    _files_flag,
-                    input_formats=frozenset({"text"}),
-                    output_formats=frozenset({"text"}),
-                ),
-                _tool(
                     "ripgrep",
                     "ripgrep (rg) — recursive regex search across codebases; faster than grep for directory-wide searches and supports JSON output.",
                     _files_flag,
                     input_formats=frozenset({"text"}),
                     output_formats=frozenset({"json", "text"}),
+                ),
+                _tool(
+                    "grep",
+                    "POSIX grep — search for patterns in files using regular expressions.",
+                    _files_flag,
+                    input_formats=frozenset({"text"}),
+                    output_formats=frozenset({"text"}),
                 ),
                 _tool(
                     "fs-search-files",
