@@ -218,6 +218,16 @@ TCP Descriptor v2:
 - **Human Approval**: Workflow for high-risk operations
 - **Audit Logging**: Complete decision audit trail
 
+### Core Operational Loop (TCP-CC Proxy)
+
+The **TCP-CC Proxy** is the operational heart of this project. It transitions TCP from a static protocol into a live security layer.
+
+- **Primary Loop**: `tcp.proxy.cc_proxy` (FastAPI sidecar)
+- **Lifecycle**: Started via `scripts/tcp_proxy_ensure.sh`, listens on `127.0.0.1:8742`.
+- **Function**: Intercepts Claude Code model traffic, derives required capabilities using `tcp/derivation/request_derivation.py`, and gates tool visibility in real-time.
+- **Decision Log**: `~/.tcp-shadow/proxy/decisions.jsonl` (Standard artifact for audit and replay).
+- **Current Bottleneck**: Request derivation precision (5.4% in TCP-VAL-1). Hardening this logic is the top priority for unblocking the validation layer.
+
 ## Key Data Models
 
 ### Primary Descriptors

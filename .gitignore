@@ -146,3 +146,8 @@ latest-claude.txt
 results.json
 scale-results.json
 lancedb/
+# TCP Session Artifacts (Temporary)
+layered-results*.json
+test_payload.json
+.codex
+*-local-command-caveatcaveat-the-messages-below.txt
