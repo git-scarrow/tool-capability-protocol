@@ -9,6 +9,7 @@ Claude Code in live mode.
 from __future__ import annotations
 
 import argparse
+import difflib
 import hashlib
 import json
 import os
@@ -290,6 +291,30 @@ def _manifest_hash() -> str:
             ],
         }
     )
+
+
+def _max_description_similarity_proxy(tools: list[Any]) -> float:
+    """Max pairwise SequenceMatcher ratio between surviving tool descriptions.
+
+    Returns a value in [0.0, 1.0]. Used as a proxy for how confusable the
+    survivor tool set is — a high value suggests ambiguous-lane selection risk.
+    """
+    descriptions = [
+        t.get("description", "")
+        for t in tools
+        if isinstance(t, Mapping) and t.get("description")
+    ]
+    if len(descriptions) < 2:
+        return 0.0
+    max_sim = 0.0
+    for i in range(len(descriptions)):
+        for j in range(i + 1, len(descriptions)):
+            sim = difflib.SequenceMatcher(
+                None, descriptions[i].lower(), descriptions[j].lower()
+            ).ratio()
+            if sim > max_sim:
+                max_sim = sim
+    return max_sim
 
 
 def _process_tools_array(
@@ -598,6 +623,28 @@ def _process_tools_array(
             tier.name for (_o, _r, tier, _n) in entries if tier is not None
         ],
         "audit": audit_serial,
+        # TCP-MT-12: proactive first-tool-miss telemetry fields
+        # ambiguous_lane: true when ≥2 tools survive to active status,
+        # meaning LLM must disambiguate without gating help.
+        "ambiguous_lane": len(active_survivors) >= 2,
+        # schema_load_on_demand: true when any surviving tool's schema was
+        # deferred (sent as minimal surface), requiring on-demand expansion.
+        "schema_load_on_demand": len(deferred_schema_tools) > 0,
+        # pack_promotion_triggered: true when a pack was rescued from
+        # suppressed/deferred to visible state by workspace or explicit rules.
+        "pack_promotion_triggered": bool(workspace_rescued or explicit_rescued),
+        # description_similarity_max: max pairwise SequenceMatcher ratio
+        # between active-survivor tool descriptions. Measures confusability
+        # of the survivor set. NOTE: first_tool_name / expected_tool_name /
+        # first_tool_correct are BLOCKED at proxy layer — proxy does not
+        # observe response content.
+        "description_similarity_max": _max_description_similarity_proxy(
+            [
+                orig
+                for (orig, rec, _tier, _name) in entries
+                if rec is not None and rec.tool_name in active_survivors
+            ]
+        ),
     }
 
     # ── Empty-set guardrail ──────────────────────────────────────────────

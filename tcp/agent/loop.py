@@ -7,6 +7,7 @@ tool calls to a mock executor.
 
 from __future__ import annotations
 
+import difflib
 import time
 from dataclasses import dataclass
 from enum import Enum
@@ -46,6 +47,34 @@ class LoopMetrics:
     llm_bypassed: bool = False
     route_confidence: str = ""
     survivor_count: int = 0
+    # TCP-MT-12: proactive first-tool-miss telemetry
+    first_tool_name: str | None = None
+    expected_tool_name: str | None = None
+    retry_latency_penalty_ms: float = 0.0
+    description_similarity_max: float = 0.0
+    ambiguous_lane: bool = False
+    pack_promotion_triggered: bool = False
+    schema_load_on_demand: bool = False
+
+
+def _max_description_similarity(tools: list[dict]) -> float:
+    """Max pairwise SequenceMatcher ratio between all tool description pairs.
+
+    Returns a value in [0.0, 1.0]. 0.0 when fewer than 2 tools have descriptions.
+    Used as a proxy for how confusable the survivor tool set is.
+    """
+    descriptions = [t.get("description", "") for t in tools if t.get("description")]
+    if len(descriptions) < 2:
+        return 0.0
+    max_sim = 0.0
+    for i in range(len(descriptions)):
+        for j in range(i + 1, len(descriptions)):
+            sim = difflib.SequenceMatcher(
+                None, descriptions[i].lower(), descriptions[j].lower()
+            ).ratio()
+            if sim > max_sim:
+                max_sim = sim
+    return max_sim
 
 
 async def run_agent_loop(
@@ -58,6 +87,8 @@ async def run_agent_loop(
     model: str = "claude-sonnet-4-6",
     max_turns: int = 5,
     bypass_tool: str | None = None,
+    pack_promotion_triggered: bool = False,
+    schema_load_on_demand: bool = False,
 ) -> LoopMetrics:
     """Execute a single agent loop and return metrics.
 
@@ -66,6 +97,9 @@ async def run_agent_loop(
     3. Feed tool_result back, repeat until text-only or max_turns
     4. Collect timing at every API call boundary
     """
+    desc_sim_max = _max_description_similarity(tools)
+    ambiguous_lane = len(tools) >= 2
+
     # --- Deterministic bypass path ---
     if bypass_tool is not None:
         total_start = time.perf_counter_ns()
@@ -84,6 +118,12 @@ async def run_agent_loop(
             selected_tool_correct=correct,
             expected_tool_any_position=correct,
             llm_bypassed=True,
+            first_tool_name=bypass_tool,
+            expected_tool_name=expected_tool,
+            description_similarity_max=desc_sim_max,
+            ambiguous_lane=ambiguous_lane,
+            pack_promotion_triggered=pack_promotion_triggered,
+            schema_load_on_demand=schema_load_on_demand,
         )
 
     client = anthropic.AsyncAnthropic()
@@ -92,6 +132,7 @@ async def run_agent_loop(
     total_input_tokens = 0
     total_output_tokens = 0
     first_token_latency_ms = 0.0
+    turn_latencies: list[float] = []
     turns = 0
 
     total_start = time.perf_counter_ns()
@@ -106,11 +147,13 @@ async def run_agent_loop(
                 tools=tools,
             )
             call_end = time.perf_counter_ns()
+            turn_latency_ms = (call_end - call_start) / 1_000_000
+            turn_latencies.append(turn_latency_ms)
 
             turns += 1
 
             if turn_idx == 0:
-                first_token_latency_ms = (call_end - call_start) / 1_000_000
+                first_token_latency_ms = turn_latency_ms
 
             total_input_tokens += response.usage.input_tokens
             total_output_tokens += response.usage.output_tokens
@@ -140,38 +183,44 @@ async def run_agent_loop(
         return _make_error_metrics(
             exc, ErrorKind.API_AUTH, task_name, tools, turns,
             first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called,
+            total_output_tokens, tools_called, expected_tool,
+            pack_promotion_triggered, schema_load_on_demand,
         )
     except anthropic.RateLimitError as exc:
         return _make_error_metrics(
             exc, ErrorKind.API_RATE_LIMIT, task_name, tools, turns,
             first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called,
+            total_output_tokens, tools_called, expected_tool,
+            pack_promotion_triggered, schema_load_on_demand,
         )
     except anthropic.BadRequestError as exc:
         return _make_error_metrics(
             exc, ErrorKind.API_BAD_REQUEST, task_name, tools, turns,
             first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called,
+            total_output_tokens, tools_called, expected_tool,
+            pack_promotion_triggered, schema_load_on_demand,
         )
     except anthropic.APIStatusError as exc:
         kind = ErrorKind.API_OVERLOADED if exc.status_code == 529 else ErrorKind.API_OTHER
         return _make_error_metrics(
             exc, kind, task_name, tools, turns,
             first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called,
+            total_output_tokens, tools_called, expected_tool,
+            pack_promotion_triggered, schema_load_on_demand,
         )
     except (TypeError, KeyError, AttributeError, ValueError) as exc:
         return _make_error_metrics(
             exc, ErrorKind.DATA_BUG, task_name, tools, turns,
             first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called,
+            total_output_tokens, tools_called, expected_tool,
+            pack_promotion_triggered, schema_load_on_demand,
         )
     except Exception as exc:
         return _make_error_metrics(
             exc, ErrorKind.PROGRAM_BUG, task_name, tools, turns,
             first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called,
+            total_output_tokens, tools_called, expected_tool,
+            pack_promotion_triggered, schema_load_on_demand,
         )
 
     total_end = time.perf_counter_ns()
@@ -185,6 +234,13 @@ async def run_agent_loop(
         correct = first_tool == expected_tool
         any_position = expected_tool in tools_called
 
+    # retry_latency_penalty_ms: extra latency incurred after a first-tool miss.
+    # Measured as the sum of all turn latencies beyond the first turn when the
+    # first tool was wrong. Zero when first tool was correct or only one turn ran.
+    retry_latency_penalty_ms = 0.0
+    if not correct and len(turn_latencies) > 1:
+        retry_latency_penalty_ms = sum(turn_latencies[1:])
+
     return LoopMetrics(
         task_name=task_name,
         tool_count=len(tools),
@@ -196,6 +252,13 @@ async def run_agent_loop(
         tools_called=tuple(tools_called),
         selected_tool_correct=correct,
         expected_tool_any_position=any_position,
+        first_tool_name=first_tool,
+        expected_tool_name=expected_tool,
+        retry_latency_penalty_ms=retry_latency_penalty_ms,
+        description_similarity_max=desc_sim_max,
+        ambiguous_lane=ambiguous_lane,
+        pack_promotion_triggered=pack_promotion_triggered,
+        schema_load_on_demand=schema_load_on_demand,
     )
 
 
@@ -210,9 +273,13 @@ def _make_error_metrics(
     total_input_tokens: int,
     total_output_tokens: int,
     tools_called: list[str],
+    expected_tool: str | None = None,
+    pack_promotion_triggered: bool = False,
+    schema_load_on_demand: bool = False,
 ) -> LoopMetrics:
     """Build LoopMetrics for an error case."""
     total_end = time.perf_counter_ns()
+    first_tool = tools_called[0] if tools_called else None
     return LoopMetrics(
         task_name=task_name,
         tool_count=len(tools),
@@ -225,4 +292,10 @@ def _make_error_metrics(
         selected_tool_correct=False,
         error=str(exc),
         error_kind=kind.value,
+        first_tool_name=first_tool,
+        expected_tool_name=expected_tool,
+        description_similarity_max=_max_description_similarity(tools),
+        ambiguous_lane=len(tools) >= 2,
+        pack_promotion_triggered=pack_promotion_triggered,
+        schema_load_on_demand=schema_load_on_demand,
     )

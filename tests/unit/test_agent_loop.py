@@ -112,6 +112,28 @@ class TestLoopMetrics:
         assert m.route_confidence == ""
         assert m.survivor_count == 0
 
+    def test_mt12_fields_default(self):
+        """TCP-MT-12 telemetry fields default to None/False/0.0."""
+        m = LoopMetrics(
+            task_name="t",
+            tool_count=2,
+            turns=1,
+            first_token_latency_ms=10.0,
+            total_response_time_ms=20.0,
+            input_tokens=100,
+            output_tokens=50,
+            tools_called=("tool-a",),
+            selected_tool_correct=True,
+            error=None,
+        )
+        assert m.first_tool_name is None
+        assert m.expected_tool_name is None
+        assert m.retry_latency_penalty_ms == 0.0
+        assert m.description_similarity_max == 0.0
+        assert m.ambiguous_lane is False
+        assert m.pack_promotion_triggered is False
+        assert m.schema_load_on_demand is False
+
 
 @pytest.mark.asyncio
 class TestRunAgentLoop:
@@ -347,6 +369,147 @@ class TestRunAgentLoop:
             )
 
         assert metrics.tool_count == 15
+
+
+@pytest.mark.asyncio
+class TestMT12Telemetry:
+    """TCP-MT-12: first-tool-miss telemetry fields."""
+
+    async def test_first_tool_name_and_expected_populated(self):
+        """first_tool_name and expected_tool_name are set on a successful run."""
+        tool_response = _make_response(
+            content=[_make_tool_use_block("fs-read-file")],
+        )
+        final_response = _make_response(content=[_make_text_block("Done.")])
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[tool_response, final_response]
+        )
+
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
+            metrics = await run_agent_loop(
+                task_prompt="Read a file",
+                tools=[
+                    {"name": "fs-read-file", "description": "Reads a file from disk"},
+                    {"name": "fs-write-file", "description": "Writes content to a file"},
+                ],
+                mock_executor=_noop_executor,
+                expected_tool="fs-read-file",
+                task_name="mt12-names",
+            )
+
+        assert metrics.first_tool_name == "fs-read-file"
+        assert metrics.expected_tool_name == "fs-read-file"
+        assert metrics.selected_tool_correct is True
+        assert metrics.retry_latency_penalty_ms == 0.0
+
+    async def test_retry_penalty_nonzero_on_miss(self):
+        """retry_latency_penalty_ms > 0 when first tool is wrong and has multi-turn."""
+        wrong_tool_response = _make_response(
+            content=[_make_tool_use_block("git-status")],
+        )
+        right_tool_response = _make_response(
+            content=[_make_tool_use_block("fs-read-file")],
+        )
+        final_response = _make_response(content=[_make_text_block("Done.")])
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(
+            side_effect=[wrong_tool_response, right_tool_response, final_response]
+        )
+
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
+            metrics = await run_agent_loop(
+                task_prompt="Read a file",
+                tools=[
+                    {"name": "fs-read-file", "description": "Reads a file from disk"},
+                    {"name": "git-status", "description": "Shows git repository status"},
+                ],
+                mock_executor=_noop_executor,
+                expected_tool="fs-read-file",
+                task_name="mt12-retry",
+            )
+
+        assert metrics.first_tool_name == "git-status"
+        assert metrics.expected_tool_name == "fs-read-file"
+        assert metrics.selected_tool_correct is False
+        assert metrics.retry_latency_penalty_ms > 0.0
+
+    async def test_ambiguous_lane_true_when_multiple_tools(self):
+        """ambiguous_lane is True when ≥2 tools are provided."""
+        mock_response = _make_response(content=[_make_text_block("ok")])
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
+            metrics = await run_agent_loop(
+                task_prompt="Hi",
+                tools=[
+                    {"name": "tool-a", "description": "Does thing A"},
+                    {"name": "tool-b", "description": "Does thing B"},
+                ],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="mt12-ambig",
+            )
+
+        assert metrics.ambiguous_lane is True
+
+    async def test_ambiguous_lane_false_single_tool(self):
+        """ambiguous_lane is False with only one tool."""
+        mock_response = _make_response(content=[_make_text_block("ok")])
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
+            metrics = await run_agent_loop(
+                task_prompt="Hi",
+                tools=[{"name": "tool-a", "description": "Does thing A"}],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="mt12-single",
+            )
+
+        assert metrics.ambiguous_lane is False
+
+    async def test_description_similarity_max_nonzero_for_similar_tools(self):
+        """description_similarity_max > 0 for tools with similar descriptions."""
+        mock_response = _make_response(content=[_make_text_block("ok")])
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
+            metrics = await run_agent_loop(
+                task_prompt="Hi",
+                tools=[
+                    {"name": "tool-a", "description": "Reads text files from disk"},
+                    {"name": "tool-b", "description": "Reads binary files from disk"},
+                ],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="mt12-sim",
+            )
+
+        assert metrics.description_similarity_max > 0.0
+
+    async def test_pack_promotion_and_schema_load_passthrough(self):
+        """pack_promotion_triggered and schema_load_on_demand are passed through."""
+        mock_response = _make_response(content=[_make_text_block("ok")])
+        mock_client = AsyncMock()
+        mock_client.messages.create = AsyncMock(return_value=mock_response)
+
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
+            metrics = await run_agent_loop(
+                task_prompt="Hi",
+                tools=[{"name": "t", "description": "t", "input_schema": {"type": "object", "properties": {}}}],
+                mock_executor=_noop_executor,
+                expected_tool=None,
+                task_name="mt12-flags",
+                pack_promotion_triggered=True,
+                schema_load_on_demand=True,
+            )
+
+        assert metrics.pack_promotion_triggered is True
+        assert metrics.schema_load_on_demand is True
 
 
 @pytest.mark.asyncio
