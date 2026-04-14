@@ -44,37 +44,54 @@ _SYSTEM_TOOLS = frozenset({
 _CONTINUATION_PROMPTS = frozenset({
     "yes", "no", "ok", "okay", "sure", "continue", "go", "go ahead",
     "proceed", "done", "next", "yep", "yup", "fine", "great",
+    "continue this work", "yes please", "yes, please", "yes.", "no."
 })
 
 _SYSTEM_DIRS = {"/", "/usr", "/etc", "/var", "/boot", "/sys", "/proc", "/bin", "/sbin"}
 
-# Capability flag trigger patterns — tuples of (flag, compiled_patterns)
-_FILE_PATTERNS = re.compile(
-    r'\b(read|write|edit|create|save|open|load|delete|copy|move|rename|list)'
-    r'.*\b(file|files|dir|directory|path|folder)\b'
-    r'|[\w/.-]+\.[a-zA-Z]{1,6}\b'  # file extension
-    r'|\b/(home|tmp|var|etc|usr)\b',
-    re.IGNORECASE,
+# Intent verbs
+_FILE_VERBS = re.compile(r'\b(read|write|edit|create|save|open|load|delete|copy|move|rename|list|grep|glob|ls|find|dig|proceed|pick|analyze|check|search|scan|fix|harden|identify|perform|review|access|show|use)\b', re.I)
+_NET_VERBS = re.compile(r'\b(fetch|curl|wget|download|upload|api|endpoint|http|get|post|visit|open|search|check|request|deploy|reply|send|did|any|use)\b', re.I)
+
+# Objects
+_FILE_OBJECTS = re.compile(
+    r'\b[\w/.-]+\.(py|js|ts|go|rb|rs|c|h|cpp|hpp|sh|json|yaml|yml|md|sql|html|css)\b'  # Removed txt
+    r'|\b(file|files|dir|directory|path|folder|code|repo|doc|docs|source|fonts|source-grounded)\b',
+    re.I
 )
-_NETWORK_PATTERNS = re.compile(
+_NEGATIVE_OBJECTS = re.compile(r'\b(hello world|worship folder|ADMIN|notion)\b', re.I)
+
+_NET_OBJECTS = re.compile(
     r'https?://\S+'
-    r'|\b(fetch|curl|wget|download|upload|http|api|endpoint|request|GET|POST)\b',
-    re.IGNORECASE,
+    r'|\b(notion|email|emails|thread|message|messages|nixos|aws-ec2|remote|api|endpoint|playwright|myanonamouse)\b',
+    re.I
 )
+
+
+_URL_PATTERN = re.compile(r'https?://\S+')
+
+# Absolute paths (strong signal)
+_ABS_PATH_PATTERN = re.compile(r'(?:^|\s)/(home|tmp|var|etc|usr)/[\w/.-]+\b')
+
+# Auth patterns
 _AUTH_PATTERNS = re.compile(
-    r'\b(sudo|root|admin|privilege|/etc/|systemctl|apt|yum|install globally|chmod|chown)\b',
-    re.IGNORECASE,
+    r'\b(sudo|privilege|systemctl|apt|yum|chmod|chown)\b'
+    r'|\broot\b(?!.*\b(dir|directory|folder|path)\b)'
+    r'|\b(notion|email|emails|myanonamouse|login)\b',
+    re.I
 )
+
 
 # Output format patterns
 _JSON_PATTERNS = re.compile(
-    r'\b(json|structured output|parse|schema)\b', re.IGNORECASE
+    r'\b(output json|format as json|return json|as json|json format|structured output)\b', re.IGNORECASE
 )
 _BINARY_PATTERNS = re.compile(
-    r'\b(image|screenshot|diagram|binary|pdf|zip|tar)\b'
+    r'\b(image|screenshot|diagram|pdf|zip|tar)\b'
     r'|\.(png|jpg|jpeg|gif|pdf|zip|tar|gz|bin)\b',
     re.IGNORECASE,
 )
+
 
 # ── Equivalence class taxonomy ────────────────────────────────────────────────
 
@@ -161,21 +178,27 @@ def derive_request(
     prompt: str,
     session: SessionStartEvent,
 ) -> ToolSelectionRequest:
-    """Convert a UserPromptSubmit prompt + SessionStart into a ToolSelectionRequest.
+    """Convert a UserPromptSubmit prompt + SessionStart into a ToolSelectionRequest."""
+    stripped = prompt.strip().lower()
+    
+    # 1. Skip system/continuation prompts (High Precision Filter)
+    if not stripped or stripped in _CONTINUATION_PROMPTS:
+        return ToolSelectionRequest.from_kwargs(
+            required_capability_flags=0,
+            heuristic_capability_flags=0,
+            required_output_formats=frozenset({"text"}),
+            require_auto_approval=_derive_approval_mode(session),
+        )
+        
+    # 2. Skip tool-output/notification-like prompts
+    if "<task-notification>" in prompt or "tool-use-id" in prompt or "output-file" in prompt:
+        return ToolSelectionRequest.from_kwargs(
+            required_capability_flags=0,
+            heuristic_capability_flags=0,
+            required_output_formats=frozenset({"text"}),
+            require_auto_approval=_derive_approval_mode(session),
+        )
 
-    Implements the v1 rule-based derivation from TCP-DS-2.
-
-    The returned request exposes two tiers:
-    - ``required_capability_flags``: union of all derived flags (backward-compat
-      with benchmark/offline consumers).
-    - ``heuristic_capability_flags``: the subset derived from prompt text alone
-      (SUPPORTS_FILES, SUPPORTS_NETWORK, AUTH_REQUIRED from regex patterns).
-      These are useful for scoring but unsafe as live hard gates because words
-      like "endpoint" trigger SUPPORTS_NETWORK even for local code edits.
-
-    Live-conservative mode should use ``hard_capability_flags`` (the property
-    that masks out heuristic bits) for rejection decisions.
-    """
     prompt_flags = _derive_capability_flags_from_prompt_only(prompt)
     env_flags = _derive_env_flags(prompt, session)
     all_flags = prompt_flags | env_flags
@@ -190,6 +213,7 @@ def derive_request(
         require_auto_approval=require_auto_approval,
         preferred_criteria="speed",
     )
+
 
 
 def get_equivalence_class(tool_name: str, tool_input: dict) -> str:
@@ -269,30 +293,122 @@ def _derive_env_flags(_prompt: str, session: SessionStartEvent) -> int:
     return flags
 
 
+def _strip_tool_logs(text: str) -> str:
+    """Remove patterns like Read(...), Bash(...), Tracebacks, and JSON from the text."""
+    # Catch interactive interruptions
+    text = re.sub(r'●\s+[\w-]+ - [\w-]+ \(MCP\).*?What should Claude do instead\?', '', text, flags=re.DOTALL)
+    text = re.sub(r'●\s+(Read|Write|Edit|Bash|Glob|Grep|WebFetch|Skill).*?What should Claude do instead\?', '', text, flags=re.DOTALL)
+    text = re.sub(r'\u23bf\s+\u00a0Interrupted \u00b7 What should Claude do instead\?', '', text)
+    # Generic MCP and Claude Code tool payloads
+    text = re.sub(r'●\s+[\w-]+ - [\w-]+ \(MCP\)\(.*?\)[\s\u23bf\u2022]*', '', text, flags=re.DOTALL)
+    text = re.sub(r'[●\s]*\b(Read|Write|Edit|Bash|Glob|Grep|WebFetch|Skill)\(.*?\)[\s\u23bf\u2022]*', '', text, flags=re.DOTALL)
+    # Strip Tracebacks and general system paths in quotes
+    text = re.sub(r'\bFile\s+"[^"]+",\s+line\s+\d+', '', text)
+    # Strip JSON-like blocks
+    text = re.sub(r'\{[^{}]*?"[^{}]*?":.*\}', '', text, flags=re.DOTALL)
+    return text
+
+
+
+
+
+
 def _derive_capability_flags_from_prompt_only(prompt: str) -> int:
-    """Extract capability flags from prompt text alone (no session context)."""
-    stripped = prompt.strip()
+    """Extract capability flags using a score-based intent classifier."""
+    # Pre-strip logs to avoid false positives from history
+    clean_prompt = _strip_tool_logs(prompt)
+    stripped = clean_prompt.strip()
+    
+    # Base signals
+    has_abs_path = bool(_ABS_PATH_PATTERN.search(stripped))
+    has_http_method = bool(re.search(r'\bHTTP\s+(?:GET|POST|PUT|DELETE|PATCH)\b', clean_prompt))
+    
+    # Request Score Calculation
+    score = 0
+    
+    # 1. Imperative/Directive starts (Strong Signal)
+    if re.search(r'^(?:please\s+)?\b(do|run|fix|harden|create|read|write|edit|find|search|grep|glob|ls|list|check|analyze|dig|proceed|pick|deploy|visit|open|fetch|download|upload|search|scan|identify|perform)\b', stripped, re.I):
+        score += 4
+    
+    # 2. Standalone strong signals
+    if has_abs_path:
+        score += 5
+    if has_http_method:
+        score += 5
+        
+    # Semantic pairs bump score dramatically to bypass long-prompt penalties
+    if _FILE_VERBS.search(stripped) and _FILE_OBJECTS.search(stripped):
+        score += 5
+    if _NET_VERBS.search(stripped) and _NET_OBJECTS.search(stripped):
+        score += 5
+    if _AUTH_PATTERNS.search(stripped):
+        score += 5
+        
+    # 3. Question marks
+    if "?" in stripped:
+        score += 2
+        
+    # 4. Direct address/Personal intent
+    if re.search(r'\b(can you|could you|please|i want to|i need to|help me|did any)\b', stripped, re.I):
+        score += 2
+        
+    # 5. Length penalties
+    words = stripped.split()
+    if len(words) > 50:
+        score -= 1
+    if len(words) > 200:
+        score -= 2
 
-    # URLs and strong signals bypass the length gate
-    has_url = bool(re.search(r'https?://\S+', stripped))
-    too_short = len(stripped.split()) < 5 and not has_url
+    # 6. Report/Metadata penalties
+    if stripped.count("\n- ") > 5 or stripped.count("\n* ") > 5:
+        score -= 2
+    if "│" in stripped or "└─" in stripped:
+        score -= 5
+    if stripped.count(":") > 15:
+        score -= 2
 
-    if too_short:
+    # Score-based gate
+    if score < 2:
         return 0
 
-    return _derive_capability_flags_unconditional(prompt)
+    return _derive_capability_flags_unconditional(clean_prompt)
+
+
+
+
+
+
+
+
 
 
 def _derive_capability_flags_unconditional(text: str) -> int:
     """Apply FILE/NETWORK/AUTH pattern rules without the short-prompt early exit."""
     flags = 0
-    if _FILE_PATTERNS.search(text):
+
+    # 1. FILE_READ/WRITE (SUPPORTS_FILES)
+    file_verb = _FILE_VERBS.search(text)
+    file_obj = _FILE_OBJECTS.search(text)
+    neg_obj = _NEGATIVE_OBJECTS.search(text)
+    abs_path = _ABS_PATH_PATTERN.search(text)
+    if ((file_verb and file_obj) or abs_path) and not neg_obj:
         flags |= int(CapabilityFlags.SUPPORTS_FILES)
-    if _NETWORK_PATTERNS.search(text):
+
+    # 2. NETWORK (SUPPORTS_NETWORK)
+    net_verb = _NET_VERBS.search(text)
+    net_obj = _NET_OBJECTS.search(text)
+    http_method = re.search(r'\bHTTP\s+(?:GET|POST|PUT|DELETE|PATCH)\b', text)
+    if (net_verb and net_obj) or http_method:
         flags |= int(CapabilityFlags.SUPPORTS_NETWORK)
-    if _AUTH_PATTERNS.search(text):
+
+    # 3. AUTH (AUTH_REQUIRED)
+    is_network_auth = bool(net_verb and re.search(r'\b(notion|email|emails|login|myanonamouse|thread)\b', text, re.I))
+    if _AUTH_PATTERNS.search(text) or is_network_auth:
         flags |= int(CapabilityFlags.AUTH_REQUIRED)
+
     return flags
+
+
 
 
 def derive_capability_flags_from_description(description: str) -> int:

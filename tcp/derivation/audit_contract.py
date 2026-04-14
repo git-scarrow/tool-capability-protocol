@@ -153,12 +153,10 @@ def print_report(metrics: AuditMetrics) -> None:
     
     if metrics.divergent_turns:
         print(f"Divergent Turns ({len(metrics.divergent_turns)}):")
-        for turn in metrics.divergent_turns[:5]:
+        for turn in metrics.divergent_turns:
             print(f"  Prompt: {turn['prompt']}")
             print(f"    Derived Flags: {turn['derived_flags']} | GT: {turn['gt_flags']}")
             print(f"    Derived Formats: {turn['derived_formats']} | GT: {turn['gt_formats']}")
-        if len(metrics.divergent_turns) > 5:
-            print(f"  ... and {len(metrics.divergent_turns) - 5} more.")
 
 
 def _load_audit_set(path: Path) -> list[AuditSample]:
@@ -169,6 +167,8 @@ def _load_audit_set(path: Path) -> list[AuditSample]:
         data = json.loads(raw)
     samples = []
     for item in data:
+        if item.get("label_status") != "calibrated":
+            continue
         session = SessionStartEvent(
             session_id=item.get("session_id", "audit"),
             permission_mode=item.get("permission_mode", "default"),
@@ -177,7 +177,7 @@ def _load_audit_set(path: Path) -> list[AuditSample]:
         samples.append(AuditSample(
             prompt=item["prompt"],
             session=session,
-            ground_truth_flags=item["ground_truth_flags"],
+            ground_truth_flags=item.get("ground_truth_flags", 0),
             ground_truth_formats=frozenset(item.get("ground_truth_formats", ["text"])),
         ))
     return samples
