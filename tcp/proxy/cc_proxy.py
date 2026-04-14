@@ -766,6 +766,7 @@ def _write_decision_record(
     req_ts: float,
     meta: dict[str, Any],
     first_tool_name: str | None,
+    tap_skipped: bool = False,
 ) -> None:
     """Write (or rewrite) the enriched decisions.jsonl entry for this turn."""
     expected_tool_name = _compute_expected_tool_name(meta)
@@ -782,6 +783,7 @@ def _write_decision_record(
             "first_tool_name": first_tool_name,
             "expected_tool_name": expected_tool_name,
             "first_tool_correct": first_tool_correct,
+            "tap_skipped": tap_skipped,
         },
     )
 
@@ -843,6 +845,8 @@ async def proxy_post_messages(request: Request) -> Response:
     if request.url.query:
         url = f"{url}?{request.url.query}"
     headers = _forward_headers(request)
+    # Force uncompressed upstream responses so the SSE tap can always parse.
+    headers["Accept-Encoding"] = "identity"
     stream = False
     try:
         parsed = json.loads(transformed)
@@ -862,7 +866,7 @@ async def proxy_post_messages(request: Request) -> Response:
     except Exception:
         # On upstream error: still write a decision record without tool data.
         if meta is not None:
-            _write_decision_record(req_ts, meta, None)
+            _write_decision_record(req_ts, meta, None, tap_skipped=True)
         await client.aclose()
         raise
 
@@ -870,6 +874,8 @@ async def proxy_post_messages(request: Request) -> Response:
         # Determine whether we can tap the SSE stream for tool names.
         # Skip tapping if the response body is compressed — compressed SSE
         # cannot be parsed from raw bytes without decompression buffering.
+        # With Accept-Encoding: identity forced above, this should always be
+        # uncompressed, but we keep the guard in case of upstream surprises.
         content_enc = response.headers.get("content-encoding", "").lower()
         can_tap = meta is not None and content_enc not in ("gzip", "br", "deflate", "zstd")
         # State shared by body_iter closure.
@@ -888,7 +894,7 @@ async def proxy_post_messages(request: Request) -> Response:
                             # Write the decision record as soon as we know the
                             # first tool (or that the model called no tool).
                             assert meta is not None
-                            _write_decision_record(req_ts, meta, tool_name)
+                            _write_decision_record(req_ts, meta, tool_name, tap_skipped=False)
                             _tap["done"] = True
                             _tap["buf"] = b""  # release buffer memory
             finally:
@@ -896,11 +902,11 @@ async def proxy_post_messages(request: Request) -> Response:
                     # Stream ended without a message_stop or tool event
                     # (e.g. non-200, network error). Write with null tool.
                     assert meta is not None
-                    _write_decision_record(req_ts, meta, None)
+                    _write_decision_record(req_ts, meta, None, tap_skipped=False)
                     _tap["done"] = True
                 elif meta is not None and not can_tap:
                     # Compressed stream or no meta: write without tool data.
-                    _write_decision_record(req_ts, meta, None)
+                    _write_decision_record(req_ts, meta, None, tap_skipped=True)
                 await response.aclose()
                 await client.aclose()
 
@@ -917,7 +923,7 @@ async def proxy_post_messages(request: Request) -> Response:
         # Non-streaming: extract first tool from the full response body.
         first_tool = _first_tool_from_response_body(content) if meta is not None else None
         if meta is not None:
-            _write_decision_record(req_ts, meta, first_tool)
+            _write_decision_record(req_ts, meta, first_tool, tap_skipped=False)
         return Response(
             content=content,
             status_code=response.status_code,
