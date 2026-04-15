@@ -635,9 +635,10 @@ def _process_tools_array(
         "pack_promotion_triggered": bool(workspace_rescued or explicit_rescued),
         # description_similarity_max: max pairwise SequenceMatcher ratio
         # between active-survivor tool descriptions. Measures confusability
-        # of the survivor set. NOTE: first_tool_name / expected_tool_name /
-        # first_tool_correct are BLOCKED at proxy layer — proxy does not
-        # observe response content.
+        # of the survivor set.
+        # first_tool_name / expected_tool_name / first_tool_correct are
+        # populated by the response tap in proxy_post_messages after the
+        # upstream response is observed.
         "description_similarity_max": _max_description_similarity_proxy(
             [
                 orig
@@ -685,6 +686,106 @@ def _append_jsonl(path: Path, record: Mapping[str, Any]) -> None:
     line = json.dumps(record, default=str) + "\n"
     with path.open("a", encoding="utf-8") as fh:
         fh.write(line)
+
+
+# ── Response tap helpers ───────────────────────────────────────────────────────
+
+
+def _compute_expected_tool_name(meta: dict[str, Any] | None) -> str | None:
+    """Derive expected first tool from request-side survivor metadata.
+
+    Rules (per spec):
+      - survivor_count == 1  → use that single survivor as expected tool
+      - survivor_count >= 2  → no unambiguous expectation; return None
+      - otherwise            → return None
+    """
+    if not meta:
+        return None
+    count = meta.get("survivor_count", 0)
+    survivors = meta.get("survivor_names_sorted", [])
+    if count == 1 and len(survivors) == 1:
+        return survivors[0]
+    return None
+
+
+def _first_tool_from_response_body(body: bytes) -> str | None:
+    """Extract first tool_use block name from a non-streamed Anthropic response."""
+    try:
+        data = json.loads(body)
+    except (json.JSONDecodeError, ValueError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    for block in data.get("content", []):
+        if isinstance(block, dict) and block.get("type") == "tool_use":
+            name = block.get("name")
+            return name if isinstance(name, str) else None
+    return None
+
+
+def _first_tool_from_sse_buf(buf: bytes) -> tuple[str | None, bool]:
+    """Scan an SSE byte buffer for the first tool_use content block.
+
+    Returns ``(tool_name, stream_ended)`` where:
+      - ``tool_name`` is the name of the first tool_use block, or None
+      - ``stream_ended`` is True when a ``message_stop`` event was seen
+
+    Scans only ``data:`` lines and handles partial final lines gracefully
+    (incomplete lines are skipped — they will appear in the next chunk).
+    """
+    try:
+        text = buf.decode("utf-8", errors="replace")
+    except Exception:
+        return None, False
+
+    stream_ended = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("data:"):
+            continue
+        payload = stripped[5:].strip()
+        if not payload or payload == "[DONE]":
+            continue
+        try:
+            data = json.loads(payload)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        event_type = data.get("type")
+        if event_type == "content_block_start":
+            cb = data.get("content_block", {})
+            if isinstance(cb, dict) and cb.get("type") == "tool_use":
+                name = cb.get("name")
+                return (name if isinstance(name, str) else None), False
+        elif event_type == "message_stop":
+            stream_ended = True
+
+    return None, stream_ended
+
+
+def _write_decision_record(
+    req_ts: float,
+    meta: dict[str, Any],
+    first_tool_name: str | None,
+    tap_skipped: bool = False,
+) -> None:
+    """Write (or rewrite) the enriched decisions.jsonl entry for this turn."""
+    expected_tool_name = _compute_expected_tool_name(meta)
+    first_tool_correct: bool | None = None
+    if first_tool_name is not None and expected_tool_name is not None:
+        first_tool_correct = first_tool_name == expected_tool_name
+
+    _append_jsonl(
+        DECISIONS_LOG,
+        {
+            "ts": req_ts,
+            "path": "/v1/messages",
+            **meta,
+            "first_tool_name": first_tool_name,
+            "expected_tool_name": expected_tool_name,
+            "first_tool_correct": first_tool_correct,
+            "tap_skipped": tap_skipped,
+        },
+    )
 
 
 def _forward_headers(request: Request) -> dict[str, str]:
@@ -735,17 +836,22 @@ def _upstream_base() -> str:
 async def proxy_post_messages(request: Request) -> Response:
     mode = _read_mode()
     raw = await request.body()
+    req_ts = time.time()
     transformed, meta = _maybe_transform_messages_body(raw, mode)
-    if meta is not None:
-        _append_jsonl(
-            DECISIONS_LOG,
-            {"ts": time.time(), "path": "/v1/messages", **meta},
-        )
+    # Decision record is written AFTER response tapping so first_tool_name,
+    # expected_tool_name, and first_tool_correct can be included in one record.
 
     url = f"{_upstream_base()}/v1/messages"
     if request.url.query:
         url = f"{url}?{request.url.query}"
-    headers = _forward_headers(request)
+    # Strip any client-supplied accept-encoding (case-insensitive) then force
+    # identity so upstream never compresses SSE and the tap can always parse.
+    headers = {
+        k: v
+        for k, v in _forward_headers(request).items()
+        if k.lower() != "accept-encoding"
+    }
+    headers["Accept-Encoding"] = "identity"
     stream = False
     try:
         parsed = json.loads(transformed)
@@ -763,10 +869,24 @@ async def proxy_post_messages(request: Request) -> Response:
         )
         response = await client.send(req, stream=stream)
     except Exception:
+        # On upstream error: still write a decision record without tool data.
+        if meta is not None:
+            _write_decision_record(req_ts, meta, None, tap_skipped=True)
         await client.aclose()
         raise
 
     if stream:
+        # Determine whether we can tap the SSE stream for tool names.
+        # Skip tapping if the response body is compressed — compressed SSE
+        # cannot be parsed from raw bytes without decompression buffering.
+        # With Accept-Encoding: identity forced above, this should always be
+        # uncompressed, but we keep the guard in case of upstream surprises.
+        content_enc = response.headers.get("content-encoding", "").lower()
+        can_tap = meta is not None and content_enc not in ("gzip", "br", "deflate", "zstd")
+        # State shared by body_iter closure.
+        # _tap["buf"] holds only the unparsed tail (incomplete last line) so that
+        # _first_tool_from_sse_buf never rescans already-consumed bytes (O(n) total).
+        _tap: dict[str, Any] = {"buf": b"", "done": False}
 
         async def body_iter() -> Any:
             try:
@@ -774,7 +894,32 @@ async def proxy_post_messages(request: Request) -> Response:
                 # clients that still see Content-Encoding: gzip (ZlibError).
                 async for chunk in response.aiter_raw():
                     yield chunk
+                    if can_tap and not _tap["done"]:
+                        combined = _tap["buf"] + chunk
+                        tool_name, ended = _first_tool_from_sse_buf(combined)
+                        if tool_name is not None or ended:
+                            # Write the decision record as soon as we know the
+                            # first tool (or that the model called no tool).
+                            assert meta is not None
+                            _write_decision_record(req_ts, meta, tool_name, tap_skipped=False)
+                            _tap["done"] = True
+                            _tap["buf"] = b""  # release buffer memory
+                        else:
+                            # Retain only bytes after the last newline so the
+                            # next chunk completes any split line without
+                            # re-scanning already-parsed data (keeps O(n) total).
+                            last_nl = combined.rfind(b"\n")
+                            _tap["buf"] = combined[last_nl + 1:] if last_nl >= 0 else combined
             finally:
+                if can_tap and not _tap["done"]:
+                    # Stream ended without a message_stop or tool event
+                    # (e.g. non-200, network error). Write with null tool.
+                    assert meta is not None
+                    _write_decision_record(req_ts, meta, None, tap_skipped=False)
+                    _tap["done"] = True
+                elif meta is not None and not can_tap:
+                    # Compressed stream or no meta: write without tool data.
+                    _write_decision_record(req_ts, meta, None, tap_skipped=True)
                 await response.aclose()
                 await client.aclose()
 
@@ -788,6 +933,10 @@ async def proxy_post_messages(request: Request) -> Response:
     try:
         content = await response.aread()
         hdrs = _buffered_response_headers(response, content)
+        # Non-streaming: extract first tool from the full response body.
+        first_tool = _first_tool_from_response_body(content) if meta is not None else None
+        if meta is not None:
+            _write_decision_record(req_ts, meta, first_tool, tap_skipped=False)
         return Response(
             content=content,
             status_code=response.status_code,

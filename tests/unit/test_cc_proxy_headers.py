@@ -1,16 +1,27 @@
-"""Upstream header forwarding must not pin stale Content-Length."""
+"""Upstream header forwarding must not pin stale Content-Length.
+
+Also covers:
+- Accept-Encoding: identity override (TCP-IMP-15)
+- tap_skipped field presence and correctness in decision records (TCP-IMP-15)
+"""
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock
+import json
+import tempfile
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import httpx
+import pytest
 from starlette.requests import Request
+from starlette.testclient import TestClient
 
 from tcp.proxy.cc_proxy import (
     _buffered_response_headers,
     _forward_headers,
     _streaming_response_headers,
+    _write_decision_record,
     build_app,
 )
 
@@ -76,3 +87,96 @@ def test_catch_all_proxy_route_accepts_post() -> None:
     app = build_app()
     catch_all = next(route for route in app.routes if getattr(route, "path", None) == "/{path:path}")
     assert "POST" in catch_all.methods
+
+
+# ── TCP-IMP-15: Accept-Encoding override ──────────────────────────────────────
+
+def test_proxy_sends_exactly_one_accept_encoding_identity() -> None:
+    """proxy_post_messages must send exactly Accept-Encoding: identity upstream,
+    even when the client supplied gzip/br — no duplicate headers."""
+    captured: list[httpx.Request] = []
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        captured.append(req)
+        body = json.dumps({"id": "msg_1", "type": "message", "role": "assistant",
+                           "content": [], "model": "claude-3-5-sonnet-20241022",
+                           "stop_reason": "end_turn", "stop_sequence": None,
+                           "usage": {"input_tokens": 1, "output_tokens": 1}})
+        return httpx.Response(200, content=body.encode(),
+                              headers={"content-type": "application/json"})
+
+    transport = httpx.MockTransport(handler)
+    _real_AsyncClient = httpx.AsyncClient
+
+    def _patched_client(**kw: object) -> httpx.AsyncClient:
+        kw.pop("transport", None)
+        return _real_AsyncClient(transport=transport, **kw)  # type: ignore[arg-type]
+
+    with patch("tcp.proxy.cc_proxy.httpx.AsyncClient", _patched_client):
+        with patch("tcp.proxy.cc_proxy._read_mode", return_value="shadow"):
+            app = build_app()
+            client = TestClient(app)
+            payload = json.dumps({"model": "claude-3-5-sonnet-20241022",
+                                  "max_tokens": 10, "messages": [{"role": "user", "content": "hi"}]})
+            client.post(
+                "/v1/messages",
+                content=payload,
+                headers={"content-type": "application/json",
+                         "x-api-key": "sk-test",
+                         "accept-encoding": "gzip, br"},
+            )
+
+    assert len(captured) == 1, "expected exactly one upstream request"
+    req = captured[0]
+    ae_values = [v for k, v in req.headers.items() if k.lower() == "accept-encoding"]
+    assert ae_values == ["identity"], (
+        f"expected exactly ['identity'] but got {ae_values}"
+    )
+
+
+# ── TCP-IMP-15: tap_skipped field presence ────────────────────────────────────
+
+def _make_meta() -> dict:
+    return {
+        "mode": "shadow",
+        "survivor_names_sorted": [],
+        "suppressed_names_sorted": [],
+        "total_tools_before": 0,
+        "total_tools_after": 0,
+        "description_similarity_max": None,
+        "task_prompt_hash": None,
+        "session_start_event": None,
+        "derived_intent": None,
+        "derivation_method": None,
+    }
+
+
+def test_decision_record_tap_skipped_field_always_present() -> None:
+    """Every decision record must include a tap_skipped boolean key."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = Path(tmpdir) / "decisions.jsonl"
+        with patch("tcp.proxy.cc_proxy.DECISIONS_LOG", log_path):
+            _write_decision_record(1.0, _make_meta(), None, tap_skipped=False)
+        record = json.loads(log_path.read_text())
+        assert "tap_skipped" in record
+        assert isinstance(record["tap_skipped"], bool)
+
+
+def test_decision_record_tap_skipped_true_when_can_tap_false() -> None:
+    """tap_skipped must be True when can_tap is False (compressed response)."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = Path(tmpdir) / "decisions.jsonl"
+        with patch("tcp.proxy.cc_proxy.DECISIONS_LOG", log_path):
+            _write_decision_record(1.0, _make_meta(), None, tap_skipped=True)
+        record = json.loads(log_path.read_text())
+        assert record["tap_skipped"] is True
+
+
+def test_decision_record_tap_skipped_false_when_can_tap_true() -> None:
+    """tap_skipped must be False when can_tap is True (uncompressed response)."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = Path(tmpdir) / "decisions.jsonl"
+        with patch("tcp.proxy.cc_proxy.DECISIONS_LOG", log_path):
+            _write_decision_record(1.0, _make_meta(), "bash", tap_skipped=False)
+        record = json.loads(log_path.read_text())
+        assert record["tap_skipped"] is False
