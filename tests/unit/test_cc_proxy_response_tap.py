@@ -169,8 +169,17 @@ class TestComputeExpectedToolName:
         meta = {"survivor_count": 1, "survivor_names_sorted": ["mcp__git__status"]}
         assert _compute_expected_tool_name(meta) == "mcp__git__status"
 
-    def test_two_survivors_returns_none(self):
+    # TCP-IMP-16: loosen threshold to k=3 — 2 survivors now emits first survivor
+    def test_two_survivors_returns_first_survivor(self):
         meta = {"survivor_count": 2, "survivor_names_sorted": ["tool_a", "tool_b"]}
+        assert _compute_expected_tool_name(meta) == "tool_a"
+
+    def test_three_survivors_returns_first_survivor(self):
+        meta = {"survivor_count": 3, "survivor_names_sorted": ["alpha", "beta", "gamma"]}
+        assert _compute_expected_tool_name(meta) == "alpha"
+
+    def test_four_survivors_returns_none(self):
+        meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
         assert _compute_expected_tool_name(meta) is None
 
     def test_zero_survivors_returns_none(self):
@@ -186,6 +195,11 @@ class TestComputeExpectedToolName:
     def test_survivor_count_mismatch_with_list(self):
         # count says 1 but list is empty → return None (defensive)
         meta = {"survivor_count": 1, "survivor_names_sorted": []}
+        assert _compute_expected_tool_name(meta) is None
+
+    def test_count_mismatch_above_k_returns_none(self):
+        # count says 2 but list has 4 entries → trust count, return None
+        meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
         assert _compute_expected_tool_name(meta) is None
 
 
@@ -225,9 +239,10 @@ class TestFirstToolCorrect:
         assert rec["first_tool_correct"] is None
 
     def test_none_when_expected_is_null(self, tmp_path, monkeypatch):
+        # TCP-IMP-16: threshold is k=3; survivor_count > 3 means no expectation.
         log = tmp_path / "decisions.jsonl"
         monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
-        meta = {"survivor_count": 2, "survivor_names_sorted": ["a", "b"]}
+        meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
         _write_decision_record(time.time(), meta, "a")
         rec = self._read_last_record(log)
         assert rec["first_tool_correct"] is None
