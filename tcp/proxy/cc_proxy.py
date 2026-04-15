@@ -691,19 +691,23 @@ def _append_jsonl(path: Path, record: Mapping[str, Any]) -> None:
 # ── Response tap helpers ───────────────────────────────────────────────────────
 
 
+_EXPECTED_TOOL_MAX_SURVIVORS: int = 3  # TCP-IMP-16: emit when survivor_count ≤ k
+
+
 def _compute_expected_tool_name(meta: dict[str, Any] | None) -> str | None:
     """Derive expected first tool from request-side survivor metadata.
 
-    Rules (per spec):
-      - survivor_count == 1  → use that single survivor as expected tool
-      - survivor_count >= 2  → no unambiguous expectation; return None
-      - otherwise            → return None
+    Rules (TCP-IMP-16, k=3):
+      - 1 ≤ survivor_count ≤ k  → first sorted survivor name is the expectation
+      - survivor_count > k       → shortlist too broad; return None
+      - survivor_count == 0      → nothing filtered in; return None
+      - otherwise                → return None
     """
     if not meta:
         return None
     count = meta.get("survivor_count", 0)
     survivors = meta.get("survivor_names_sorted", [])
-    if count == 1 and len(survivors) == 1:
+    if 1 <= count <= _EXPECTED_TOOL_MAX_SURVIVORS and len(survivors) >= 1:
         return survivors[0]
     return None
 
