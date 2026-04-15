@@ -20,6 +20,7 @@ from tcp.proxy.cc_proxy import (
     _compute_expected_tool_name,
     _first_tool_from_response_body,
     _first_tool_from_sse_buf,
+    _top_survivor_by_prompt_similarity,
     _write_decision_record,
 )
 
@@ -201,6 +202,73 @@ class TestComputeExpectedToolName:
         # count says 2 but list has 4 entries → trust count, return None
         meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
         assert _compute_expected_tool_name(meta) is None
+
+    # TCP-IMP-17: top_survivor_by_similarity overrides count-based logic
+    def test_top_survivor_by_similarity_used_when_present(self):
+        """With 174 survivors, expected_tool_name comes from similarity ranking."""
+        meta = {
+            "survivor_count": 174,
+            "survivor_names_sorted": ["Bash", "Read", "Write"],
+            "top_survivor_by_similarity": "Bash",
+        }
+        assert _compute_expected_tool_name(meta) == "Bash"
+
+    def test_top_survivor_by_similarity_overrides_count_k(self):
+        """similarity field takes precedence over k=3 alphabetical pick."""
+        meta = {
+            "survivor_count": 2,
+            "survivor_names_sorted": ["alpha", "zeta"],
+            "top_survivor_by_similarity": "zeta",
+        }
+        assert _compute_expected_tool_name(meta) == "zeta"
+
+    def test_falls_back_to_count_logic_when_similarity_absent(self):
+        """No top_survivor_by_similarity → fall back to k=3 count logic."""
+        meta = {"survivor_count": 2, "survivor_names_sorted": ["tool_a", "tool_b"]}
+        assert _compute_expected_tool_name(meta) == "tool_a"
+
+
+# ── Tests: _top_survivor_by_prompt_similarity ─────────────────────────────────
+
+
+class TestTopSurvivorByPromptSimilarity:
+    def _tool(self, name: str, description: str) -> dict:
+        return {"name": name, "description": description}
+
+    def test_returns_best_matching_tool(self):
+        tools = [
+            self._tool("Bash", "Execute shell commands"),
+            self._tool("Read", "Read file contents from disk"),
+            self._tool("mcp__git__git_status", "Show working tree git status"),
+        ]
+        # Prompt about reading a file → Read should win
+        result = _top_survivor_by_prompt_similarity("read the file contents", tools)
+        assert result == "Read"
+
+    def test_returns_none_for_empty_tools(self):
+        assert _top_survivor_by_prompt_similarity("do something", []) is None
+
+    def test_returns_none_for_empty_prompt(self):
+        tools = [self._tool("Bash", "Execute shell commands")]
+        assert _top_survivor_by_prompt_similarity("", tools) is None
+
+    def test_returns_none_for_none_prompt(self):
+        tools = [self._tool("Bash", "Execute shell commands")]
+        assert _top_survivor_by_prompt_similarity(None, tools) is None  # type: ignore[arg-type]
+
+    def test_single_tool_always_wins(self):
+        tools = [self._tool("OnlyTool", "Does the only thing")]
+        result = _top_survivor_by_prompt_similarity("anything at all", tools)
+        assert result == "OnlyTool"
+
+    def test_git_prompt_favours_git_tool(self):
+        tools = [
+            self._tool("Read", "Read file from disk"),
+            self._tool("mcp__git__git_status", "Show git working tree status"),
+            self._tool("Bash", "Run shell commands"),
+        ]
+        result = _top_survivor_by_prompt_similarity("show git status of working tree", tools)
+        assert result == "mcp__git__git_status"
 
 
 # ── Tests: first_tool_correct computation ─────────────────────────────────────
