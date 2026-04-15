@@ -13,10 +13,11 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import httpx
+import pytest
 from starlette.requests import Request
+from starlette.testclient import TestClient
 
 from tcp.proxy.cc_proxy import (
-    DECISIONS_LOG,
     _buffered_response_headers,
     _forward_headers,
     _streaming_response_headers,
@@ -90,37 +91,47 @@ def test_catch_all_proxy_route_accepts_post() -> None:
 
 # ── TCP-IMP-15: Accept-Encoding override ──────────────────────────────────────
 
-def test_forward_headers_accept_encoding_overridden() -> None:
-    """Outgoing upstream request must carry Accept-Encoding: identity regardless
-    of what the client sent."""
-    scope = {
-        "type": "http",
-        "asgi": {"version": "3.0"},
-        "method": "POST",
-        "path": "/v1/messages",
-        "raw_path": b"/v1/messages",
-        "query_string": b"",
-        "headers": [
-            (b"content-type", b"application/json"),
-            (b"accept-encoding", b"gzip, br"),
-            (b"x-api-key", b"sk-test"),
-        ],
-        "client": ("127.0.0.1", 1234),
-        "server": ("127.0.0.1", 8742),
-        "scheme": "http",
-        "root_path": "",
-    }
+def test_proxy_sends_exactly_one_accept_encoding_identity() -> None:
+    """proxy_post_messages must send exactly Accept-Encoding: identity upstream,
+    even when the client supplied gzip/br — no duplicate headers."""
+    captured: list[httpx.Request] = []
 
-    async def empty_receive() -> dict:
-        return {"type": "http.disconnect"}
+    def handler(req: httpx.Request) -> httpx.Response:
+        captured.append(req)
+        body = json.dumps({"id": "msg_1", "type": "message", "role": "assistant",
+                           "content": [], "model": "claude-3-5-sonnet-20241022",
+                           "stop_reason": "end_turn", "stop_sequence": None,
+                           "usage": {"input_tokens": 1, "output_tokens": 1}})
+        return httpx.Response(200, content=body.encode(),
+                              headers={"content-type": "application/json"})
 
-    req = Request(scope, empty_receive)
-    # _forward_headers preserves the client value; the override happens in
-    # proxy_post_messages after this call. Verify the override site works by
-    # simulating the same mutation pattern used in the proxy.
-    hdrs = _forward_headers(req)
-    hdrs["Accept-Encoding"] = "identity"
-    assert hdrs["Accept-Encoding"] == "identity"
+    transport = httpx.MockTransport(handler)
+    _real_AsyncClient = httpx.AsyncClient
+
+    def _patched_client(**kw: object) -> httpx.AsyncClient:
+        kw.pop("transport", None)
+        return _real_AsyncClient(transport=transport, **kw)  # type: ignore[arg-type]
+
+    with patch("tcp.proxy.cc_proxy.httpx.AsyncClient", _patched_client):
+        with patch("tcp.proxy.cc_proxy._read_mode", return_value="shadow"):
+            app = build_app()
+            client = TestClient(app)
+            payload = json.dumps({"model": "claude-3-5-sonnet-20241022",
+                                  "max_tokens": 10, "messages": [{"role": "user", "content": "hi"}]})
+            client.post(
+                "/v1/messages",
+                content=payload,
+                headers={"content-type": "application/json",
+                         "x-api-key": "sk-test",
+                         "accept-encoding": "gzip, br"},
+            )
+
+    assert len(captured) == 1, "expected exactly one upstream request"
+    req = captured[0]
+    ae_values = [v for k, v in req.headers.items() if k.lower() == "accept-encoding"]
+    assert ae_values == ["identity"], (
+        f"expected exactly ['identity'] but got {ae_values}"
+    )
 
 
 # ── TCP-IMP-15: tap_skipped field presence ────────────────────────────────────

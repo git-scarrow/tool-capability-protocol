@@ -844,8 +844,13 @@ async def proxy_post_messages(request: Request) -> Response:
     url = f"{_upstream_base()}/v1/messages"
     if request.url.query:
         url = f"{url}?{request.url.query}"
-    headers = _forward_headers(request)
-    # Force uncompressed upstream responses so the SSE tap can always parse.
+    # Strip any client-supplied accept-encoding (case-insensitive) then force
+    # identity so upstream never compresses SSE and the tap can always parse.
+    headers = {
+        k: v
+        for k, v in _forward_headers(request).items()
+        if k.lower() != "accept-encoding"
+    }
     headers["Accept-Encoding"] = "identity"
     stream = False
     try:
@@ -879,6 +884,8 @@ async def proxy_post_messages(request: Request) -> Response:
         content_enc = response.headers.get("content-encoding", "").lower()
         can_tap = meta is not None and content_enc not in ("gzip", "br", "deflate", "zstd")
         # State shared by body_iter closure.
+        # _tap["buf"] holds only the unparsed tail (incomplete last line) so that
+        # _first_tool_from_sse_buf never rescans already-consumed bytes (O(n) total).
         _tap: dict[str, Any] = {"buf": b"", "done": False}
 
         async def body_iter() -> Any:
@@ -888,8 +895,8 @@ async def proxy_post_messages(request: Request) -> Response:
                 async for chunk in response.aiter_raw():
                     yield chunk
                     if can_tap and not _tap["done"]:
-                        _tap["buf"] += chunk
-                        tool_name, ended = _first_tool_from_sse_buf(_tap["buf"])
+                        combined = _tap["buf"] + chunk
+                        tool_name, ended = _first_tool_from_sse_buf(combined)
                         if tool_name is not None or ended:
                             # Write the decision record as soon as we know the
                             # first tool (or that the model called no tool).
@@ -897,6 +904,12 @@ async def proxy_post_messages(request: Request) -> Response:
                             _write_decision_record(req_ts, meta, tool_name, tap_skipped=False)
                             _tap["done"] = True
                             _tap["buf"] = b""  # release buffer memory
+                        else:
+                            # Retain only bytes after the last newline so the
+                            # next chunk completes any split line without
+                            # re-scanning already-parsed data (keeps O(n) total).
+                            last_nl = combined.rfind(b"\n")
+                            _tap["buf"] = combined[last_nl + 1:] if last_nl >= 0 else combined
             finally:
                 if can_tap and not _tap["done"]:
                     # Stream ended without a message_stop or tool event

@@ -16,8 +16,6 @@ import json
 import time
 from pathlib import Path
 
-import pytest
-
 from tcp.proxy.cc_proxy import (
     _compute_expected_tool_name,
     _first_tool_from_response_body,
