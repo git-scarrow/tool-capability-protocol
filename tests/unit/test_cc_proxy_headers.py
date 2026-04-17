@@ -7,6 +7,7 @@ Also covers:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import tempfile
 from pathlib import Path
@@ -18,6 +19,9 @@ from starlette.requests import Request
 from starlette.testclient import TestClient
 
 from tcp.proxy.cc_proxy import (
+    UPSTREAM_LIMITS,
+    UPSTREAM_TIMEOUT,
+    _build_upstream_client,
     _buffered_response_headers,
     _forward_headers,
     _streaming_response_headers,
@@ -115,16 +119,16 @@ def test_proxy_sends_exactly_one_accept_encoding_identity() -> None:
     with patch("tcp.proxy.cc_proxy.httpx.AsyncClient", _patched_client):
         with patch("tcp.proxy.cc_proxy._read_mode", return_value="shadow"):
             app = build_app()
-            client = TestClient(app)
             payload = json.dumps({"model": "claude-3-5-sonnet-20241022",
                                   "max_tokens": 10, "messages": [{"role": "user", "content": "hi"}]})
-            client.post(
-                "/v1/messages",
-                content=payload,
-                headers={"content-type": "application/json",
-                         "x-api-key": "sk-test",
-                         "accept-encoding": "gzip, br"},
-            )
+            with TestClient(app) as client:
+                client.post(
+                    "/v1/messages",
+                    content=payload,
+                    headers={"content-type": "application/json",
+                             "x-api-key": "sk-test",
+                             "accept-encoding": "gzip, br"},
+                )
 
     assert len(captured) == 1, "expected exactly one upstream request"
     req = captured[0]
@@ -180,3 +184,129 @@ def test_decision_record_tap_skipped_false_when_can_tap_true() -> None:
             _write_decision_record(1.0, _make_meta(), "bash", tap_skipped=False)
         record = json.loads(log_path.read_text())
         assert record["tap_skipped"] is False
+
+
+class _FailBeforeFirstByte(httpx.AsyncByteStream):
+    async def __aiter__(self):
+        raise httpx.ReadError("boom")
+        yield b""
+
+
+class _FailAfterFirstByte(httpx.AsyncByteStream):
+    async def __aiter__(self):
+        yield b"partial"
+        raise httpx.ReadError("boom-after-byte")
+
+
+def test_build_upstream_client_timeout_and_limits() -> None:
+    client = _build_upstream_client()
+    try:
+        assert client.timeout == UPSTREAM_TIMEOUT
+        pool = client._transport._pool
+        assert pool._max_connections == UPSTREAM_LIMITS.max_connections
+        assert pool._max_keepalive_connections == UPSTREAM_LIMITS.max_keepalive_connections
+        assert pool._keepalive_expiry == UPSTREAM_LIMITS.keepalive_expiry
+    finally:
+        asyncio.run(client.aclose())
+
+
+def test_build_app_owns_shared_upstream_client_lifecycle() -> None:
+    upstream = httpx.AsyncClient(transport=httpx.MockTransport(lambda req: httpx.Response(200, json={"ok": True})))
+    with patch("tcp.proxy.cc_proxy._build_upstream_client", return_value=upstream):
+        app = build_app()
+        with TestClient(app) as client:
+            assert app.state.upstream_client is upstream
+            assert app.state.upstream_client.is_closed is False
+            assert client.get("/health").status_code == 200
+        assert upstream.is_closed is True
+
+
+def test_safe_get_retries_on_pre_first_byte_read_failure() -> None:
+    attempts = 0
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            return httpx.Response(200, stream=_FailBeforeFirstByte())
+        return httpx.Response(200, content=b"ok")
+
+    upstream = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    with patch("tcp.proxy.cc_proxy._build_upstream_client", return_value=upstream):
+        app = build_app()
+        with TestClient(app) as client:
+            response = client.get("/v1/models")
+        assert response.status_code == 200
+        assert response.content == b"ok"
+        assert attempts == 2
+
+
+def test_get_does_not_retry_after_response_bytes_begin() -> None:
+    attempts = 0
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        return httpx.Response(200, stream=_FailAfterFirstByte())
+
+    upstream = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    with patch("tcp.proxy.cc_proxy._build_upstream_client", return_value=upstream):
+        app = build_app()
+        with TestClient(app) as client:
+            with pytest.raises(httpx.ReadError):
+                client.get("/v1/models")
+        assert attempts == 1
+
+
+def test_messages_telemetry_fields_are_populated(tmp_path) -> None:
+    body = json.dumps(
+        {
+            "id": "msg_1",
+            "type": "message",
+            "role": "assistant",
+            "content": [{"type": "tool_use", "id": "toolu_1", "name": "Bash", "input": {}}],
+            "model": "claude-3-5-sonnet-20241022",
+            "stop_reason": "end_turn",
+            "stop_sequence": None,
+            "usage": {"input_tokens": 1, "output_tokens": 1},
+        }
+    )
+    upstream = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda req: httpx.Response(
+                200,
+                content=body.encode(),
+                headers={"content-type": "application/json"},
+            )
+        )
+    )
+    log_path = tmp_path / "decisions.jsonl"
+    with patch("tcp.proxy.cc_proxy._build_upstream_client", return_value=upstream):
+        with patch("tcp.proxy.cc_proxy._read_mode", return_value="shadow"):
+            with patch("tcp.proxy.cc_proxy.DECISIONS_LOG", log_path):
+                app = build_app()
+                payload = json.dumps(
+                    {
+                        "model": "claude-3-5-sonnet-20241022",
+                        "max_tokens": 10,
+                        "messages": [{"role": "user", "content": "run bash"}],
+                        "tools": [{"name": "Bash", "description": "shell", "input_schema": {"type": "object"}}],
+                    }
+                )
+                with TestClient(app) as client:
+                    response = client.post(
+                        "/v1/messages",
+                        content=payload,
+                        headers={"content-type": "application/json", "x-api-key": "sk-test"},
+                    )
+    assert response.status_code == 200
+    record = json.loads(log_path.read_text())
+    assert record["retry_count"] == 0
+    for key in (
+        "preflight_duration_ms",
+        "upstream_request_duration_ms",
+        "first_byte_duration_ms",
+        "total_response_duration_ms",
+    ):
+        assert isinstance(record[key], float)
+        assert record[key] >= 0.0

@@ -337,6 +337,11 @@ class TestBackwardCompatibility:
         assert "first_tool_name" in rec
         assert "expected_tool_name" in rec
         assert "first_tool_correct" in rec
+        assert "preflight_duration_ms" in rec
+        assert "upstream_request_duration_ms" in rec
+        assert "first_byte_duration_ms" in rec
+        assert "total_response_duration_ms" in rec
+        assert "retry_count" in rec
 
     def test_record_is_valid_json(self, tmp_path, monkeypatch):
         log = tmp_path / "decisions.jsonl"
