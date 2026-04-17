@@ -51,6 +51,7 @@ from tcp.proxy.pack_manifest import (
 )
 from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
 from tcp.proxy.prompt_select import extract_task_prompt
+from tcp.proxy.session_registry import SessionContext, SessionRegistry
 
 PROXY_STATE_DIR = Path.home() / ".tcp-shadow" / "proxy"
 MODE_PATH = PROXY_STATE_DIR / "mode"
@@ -218,6 +219,18 @@ def _session_from_env() -> SessionStartEvent:
     )
 
 
+def _session_start_event_for_context(
+    session_ctx: SessionContext | None,
+) -> SessionStartEvent:
+    if session_ctx is None:
+        return _session_from_env()
+    return SessionStartEvent(
+        session_id=session_ctx.session_id,
+        permission_mode=os.environ.get("TCP_PROXY_PERMISSION_MODE", "default"),
+        cwd=session_ctx.client_cwd or os.environ.get("TCP_PROXY_CWD", os.getcwd()),
+    )
+
+
 def _deferred_tool_surface(
     tool: Mapping[str, Any],
     *,
@@ -330,6 +343,7 @@ def _process_tools_array(
     tools: list[Any],
     body: Mapping[str, Any],
     mode: str,
+    session_ctx: SessionContext | None = None,
 ) -> tuple[list[Any], dict[str, Any]]:
     """Run 4-stage projection + gating pipeline.
 
@@ -346,7 +360,7 @@ def _process_tools_array(
     """
     messages = body.get("messages")
     prompt = extract_task_prompt(messages if isinstance(messages, list) else None)
-    session = _session_from_env()
+    session = _session_start_event_for_context(session_ctx)
     tsel = derive_request(prompt, session)
     env = _runtime_from_env()
 
@@ -673,7 +687,9 @@ def _process_tools_array(
 
 
 def _maybe_transform_messages_body(
-    raw: bytes, mode: str
+    raw: bytes,
+    mode: str,
+    session_ctx: SessionContext | None = None,
 ) -> tuple[bytes, dict[str, Any] | None]:
     try:
         body = json.loads(raw)
@@ -685,7 +701,7 @@ def _maybe_transform_messages_body(
     if not isinstance(tools, list):
         return raw, None
 
-    new_tools, meta = _process_tools_array(tools, body, mode)
+    new_tools, meta = _process_tools_array(tools, body, mode, session_ctx)
     if mode == "shadow":
         return raw, meta
 
@@ -824,6 +840,7 @@ def _write_decision_record(
     first_byte_duration_ms: float | None = None,
     total_response_duration_ms: float | None = None,
     retry_count: int = 0,
+    session_ctx: SessionContext | None = None,
 ) -> None:
     """Write (or rewrite) the enriched decisions.jsonl entry for this turn."""
     expected_tool_name = _compute_expected_tool_name(meta)
@@ -831,23 +848,33 @@ def _write_decision_record(
     if first_tool_name is not None and expected_tool_name is not None:
         first_tool_correct = first_tool_name == expected_tool_name
 
-    _append_jsonl(
-        DECISIONS_LOG,
-        {
-            "ts": req_ts,
-            "path": "/v1/messages",
-            **meta,
-            "first_tool_name": first_tool_name,
-            "expected_tool_name": expected_tool_name,
-            "first_tool_correct": first_tool_correct,
-            "tap_skipped": tap_skipped,
-            "preflight_duration_ms": preflight_duration_ms,
-            "upstream_request_duration_ms": upstream_request_duration_ms,
-            "first_byte_duration_ms": first_byte_duration_ms,
-            "total_response_duration_ms": total_response_duration_ms,
-            "retry_count": retry_count,
-        },
-    )
+    record = {
+        "ts": req_ts,
+        "path": "/v1/messages",
+        **meta,
+        "first_tool_name": first_tool_name,
+        "expected_tool_name": expected_tool_name,
+        "first_tool_correct": first_tool_correct,
+        "tap_skipped": tap_skipped,
+        "preflight_duration_ms": preflight_duration_ms,
+        "upstream_request_duration_ms": upstream_request_duration_ms,
+        "first_byte_duration_ms": first_byte_duration_ms,
+        "total_response_duration_ms": total_response_duration_ms,
+        "retry_count": retry_count,
+    }
+    if session_ctx is not None:
+        record.update(
+            {
+                "session_id": session_ctx.session_id,
+                "session_start_ts": session_ctx.session_start_ts,
+                "proxy_pid": session_ctx.proxy_pid,
+                "proxy_port": session_ctx.proxy_port,
+                "concurrent_sessions": session_ctx.concurrent_sessions,
+            }
+        )
+    _append_jsonl(DECISIONS_LOG, record)
+    if session_ctx is not None:
+        _append_jsonl(session_ctx.decisions_path, record)
 
 
 def _forward_headers(request: Request) -> dict[str, str]:
@@ -988,8 +1015,29 @@ async def proxy_post_messages(request: Request) -> Response:
     started_at = time.perf_counter()
     raw = await request.body()
     req_ts = time.time()
-    transformed, meta = _maybe_transform_messages_body(raw, mode)
+    session_ctx: SessionContext | None = None
+    if request.client is not None:
+        session_registry = getattr(request.app.state, "session_registry", None)
+        if session_registry is not None:
+            session_ctx = session_registry.context_for_peer(
+                request.client.host,
+                request.client.port,
+            )
+    transformed, meta = _maybe_transform_messages_body(raw, mode, session_ctx)
     preflight_done_at = time.perf_counter()
+    if session_ctx is not None:
+        request.app.state.session_registry.append_request_event(
+            session_ctx,
+            {
+                "ts": req_ts,
+                "event": "request_started",
+                "path": "/v1/messages",
+                "method": "POST",
+                "client_host": request.client.host if request.client is not None else None,
+                "client_port": request.client.port if request.client is not None else None,
+                "stream": False,
+            },
+        )
     # Decision record is written AFTER response tapping so first_tool_name,
     # expected_tool_name, and first_tool_correct can be included in one record.
 
@@ -1010,6 +1058,17 @@ async def proxy_post_messages(request: Request) -> Response:
         stream = bool(parsed.get("stream")) if isinstance(parsed, dict) else False
     except json.JSONDecodeError:
         stream = False
+    if session_ctx is not None:
+        request.app.state.session_registry.append_request_event(
+            session_ctx,
+            {
+                "ts": time.time(),
+                "event": "request_ready",
+                "path": "/v1/messages",
+                "stream": stream,
+                "upstream_url": url,
+            },
+        )
 
     client = _get_upstream_client(request)
     upstream_started_at = time.perf_counter()
@@ -1040,6 +1099,16 @@ async def proxy_post_messages(request: Request) -> Response:
                 ),
                 total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
                 retry_count=retry_count,
+                session_ctx=session_ctx,
+            )
+        if session_ctx is not None:
+            request.app.state.session_registry.append_request_event(
+                session_ctx,
+                {
+                    "ts": time.time(),
+                    "event": "upstream_error",
+                    "path": "/v1/messages",
+                },
             )
         raise
 
@@ -1097,6 +1166,7 @@ async def proxy_post_messages(request: Request) -> Response:
                                     else None
                                 ),
                                 retry_count=retry_count,
+                                session_ctx=session_ctx,
                             )
                             _tap["done"] = True
                             _tap["buf"] = b""  # release buffer memory
@@ -1132,6 +1202,7 @@ async def proxy_post_messages(request: Request) -> Response:
                         total_response_duration_ms=(time.perf_counter() - started_at)
                         * 1000.0,
                         retry_count=retry_count,
+                        session_ctx=session_ctx,
                     )
                     _tap["done"] = True
                 elif meta is not None and not can_tap:
@@ -1155,6 +1226,17 @@ async def proxy_post_messages(request: Request) -> Response:
                         total_response_duration_ms=(time.perf_counter() - started_at)
                         * 1000.0,
                         retry_count=retry_count,
+                        session_ctx=session_ctx,
+                    )
+                if session_ctx is not None:
+                    request.app.state.session_registry.append_request_event(
+                        session_ctx,
+                        {
+                            "ts": time.time(),
+                            "event": "response_stream_closed",
+                            "path": "/v1/messages",
+                            "status_code": response.status_code,
+                        },
                     )
                 await response.aclose()
 
@@ -1191,6 +1273,18 @@ async def proxy_post_messages(request: Request) -> Response:
                 ),
                 total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
                 retry_count=retry_count,
+                session_ctx=session_ctx,
+            )
+        if session_ctx is not None:
+            request.app.state.session_registry.append_request_event(
+                session_ctx,
+                {
+                    "ts": time.time(),
+                    "event": "response_buffered",
+                    "path": "/v1/messages",
+                    "status_code": response.status_code,
+                    "content_length": len(content),
+                },
             )
         return Response(
             content=content,
@@ -1276,7 +1370,7 @@ async def health(_: Request) -> PlainTextResponse:
 
 
 def build_app() -> Starlette:
-    return Starlette(
+    app = Starlette(
         lifespan=_app_lifespan,
         routes=[
             Route("/health", health, methods=["GET"]),
@@ -1290,6 +1384,12 @@ def build_app() -> Starlette:
             ),
         ],
     )
+    proxy_port = int(os.environ.get("TCP_CC_PROXY_PORT", "8742"))
+    app.state.session_registry = SessionRegistry(
+        state_dir=PROXY_STATE_DIR,
+        proxy_port=proxy_port,
+    )
+    return app
 
 
 def _doctor_payload(inspection: PackInspection) -> dict[str, Any]:

@@ -28,6 +28,7 @@ from tcp.proxy.cc_proxy import (
     _write_decision_record,
     build_app,
 )
+from tcp.proxy.session_registry import SessionContext
 
 
 def test_forward_headers_omit_content_length() -> None:
@@ -347,3 +348,37 @@ def test_messages_telemetry_fields_are_populated(tmp_path) -> None:
     ):
         assert isinstance(record[key], float)
         assert record[key] >= 0.0
+
+
+def test_decision_record_includes_session_fields_and_per_session_copy() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = Path(tmpdir) / "decisions.jsonl"
+        session_decisions = Path(tmpdir) / "sessions" / "abc" / "decisions.jsonl"
+        session_ctx = SessionContext(
+            session_id="proxy-4242-abcd1234",
+            session_start_ts=123.45,
+            client_pid=4242,
+            client_cwd="/tmp/workspace",
+            proxy_pid=777,
+            proxy_port=8742,
+            concurrent_sessions=3,
+            lock_path=Path(tmpdir) / "sessions" / "abc" / "session.lock",
+            log_path=Path(tmpdir) / "sessions" / "abc" / "requests.jsonl",
+            decisions_path=session_decisions,
+        )
+        with patch("tcp.proxy.cc_proxy.DECISIONS_LOG", log_path):
+            _write_decision_record(
+                1.0,
+                _make_meta(),
+                "bash",
+                tap_skipped=False,
+                session_ctx=session_ctx,
+            )
+        record = json.loads(log_path.read_text(encoding="utf-8"))
+        assert record["session_id"] == "proxy-4242-abcd1234"
+        assert record["session_start_ts"] == 123.45
+        assert record["proxy_pid"] == 777
+        assert record["proxy_port"] == 8742
+        assert record["concurrent_sessions"] == 3
+        per_session = json.loads(session_decisions.read_text(encoding="utf-8"))
+        assert per_session["session_id"] == "proxy-4242-abcd1234"
