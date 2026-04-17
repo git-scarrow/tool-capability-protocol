@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -73,6 +74,14 @@ HOP_BY_HOP = frozenset(
 
 
 VALID_MODES = ("shadow", "live", "live-strict")
+UPSTREAM_TIMEOUT = httpx.Timeout(600.0, connect=30.0)
+UPSTREAM_LIMITS = httpx.Limits(
+    max_connections=100,
+    max_keepalive_connections=20,
+    keepalive_expiry=30.0,
+)
+UPSTREAM_RETRY_MAX_ATTEMPTS = 2
+SAFE_RETRY_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
 
 
 def _read_mode() -> str:
@@ -498,20 +507,14 @@ def _process_tools_array(
         ctrl_decision = (
             None if tool_server is None else controller_decisions.get(tool_server)
         )
-        schema_state = (
-            STATE_ACTIVE
-            if ctrl_decision is None
-            else ctrl_decision.state
-        )
+        schema_state = STATE_ACTIVE if ctrl_decision is None else ctrl_decision.state
         surface_state_by_tool[rec.tool_name] = schema_state
 
         if mode in ("live", "live-strict") and schema_state == STATE_DEFERRED:
             live_tools.append(
                 _deferred_tool_surface(
                     orig,
-                    pack_id=(
-                        None if ctrl_decision is None else ctrl_decision.pack_id
-                    ),
+                    pack_id=(None if ctrl_decision is None else ctrl_decision.pack_id),
                     server=tool_server,
                     reason=(
                         server_allow_source.get(tool_server) if tool_server else None
@@ -816,6 +819,11 @@ def _write_decision_record(
     meta: dict[str, Any],
     first_tool_name: str | None,
     tap_skipped: bool = False,
+    preflight_duration_ms: float | None = None,
+    upstream_request_duration_ms: float | None = None,
+    first_byte_duration_ms: float | None = None,
+    total_response_duration_ms: float | None = None,
+    retry_count: int = 0,
 ) -> None:
     """Write (or rewrite) the enriched decisions.jsonl entry for this turn."""
     expected_tool_name = _compute_expected_tool_name(meta)
@@ -833,6 +841,11 @@ def _write_decision_record(
             "expected_tool_name": expected_tool_name,
             "first_tool_correct": first_tool_correct,
             "tap_skipped": tap_skipped,
+            "preflight_duration_ms": preflight_duration_ms,
+            "upstream_request_duration_ms": upstream_request_duration_ms,
+            "first_byte_duration_ms": first_byte_duration_ms,
+            "total_response_duration_ms": total_response_duration_ms,
+            "retry_count": retry_count,
         },
     )
 
@@ -882,11 +895,101 @@ def _upstream_base() -> str:
     ).rstrip("/")
 
 
+def _build_upstream_client() -> httpx.AsyncClient:
+    return httpx.AsyncClient(timeout=UPSTREAM_TIMEOUT, limits=UPSTREAM_LIMITS)
+
+
+@asynccontextmanager
+async def _app_lifespan(app: Starlette) -> Any:
+    app.state.upstream_client = _build_upstream_client()
+    try:
+        yield
+    finally:
+        await app.state.upstream_client.aclose()
+
+
+def _get_upstream_client(request: Request) -> httpx.AsyncClient:
+    client = getattr(request.app.state, "upstream_client", None)
+    if client is None or not hasattr(client, "send") or not hasattr(client, "aclose"):
+        raise RuntimeError("upstream client is not initialized")
+    return client
+
+
+def _is_retryable_send_error(exc: Exception) -> bool:
+    return isinstance(
+        exc, (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout)
+    )
+
+
+def _should_retry_pre_first_byte(
+    *,
+    method: str,
+    saw_response_bytes: bool,
+    exc: Exception,
+) -> bool:
+    if saw_response_bytes:
+        return False
+    if _is_retryable_send_error(exc):
+        return True
+    if method.upper() in SAFE_RETRY_METHODS and isinstance(
+        exc, (httpx.ReadError, httpx.ReadTimeout)
+    ):
+        return True
+    return False
+
+
+async def _send_upstream_with_retry(
+    client: httpx.AsyncClient,
+    request: httpx.Request,
+) -> tuple[httpx.Response, int]:
+    last_exc: Exception | None = None
+    for attempt in range(UPSTREAM_RETRY_MAX_ATTEMPTS):
+        try:
+            response = await client.send(request, stream=True)
+            return response, attempt
+        except Exception as exc:
+            last_exc = exc
+            if attempt + 1 >= UPSTREAM_RETRY_MAX_ATTEMPTS:
+                raise
+            if not _should_retry_pre_first_byte(
+                method=request.method,
+                saw_response_bytes=False,
+                exc=exc,
+            ):
+                raise
+    assert last_exc is not None
+    raise last_exc
+
+
+async def _read_response_with_timing(
+    response: httpx.Response,
+) -> tuple[bytes, float | None]:
+    chunks: list[bytes] = []
+    first_byte_at: float | None = None
+    async for chunk in _aiter_response_raw(response):
+        if first_byte_at is None:
+            first_byte_at = time.perf_counter()
+        chunks.append(chunk)
+    return b"".join(chunks), first_byte_at
+
+
+async def _aiter_response_raw(response: httpx.Response) -> Any:
+    if response.is_stream_consumed:
+        body = response.content
+        if body:
+            yield body
+        return
+    async for chunk in response.aiter_raw():
+        yield chunk
+
+
 async def proxy_post_messages(request: Request) -> Response:
     mode = _read_mode()
+    started_at = time.perf_counter()
     raw = await request.body()
     req_ts = time.time()
     transformed, meta = _maybe_transform_messages_body(raw, mode)
+    preflight_done_at = time.perf_counter()
     # Decision record is written AFTER response tapping so first_tool_name,
     # expected_tool_name, and first_tool_correct can be included in one record.
 
@@ -908,7 +1011,10 @@ async def proxy_post_messages(request: Request) -> Response:
     except json.JSONDecodeError:
         stream = False
 
-    client = httpx.AsyncClient(timeout=httpx.Timeout(600.0, connect=30.0))
+    client = _get_upstream_client(request)
+    upstream_started_at = time.perf_counter()
+    upstream_request_done_at: float | None = None
+    retry_count = 0
     try:
         req = client.build_request(
             "POST",
@@ -916,12 +1022,25 @@ async def proxy_post_messages(request: Request) -> Response:
             headers=headers,
             content=transformed,
         )
-        response = await client.send(req, stream=stream)
+        response, retry_count = await _send_upstream_with_retry(client, req)
+        upstream_request_done_at = time.perf_counter()
     except Exception:
         # On upstream error: still write a decision record without tool data.
         if meta is not None:
-            _write_decision_record(req_ts, meta, None, tap_skipped=True)
-        await client.aclose()
+            _write_decision_record(
+                req_ts,
+                meta,
+                None,
+                tap_skipped=True,
+                preflight_duration_ms=(preflight_done_at - started_at) * 1000.0,
+                upstream_request_duration_ms=(
+                    (upstream_request_done_at - upstream_started_at) * 1000.0
+                    if upstream_request_done_at is not None
+                    else None
+                ),
+                total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
+                retry_count=retry_count,
+            )
         raise
 
     if stream:
@@ -931,17 +1050,26 @@ async def proxy_post_messages(request: Request) -> Response:
         # With Accept-Encoding: identity forced above, this should always be
         # uncompressed, but we keep the guard in case of upstream surprises.
         content_enc = response.headers.get("content-encoding", "").lower()
-        can_tap = meta is not None and content_enc not in ("gzip", "br", "deflate", "zstd")
+        can_tap = meta is not None and content_enc not in (
+            "gzip",
+            "br",
+            "deflate",
+            "zstd",
+        )
         # State shared by body_iter closure.
         # _tap["buf"] holds only the unparsed tail (incomplete last line) so that
         # _first_tool_from_sse_buf never rescans already-consumed bytes (O(n) total).
         _tap: dict[str, Any] = {"buf": b"", "done": False}
+        first_byte_at: float | None = None
 
         async def body_iter() -> Any:
+            nonlocal first_byte_at
             try:
                 # Wire bytes only — aiter_bytes() would gzip-decode here and break
                 # clients that still see Content-Encoding: gzip (ZlibError).
-                async for chunk in response.aiter_raw():
+                async for chunk in _aiter_response_raw(response):
+                    if first_byte_at is None:
+                        first_byte_at = time.perf_counter()
                     yield chunk
                     if can_tap and not _tap["done"]:
                         combined = _tap["buf"] + chunk
@@ -950,7 +1078,26 @@ async def proxy_post_messages(request: Request) -> Response:
                             # Write the decision record as soon as we know the
                             # first tool (or that the model called no tool).
                             assert meta is not None
-                            _write_decision_record(req_ts, meta, tool_name, tap_skipped=False)
+                            _write_decision_record(
+                                req_ts,
+                                meta,
+                                tool_name,
+                                tap_skipped=False,
+                                preflight_duration_ms=(preflight_done_at - started_at)
+                                * 1000.0,
+                                upstream_request_duration_ms=(
+                                    (upstream_request_done_at - upstream_started_at)
+                                    * 1000.0
+                                    if upstream_request_done_at is not None
+                                    else None
+                                ),
+                                first_byte_duration_ms=(
+                                    (first_byte_at - started_at) * 1000.0
+                                    if first_byte_at is not None
+                                    else None
+                                ),
+                                retry_count=retry_count,
+                            )
                             _tap["done"] = True
                             _tap["buf"] = b""  # release buffer memory
                         else:
@@ -958,19 +1105,58 @@ async def proxy_post_messages(request: Request) -> Response:
                             # next chunk completes any split line without
                             # re-scanning already-parsed data (keeps O(n) total).
                             last_nl = combined.rfind(b"\n")
-                            _tap["buf"] = combined[last_nl + 1:] if last_nl >= 0 else combined
+                            _tap["buf"] = (
+                                combined[last_nl + 1 :] if last_nl >= 0 else combined
+                            )
             finally:
                 if can_tap and not _tap["done"]:
                     # Stream ended without a message_stop or tool event
                     # (e.g. non-200, network error). Write with null tool.
                     assert meta is not None
-                    _write_decision_record(req_ts, meta, None, tap_skipped=False)
+                    _write_decision_record(
+                        req_ts,
+                        meta,
+                        None,
+                        tap_skipped=False,
+                        preflight_duration_ms=(preflight_done_at - started_at) * 1000.0,
+                        upstream_request_duration_ms=(
+                            (upstream_request_done_at - upstream_started_at) * 1000.0
+                            if upstream_request_done_at is not None
+                            else None
+                        ),
+                        first_byte_duration_ms=(
+                            (first_byte_at - started_at) * 1000.0
+                            if first_byte_at is not None
+                            else None
+                        ),
+                        total_response_duration_ms=(time.perf_counter() - started_at)
+                        * 1000.0,
+                        retry_count=retry_count,
+                    )
                     _tap["done"] = True
                 elif meta is not None and not can_tap:
                     # Compressed stream or no meta: write without tool data.
-                    _write_decision_record(req_ts, meta, None, tap_skipped=True)
+                    _write_decision_record(
+                        req_ts,
+                        meta,
+                        None,
+                        tap_skipped=True,
+                        preflight_duration_ms=(preflight_done_at - started_at) * 1000.0,
+                        upstream_request_duration_ms=(
+                            (upstream_request_done_at - upstream_started_at) * 1000.0
+                            if upstream_request_done_at is not None
+                            else None
+                        ),
+                        first_byte_duration_ms=(
+                            (first_byte_at - started_at) * 1000.0
+                            if first_byte_at is not None
+                            else None
+                        ),
+                        total_response_duration_ms=(time.perf_counter() - started_at)
+                        * 1000.0,
+                        retry_count=retry_count,
+                    )
                 await response.aclose()
-                await client.aclose()
 
         return StreamingResponse(
             body_iter(),
@@ -980,12 +1166,32 @@ async def proxy_post_messages(request: Request) -> Response:
         )
 
     try:
-        content = await response.aread()
+        content, first_byte_at = await _read_response_with_timing(response)
         hdrs = _buffered_response_headers(response, content)
         # Non-streaming: extract first tool from the full response body.
-        first_tool = _first_tool_from_response_body(content) if meta is not None else None
+        first_tool = (
+            _first_tool_from_response_body(content) if meta is not None else None
+        )
         if meta is not None:
-            _write_decision_record(req_ts, meta, first_tool, tap_skipped=False)
+            _write_decision_record(
+                req_ts,
+                meta,
+                first_tool,
+                tap_skipped=False,
+                preflight_duration_ms=(preflight_done_at - started_at) * 1000.0,
+                upstream_request_duration_ms=(
+                    (upstream_request_done_at - upstream_started_at) * 1000.0
+                    if upstream_request_done_at is not None
+                    else None
+                ),
+                first_byte_duration_ms=(
+                    (first_byte_at - started_at) * 1000.0
+                    if first_byte_at is not None
+                    else None
+                ),
+                total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
+                retry_count=retry_count,
+            )
         return Response(
             content=content,
             status_code=response.status_code,
@@ -993,7 +1199,6 @@ async def proxy_post_messages(request: Request) -> Response:
         )
     finally:
         await response.aclose()
-        await client.aclose()
 
 
 async def proxy_pass_through(request: Request) -> Response:
@@ -1003,21 +1208,42 @@ async def proxy_pass_through(request: Request) -> Response:
     if request.url.query:
         url = f"{url}?{request.url.query}"
     headers = _forward_headers(request)
-    client = httpx.AsyncClient(timeout=httpx.Timeout(600.0, connect=30.0))
+    client = _get_upstream_client(request)
+    first_byte_seen = False
     try:
         req = client.build_request(request.method, url, headers=headers, content=raw)
-        response = await client.send(req, stream=True)
+        response, _retry_count = await _send_upstream_with_retry(client, req)
     except Exception:
-        await client.aclose()
         raise
 
     async def body_iter() -> Any:
+        nonlocal first_byte_seen
         try:
-            async for chunk in response.aiter_raw():
+            async for chunk in _aiter_response_raw(response):
+                first_byte_seen = True
                 yield chunk
+        except Exception as exc:
+            if _retry_count == 0 and _should_retry_pre_first_byte(
+                method=request.method,
+                saw_response_bytes=first_byte_seen,
+                exc=exc,
+            ):
+                retry_req = client.build_request(
+                    request.method,
+                    url,
+                    headers=headers,
+                    content=raw,
+                )
+                retry_response, _ = await _send_upstream_with_retry(client, retry_req)
+                try:
+                    async for retry_chunk in _aiter_response_raw(retry_response):
+                        yield retry_chunk
+                finally:
+                    await retry_response.aclose()
+                return
+            raise
         finally:
             await response.aclose()
-            await client.aclose()
 
     return StreamingResponse(
         body_iter(),
@@ -1051,12 +1277,17 @@ async def health(_: Request) -> PlainTextResponse:
 
 def build_app() -> Starlette:
     return Starlette(
+        lifespan=_app_lifespan,
         routes=[
             Route("/health", health, methods=["GET"]),
             Route("/tcp/mode", handle_tcp_mode_get, methods=["GET"]),
             Route("/tcp/mode", handle_tcp_mode_post, methods=["POST"]),
             Route("/v1/messages", proxy_post_messages, methods=["POST"]),
-            Route("/{path:path}", proxy_pass_through, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"]),
+            Route(
+                "/{path:path}",
+                proxy_pass_through,
+                methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+            ),
         ],
     )
 
