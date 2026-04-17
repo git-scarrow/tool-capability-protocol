@@ -1015,9 +1015,12 @@ async def proxy_post_messages(request: Request) -> Response:
     started_at = time.perf_counter()
     raw = await request.body()
     req_ts = time.time()
+    request_port = request.url.port
+    session_registry = getattr(request.app.state, "session_registry", None)
+    if request_port is not None and session_registry is not None:
+        session_registry.proxy_port = request_port
     session_ctx: SessionContext | None = None
     if request.client is not None:
-        session_registry = getattr(request.app.state, "session_registry", None)
         if session_registry is not None:
             session_ctx = session_registry.context_for_peer(
                 request.client.host,
@@ -1066,7 +1069,7 @@ async def proxy_post_messages(request: Request) -> Response:
                 "event": "request_ready",
                 "path": "/v1/messages",
                 "stream": stream,
-                "upstream_url": url,
+                "upstream_url": f"{_upstream_base()}/v1/messages",
             },
         )
 

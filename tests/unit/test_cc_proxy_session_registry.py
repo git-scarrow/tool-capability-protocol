@@ -74,6 +74,7 @@ def test_stale_session_cleanup_removes_dead_lockfiles(tmp_path: Path) -> None:
     registry = SessionRegistry(
         state_dir=tmp_path / "state",
         proxy_port=8742,
+        proxy_pid=555,
         proc_root=proc_root,
         proc_tcp_path=proc_tcp_path,
     )
@@ -83,10 +84,10 @@ def test_stale_session_cleanup_removes_dead_lockfiles(tmp_path: Path) -> None:
     lock_path = dead_dir / "session.lock"
     lock_path.write_text(
         json.dumps(
-            {
-                "session_id": "dead-session",
-                "client_pid": 99999,
-                "proxy_pid": 555,
+                {
+                    "session_id": "dead-session",
+                    "client_pid": 99999,
+                    "proxy_pid": 555,
                 "proxy_port": 8742,
             }
         ),
@@ -128,3 +129,116 @@ def test_resolve_client_pid_prefers_ss_client_side_match(tmp_path: Path, monkeyp
     pid = registry._resolve_client_pid("127.0.0.1", 54000)
 
     assert pid == 4242
+
+
+def test_unknown_pid_peer_context_is_reused(tmp_path: Path) -> None:
+    proc_root = tmp_path / "proc"
+    proc_root.mkdir()
+    proc_tcp_path = tmp_path / "proc_tcp"
+    proc_tcp_path.write_text("", encoding="utf-8")
+
+    registry = SessionRegistry(
+        state_dir=tmp_path / "state",
+        proxy_port=8742,
+        proc_root=proc_root,
+        proc_tcp_path=proc_tcp_path,
+    )
+    registry._resolve_client_pid = lambda host, port: None  # type: ignore[method-assign]
+
+    first = registry.context_for_peer("127.0.0.1", 54000)
+    second = registry.context_for_peer("127.0.0.1", 54000)
+
+    assert second.session_id == first.session_id
+    assert second.session_start_ts == first.session_start_ts
+
+
+def test_stale_session_cleanup_preserves_unknown_pid_lockfiles(tmp_path: Path) -> None:
+    proc_root = tmp_path / "proc"
+    proc_root.mkdir()
+    proc_tcp_path = tmp_path / "proc_tcp"
+    proc_tcp_path.write_text("", encoding="utf-8")
+
+    registry = SessionRegistry(
+        state_dir=tmp_path / "state",
+        proxy_port=8742,
+        proxy_pid=777,
+        proc_root=proc_root,
+        proc_tcp_path=proc_tcp_path,
+    )
+
+    live_dir = tmp_path / "state" / "sessions" / "unknown-session"
+    live_dir.mkdir(parents=True)
+    lock_path = live_dir / "session.lock"
+    lock_path.write_text(
+        json.dumps(
+            {
+                "session_id": "unknown-session",
+                "client_pid": None,
+                "proxy_pid": 777,
+                "proxy_port": 8742,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    registry._last_reap_at = 0.0
+    registry._reap_stale_sessions()
+
+    assert lock_path.exists()
+
+
+def test_count_live_sessions_filters_to_current_proxy_instance(tmp_path: Path) -> None:
+    proc_root = tmp_path / "proc"
+    proc_root.mkdir()
+    (proc_root / "4242").mkdir()
+    proc_tcp_path = tmp_path / "proc_tcp"
+    proc_tcp_path.write_text("", encoding="utf-8")
+
+    registry = SessionRegistry(
+        state_dir=tmp_path / "state",
+        proxy_port=8742,
+        proxy_pid=777,
+        proc_root=proc_root,
+        proc_tcp_path=proc_tcp_path,
+    )
+
+    for name, payload in {
+        "mine": {"client_pid": 4242, "proxy_pid": 777, "proxy_port": 8742},
+        "other-pid": {"client_pid": 4242, "proxy_pid": 888, "proxy_port": 8742},
+        "other-port": {"client_pid": 4242, "proxy_pid": 777, "proxy_port": 9999},
+        "unknown": {"client_pid": None, "proxy_pid": 777, "proxy_port": 8742},
+    }.items():
+        lock_dir = tmp_path / "state" / "sessions" / name
+        lock_dir.mkdir(parents=True)
+        (lock_dir / "session.lock").write_text(
+            json.dumps({"session_id": name, **payload}),
+            encoding="utf-8",
+        )
+
+    assert registry._count_live_sessions() == 2
+
+
+def test_ipv6_loopback_without_ss_does_not_fall_back_to_ipv4_proc(
+    tmp_path: Path, monkeypatch
+) -> None:
+    proc_root = tmp_path / "proc"
+    proc_root.mkdir()
+    proc_tcp_path = tmp_path / "proc_tcp"
+    proc_tcp_path.write_text("", encoding="utf-8")
+
+    registry = SessionRegistry(
+        state_dir=tmp_path / "state",
+        proxy_port=8742,
+        proc_root=proc_root,
+        proc_tcp_path=proc_tcp_path,
+    )
+
+    def _fake_run(*args, **kwargs):
+        return CompletedProcess(args=args, returncode=1, stdout="", stderr="boom")
+
+    monkeypatch.setattr("tcp.proxy.session_registry.subprocess.run", _fake_run)
+    registry._lookup_inode_for_peer_port = lambda port: (_ for _ in ()).throw(  # type: ignore[method-assign]
+        AssertionError("should not use IPv4 proc fallback for IPv6 loopback")
+    )
+
+    assert registry._resolve_client_pid("::1", 54000) is None

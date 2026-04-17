@@ -62,11 +62,19 @@ class SessionRegistry:
         self._by_peer: dict[tuple[str, int], SessionContext] = {}
         self._last_reap_at = 0.0
 
+    @property
+    def proxy_port(self) -> int:
+        return self._proxy_port
+
+    @proxy_port.setter
+    def proxy_port(self, value: int) -> None:
+        self._proxy_port = value
+
     def context_for_peer(self, client_host: str, client_port: int) -> SessionContext:
         self._reap_stale_sessions()
         peer = (client_host, client_port)
         existing = self._by_peer.get(peer)
-        if existing and self._pid_is_alive(existing.client_pid):
+        if existing and self._session_is_active(existing.client_pid):
             return self._refresh(existing)
 
         client_pid = self._resolve_client_pid(client_host, client_port)
@@ -130,7 +138,13 @@ class SessionRegistry:
         count = 0
         for lock_path in self._sessions_dir.glob("*/session.lock"):
             payload = self._read_lock(lock_path)
-            if payload and self._pid_is_alive(payload.get("client_pid")):
+            if not payload:
+                continue
+            if payload.get("proxy_pid") != self._proxy_pid:
+                continue
+            if payload.get("proxy_port") != self._proxy_port:
+                continue
+            if self._session_is_active(payload.get("client_pid")):
                 count += 1
         return count
 
@@ -142,13 +156,18 @@ class SessionRegistry:
 
         active_peers: dict[tuple[str, int], SessionContext] = {}
         for peer, ctx in list(self._by_peer.items()):
-            if self._pid_is_alive(ctx.client_pid):
+            if self._session_is_active(ctx.client_pid):
                 active_peers[peer] = ctx
         self._by_peer = active_peers
 
         for lock_path in self._sessions_dir.glob("*/session.lock"):
             payload = self._read_lock(lock_path)
-            if payload and not self._pid_is_alive(payload.get("client_pid")):
+            if (
+                payload
+                and payload.get("proxy_pid") == self._proxy_pid
+                and payload.get("proxy_port") == self._proxy_port
+                and not self._session_is_active(payload.get("client_pid"))
+            ):
                 try:
                     lock_path.unlink()
                 except FileNotFoundError:
@@ -164,6 +183,11 @@ class SessionRegistry:
         if not isinstance(pid, int) or pid <= 0:
             return False
         return (self._proc_root / str(pid)).exists()
+
+    def _session_is_active(self, pid: object) -> bool:
+        if pid is None:
+            return True
+        return self._pid_is_alive(pid)
 
     def _resolve_cwd(self, pid: int | None) -> str:
         if pid is None:
@@ -191,6 +215,8 @@ class SessionRegistry:
         ss_pid = self._lookup_pid_via_ss(client_port)
         if ss_pid is not None:
             return ss_pid
+        if client_host in {"::1", "localhost"}:
+            return None
         inode = self._lookup_inode_for_peer_port(client_port)
         if inode is None:
             return None

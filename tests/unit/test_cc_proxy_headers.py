@@ -350,6 +350,68 @@ def test_messages_telemetry_fields_are_populated(tmp_path) -> None:
         assert record[key] >= 0.0
 
 
+def test_request_log_omits_query_string_and_syncs_registry_port(tmp_path) -> None:
+    body = json.dumps(
+        {
+            "id": "msg_1",
+            "type": "message",
+            "role": "assistant",
+            "content": [
+                {"type": "tool_use", "id": "toolu_1", "name": "Bash", "input": {}}
+            ],
+            "model": "claude-3-5-sonnet-20241022",
+            "stop_reason": "end_turn",
+            "stop_sequence": None,
+            "usage": {"input_tokens": 1, "output_tokens": 1},
+        }
+    )
+    upstream = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda req: httpx.Response(
+                200,
+                content=body.encode(),
+                headers={"content-type": "application/json"},
+            )
+        )
+    )
+    with patch("tcp.proxy.cc_proxy._build_upstream_client", return_value=upstream):
+        with patch("tcp.proxy.cc_proxy._read_mode", return_value="shadow"):
+            with patch("tcp.proxy.cc_proxy.PROXY_STATE_DIR", tmp_path):
+                with patch.dict("os.environ", {"TCP_CC_PROXY_PORT": "9999"}):
+                    app = build_app()
+                    payload = json.dumps(
+                        {
+                            "model": "claude-3-5-sonnet-20241022",
+                            "max_tokens": 10,
+                            "messages": [{"role": "user", "content": "run bash"}],
+                            "tools": [
+                                {
+                                    "name": "Bash",
+                                    "description": "shell",
+                                    "input_schema": {"type": "object"},
+                                }
+                            ],
+                        }
+                    )
+                    with TestClient(app, base_url="http://testserver:8742") as client:
+                        response = client.post(
+                            "/v1/messages?api_key=secret",
+                            content=payload,
+                            headers={
+                                "content-type": "application/json",
+                                "x-api-key": "sk-test",
+                            },
+                        )
+
+    assert response.status_code == 200
+    assert app.state.session_registry.proxy_port == 8742
+    request_logs = list((tmp_path / "sessions").glob("*/requests.jsonl"))
+    assert len(request_logs) == 1
+    lines = request_logs[0].read_text(encoding="utf-8").splitlines()
+    request_ready = next(json.loads(line) for line in lines if '"event": "request_ready"' in line)
+    assert request_ready["upstream_url"] == "https://api.anthropic.com/v1/messages"
+
+
 def test_decision_record_includes_session_fields_and_per_session_copy() -> None:
     with tempfile.TemporaryDirectory() as tmpdir:
         log_path = Path(tmpdir) / "decisions.jsonl"
