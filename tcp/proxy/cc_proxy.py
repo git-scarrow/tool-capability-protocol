@@ -507,20 +507,14 @@ def _process_tools_array(
         ctrl_decision = (
             None if tool_server is None else controller_decisions.get(tool_server)
         )
-        schema_state = (
-            STATE_ACTIVE
-            if ctrl_decision is None
-            else ctrl_decision.state
-        )
+        schema_state = STATE_ACTIVE if ctrl_decision is None else ctrl_decision.state
         surface_state_by_tool[rec.tool_name] = schema_state
 
         if mode in ("live", "live-strict") and schema_state == STATE_DEFERRED:
             live_tools.append(
                 _deferred_tool_surface(
                     orig,
-                    pack_id=(
-                        None if ctrl_decision is None else ctrl_decision.pack_id
-                    ),
+                    pack_id=(None if ctrl_decision is None else ctrl_decision.pack_id),
                     server=tool_server,
                     reason=(
                         server_allow_source.get(tool_server) if tool_server else None
@@ -922,7 +916,9 @@ def _get_upstream_client(request: Request) -> httpx.AsyncClient:
 
 
 def _is_retryable_send_error(exc: Exception) -> bool:
-    return isinstance(exc, (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout))
+    return isinstance(
+        exc, (httpx.ConnectError, httpx.ConnectTimeout, httpx.PoolTimeout)
+    )
 
 
 def _should_retry_pre_first_byte(
@@ -935,7 +931,9 @@ def _should_retry_pre_first_byte(
         return False
     if _is_retryable_send_error(exc):
         return True
-    if method.upper() in SAFE_RETRY_METHODS and isinstance(exc, (httpx.ReadError, httpx.ReadTimeout)):
+    if method.upper() in SAFE_RETRY_METHODS and isinstance(
+        exc, (httpx.ReadError, httpx.ReadTimeout)
+    ):
         return True
     return False
 
@@ -1052,7 +1050,12 @@ async def proxy_post_messages(request: Request) -> Response:
         # With Accept-Encoding: identity forced above, this should always be
         # uncompressed, but we keep the guard in case of upstream surprises.
         content_enc = response.headers.get("content-encoding", "").lower()
-        can_tap = meta is not None and content_enc not in ("gzip", "br", "deflate", "zstd")
+        can_tap = meta is not None and content_enc not in (
+            "gzip",
+            "br",
+            "deflate",
+            "zstd",
+        )
         # State shared by body_iter closure.
         # _tap["buf"] holds only the unparsed tail (incomplete last line) so that
         # _first_tool_from_sse_buf never rescans already-consumed bytes (O(n) total).
@@ -1080,9 +1083,11 @@ async def proxy_post_messages(request: Request) -> Response:
                                 meta,
                                 tool_name,
                                 tap_skipped=False,
-                                preflight_duration_ms=(preflight_done_at - started_at) * 1000.0,
+                                preflight_duration_ms=(preflight_done_at - started_at)
+                                * 1000.0,
                                 upstream_request_duration_ms=(
-                                    (upstream_request_done_at - upstream_started_at) * 1000.0
+                                    (upstream_request_done_at - upstream_started_at)
+                                    * 1000.0
                                     if upstream_request_done_at is not None
                                     else None
                                 ),
@@ -1100,7 +1105,9 @@ async def proxy_post_messages(request: Request) -> Response:
                             # next chunk completes any split line without
                             # re-scanning already-parsed data (keeps O(n) total).
                             last_nl = combined.rfind(b"\n")
-                            _tap["buf"] = combined[last_nl + 1:] if last_nl >= 0 else combined
+                            _tap["buf"] = (
+                                combined[last_nl + 1 :] if last_nl >= 0 else combined
+                            )
             finally:
                 if can_tap and not _tap["done"]:
                     # Stream ended without a message_stop or tool event
@@ -1122,7 +1129,8 @@ async def proxy_post_messages(request: Request) -> Response:
                             if first_byte_at is not None
                             else None
                         ),
-                        total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
+                        total_response_duration_ms=(time.perf_counter() - started_at)
+                        * 1000.0,
                         retry_count=retry_count,
                     )
                     _tap["done"] = True
@@ -1144,7 +1152,8 @@ async def proxy_post_messages(request: Request) -> Response:
                             if first_byte_at is not None
                             else None
                         ),
-                        total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
+                        total_response_duration_ms=(time.perf_counter() - started_at)
+                        * 1000.0,
                         retry_count=retry_count,
                     )
                 await response.aclose()
@@ -1160,7 +1169,9 @@ async def proxy_post_messages(request: Request) -> Response:
         content, first_byte_at = await _read_response_with_timing(response)
         hdrs = _buffered_response_headers(response, content)
         # Non-streaming: extract first tool from the full response body.
-        first_tool = _first_tool_from_response_body(content) if meta is not None else None
+        first_tool = (
+            _first_tool_from_response_body(content) if meta is not None else None
+        )
         if meta is not None:
             _write_decision_record(
                 req_ts,
@@ -1272,7 +1283,11 @@ def build_app() -> Starlette:
             Route("/tcp/mode", handle_tcp_mode_get, methods=["GET"]),
             Route("/tcp/mode", handle_tcp_mode_post, methods=["POST"]),
             Route("/v1/messages", proxy_post_messages, methods=["POST"]),
-            Route("/{path:path}", proxy_pass_through, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"]),
+            Route(
+                "/{path:path}",
+                proxy_pass_through,
+                methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+            ),
         ],
     )
 
