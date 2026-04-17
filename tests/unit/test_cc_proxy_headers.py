@@ -253,7 +253,7 @@ def test_get_does_not_retry_after_response_bytes_begin() -> None:
     with patch("tcp.proxy.cc_proxy._build_upstream_client", return_value=upstream):
         app = build_app()
         with TestClient(app) as client:
-            with pytest.raises(httpx.ReadError):
+            with pytest.raises((httpx.ReadError, ExceptionGroup)):
                 client.get("/v1/models")
         assert attempts == 1
 

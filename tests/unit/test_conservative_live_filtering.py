@@ -513,10 +513,13 @@ class TestServerLevelFiltering:
             prompt_body = {"messages": [{"role": "user", "content": [
                 {"type": "text", "text": "Fix the bug"}
             ]}]}
-            result_tools, _ = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
             surviving = _tool_names(result_tools)
-            # With only filesystem and git allowed, notion-agents should be filtered
-            assert "mcp__notion-agents__chat_with_agent" not in surviving
+            # core-coding pack is an absolute safety floor and is not suppressed
+            # by the hard allow override; workspace-critical packs still are.
+            assert meta["pack_states"]["core-coding"] == "active"
+            assert "mcp__notion-agents__chat_with_agent" in surviving
+            assert "mcp__chatsearch__chatsearch_ask" in surviving
             # But filesystem and git should survive
             assert "mcp__filesystem__read_file" in surviving
             assert "mcp__git__git_status" in surviving
