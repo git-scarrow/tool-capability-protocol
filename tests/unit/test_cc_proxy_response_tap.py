@@ -18,9 +18,9 @@ from pathlib import Path
 
 from tcp.proxy.cc_proxy import (
     _compute_expected_tool_name,
+    _derive_expected_tool_from_survivors,
     _first_tool_from_response_body,
     _first_tool_from_sse_buf,
-    _top_survivor_by_prompt_similarity,
     _write_decision_record,
 )
 
@@ -166,24 +166,28 @@ class TestFirstToolFromResponseBody:
 
 
 class TestComputeExpectedToolName:
-    def test_single_survivor(self):
-        meta = {"survivor_count": 1, "survivor_names_sorted": ["mcp__git__status"]}
+    # TCP-IMP-18: _compute_expected_tool_name reads top_survivor_by_similarity
+    # (produced by _derive_expected_tool_from_survivors). Count-based alphabetical
+    # fallback removed — meta without the field returns None.
+
+    def test_reads_top_survivor_field(self):
+        meta = {"top_survivor_by_similarity": "mcp__git__status"}
         assert _compute_expected_tool_name(meta) == "mcp__git__status"
 
-    # TCP-IMP-16: loosen threshold to k=3 — 2 survivors now emits first survivor
-    def test_two_survivors_returns_first_survivor(self):
+    def test_returns_none_when_field_absent(self):
+        # TCP-IMP-18: no count-based fallback; absent field → None
+        meta = {"survivor_count": 1, "survivor_names_sorted": ["mcp__git__status"]}
+        assert _compute_expected_tool_name(meta) is None
+
+    def test_returns_none_for_multi_survivor_without_field(self):
         meta = {"survivor_count": 2, "survivor_names_sorted": ["tool_a", "tool_b"]}
-        assert _compute_expected_tool_name(meta) == "tool_a"
+        assert _compute_expected_tool_name(meta) is None
 
-    def test_three_survivors_returns_first_survivor(self):
-        meta = {"survivor_count": 3, "survivor_names_sorted": ["alpha", "beta", "gamma"]}
-        assert _compute_expected_tool_name(meta) == "alpha"
-
-    def test_four_survivors_returns_none(self):
+    def test_returns_none_for_four_survivors_without_field(self):
         meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
         assert _compute_expected_tool_name(meta) is None
 
-    def test_zero_survivors_returns_none(self):
+    def test_returns_none_for_zero_survivors_without_field(self):
         meta = {"survivor_count": 0, "survivor_names_sorted": []}
         assert _compute_expected_tool_name(meta) is None
 
@@ -193,19 +197,7 @@ class TestComputeExpectedToolName:
     def test_missing_fields_returns_none(self):
         assert _compute_expected_tool_name({}) is None
 
-    def test_survivor_count_mismatch_with_list(self):
-        # count says 1 but list is empty → return None (defensive)
-        meta = {"survivor_count": 1, "survivor_names_sorted": []}
-        assert _compute_expected_tool_name(meta) is None
-
-    def test_count_mismatch_above_k_returns_none(self):
-        # count says 2 but list has 4 entries → trust count, return None
-        meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
-        assert _compute_expected_tool_name(meta) is None
-
-    # TCP-IMP-17: top_survivor_by_similarity overrides count-based logic
-    def test_top_survivor_by_similarity_used_when_present(self):
-        """With 174 survivors, expected_tool_name comes from similarity ranking."""
+    def test_top_survivor_field_present(self):
         meta = {
             "survivor_count": 174,
             "survivor_names_sorted": ["Bash", "Read", "Write"],
@@ -213,8 +205,7 @@ class TestComputeExpectedToolName:
         }
         assert _compute_expected_tool_name(meta) == "Bash"
 
-    def test_top_survivor_by_similarity_overrides_count_k(self):
-        """similarity field takes precedence over k=3 alphabetical pick."""
+    def test_top_survivor_field_takes_non_alphabetical_value(self):
         meta = {
             "survivor_count": 2,
             "survivor_names_sorted": ["alpha", "zeta"],
@@ -222,53 +213,64 @@ class TestComputeExpectedToolName:
         }
         assert _compute_expected_tool_name(meta) == "zeta"
 
-    def test_falls_back_to_count_logic_when_similarity_absent(self):
-        """No top_survivor_by_similarity → fall back to k=3 count logic."""
-        meta = {"survivor_count": 2, "survivor_names_sorted": ["tool_a", "tool_b"]}
-        assert _compute_expected_tool_name(meta) == "tool_a"
+
+# ── Tests: _derive_expected_tool_from_survivors ────────────────────────────────
 
 
-# ── Tests: _top_survivor_by_prompt_similarity ─────────────────────────────────
+class TestDeriveExpectedToolFromSurvivors:
+    # TCP-IMP-18: deterministic single-survivor path
+    def test_single_survivor_always_returned(self):
+        assert _derive_expected_tool_from_survivors("anything at all", ["OnlyTool"]) == "OnlyTool"
 
+    def test_single_survivor_no_text_still_returned(self):
+        assert _derive_expected_tool_from_survivors("", ["Read"]) == "Read"
 
-class TestTopSurvivorByPromptSimilarity:
-    def _tool(self, name: str, description: str) -> dict:
-        return {"name": name, "description": description}
+    def test_single_survivor_none_text_still_returned(self):
+        assert _derive_expected_tool_from_survivors(None, ["Read"]) == "Read"
 
-    def test_returns_best_matching_tool(self):
-        tools = [
-            self._tool("Bash", "Execute shell commands"),
-            self._tool("Read", "Read file contents from disk"),
-            self._tool("mcp__git__git_status", "Show working tree git status"),
-        ]
-        # Prompt about reading a file → Read should win
-        result = _top_survivor_by_prompt_similarity("read the file contents", tools)
+    def test_empty_survivors_returns_none(self):
+        assert _derive_expected_tool_from_survivors("do something", []) is None
+
+    # TCP-IMP-18: name-only matching (no description text)
+    def test_two_survivors_name_match(self):
+        # "read" appears in prompt and matches "Read" name
+        result = _derive_expected_tool_from_survivors(
+            "read the file contents", ["Bash", "Read"]
+        )
         assert result == "Read"
 
-    def test_returns_none_for_empty_tools(self):
-        assert _top_survivor_by_prompt_similarity("do something", []) is None
-
-    def test_returns_none_for_empty_prompt(self):
-        tools = [self._tool("Bash", "Execute shell commands")]
-        assert _top_survivor_by_prompt_similarity("", tools) is None
-
-    def test_returns_none_for_none_prompt(self):
-        tools = [self._tool("Bash", "Execute shell commands")]
-        assert _top_survivor_by_prompt_similarity(None, tools) is None  # type: ignore[arg-type]
-
-    def test_single_tool_always_wins(self):
-        tools = [self._tool("OnlyTool", "Does the only thing")]
-        result = _top_survivor_by_prompt_similarity("anything at all", tools)
-        assert result == "OnlyTool"
-
-    def test_git_prompt_favours_git_tool(self):
-        tools = [
-            self._tool("Read", "Read file from disk"),
-            self._tool("mcp__git__git_status", "Show git working tree status"),
-            self._tool("Bash", "Run shell commands"),
-        ]
-        result = _top_survivor_by_prompt_similarity("show git status of working tree", tools)
+    def test_git_name_match(self):
+        result = _derive_expected_tool_from_survivors(
+            "show git status of working tree",
+            ["Bash", "mcp__git__git_status", "Read"],
+        )
         assert result == "mcp__git__git_status"
+
+    def test_above_threshold_returns_none(self):
+        # 4 survivors > k=3 → always None regardless of prompt
+        result = _derive_expected_tool_from_survivors(
+            "use Bash to run something", ["Bash", "Read", "Write", "Edit"]
+        )
+        assert result is None
+
+    def test_empty_prompt_with_two_survivors_returns_none(self):
+        assert _derive_expected_tool_from_survivors("", ["Bash", "Read"]) is None
+
+    def test_none_prompt_with_two_survivors_returns_none(self):
+        assert _derive_expected_tool_from_survivors(None, ["Bash", "Read"]) is None
+
+    # TCP-IMP-18: prompt-excerpt lexical collision guard
+    # The old SequenceMatcher-on-description approach would rank a tool highly if its
+    # description repeated the user's task phrase. Name-only matching is immune.
+    def test_description_excerpt_in_prompt_does_not_inflate_wrong_tool(self):
+        # Prompt echoes exactly what the "Write" tool description might say,
+        # but the user's last message says "read".
+        # With name-only matching, "Read" wins because "read" is in the prompt.
+        result = _derive_expected_tool_from_survivors(
+            "read the configuration value",
+            ["Read", "Write"],
+        )
+        assert result == "Read"
 
 
 # ── Tests: first_tool_correct computation ─────────────────────────────────────
@@ -285,7 +287,12 @@ class TestFirstToolCorrect:
     def test_correct_when_names_match(self, tmp_path, monkeypatch):
         log = tmp_path / "decisions.jsonl"
         monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
-        meta = {"survivor_count": 1, "survivor_names_sorted": ["Bash"]}
+        # TCP-IMP-18: expected_tool_name comes from top_survivor_by_similarity
+        meta = {
+            "survivor_count": 1,
+            "survivor_names_sorted": ["Bash"],
+            "top_survivor_by_similarity": "Bash",
+        }
         _write_decision_record(time.time(), meta, "Bash")
         rec = self._read_last_record(log)
         assert rec["first_tool_correct"] is True
@@ -293,7 +300,11 @@ class TestFirstToolCorrect:
     def test_incorrect_when_names_differ(self, tmp_path, monkeypatch):
         log = tmp_path / "decisions.jsonl"
         monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
-        meta = {"survivor_count": 1, "survivor_names_sorted": ["Bash"]}
+        meta = {
+            "survivor_count": 1,
+            "survivor_names_sorted": ["Bash"],
+            "top_survivor_by_similarity": "Bash",
+        }
         _write_decision_record(time.time(), meta, "mcp__git__status")
         rec = self._read_last_record(log)
         assert rec["first_tool_correct"] is False
@@ -301,7 +312,11 @@ class TestFirstToolCorrect:
     def test_none_when_first_tool_name_is_null(self, tmp_path, monkeypatch):
         log = tmp_path / "decisions.jsonl"
         monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
-        meta = {"survivor_count": 1, "survivor_names_sorted": ["Bash"]}
+        meta = {
+            "survivor_count": 1,
+            "survivor_names_sorted": ["Bash"],
+            "top_survivor_by_similarity": "Bash",
+        }
         _write_decision_record(time.time(), meta, None)
         rec = self._read_last_record(log)
         assert rec["first_tool_correct"] is None

@@ -655,15 +655,11 @@ def _process_tools_array(
                 if rec is not None and rec.tool_name in active_survivors
             ]
         ),
-        # TCP-IMP-17: prompt-similarity ranking — top survivor regardless of count.
-        # Populated when the task prompt is non-empty and any survivors exist.
-        "top_survivor_by_similarity": _top_survivor_by_prompt_similarity(
+        # TCP-IMP-18: structured name-only derivation — replaces description-based
+        # SequenceMatcher approach. Uses sorted survivor names directly.
+        "top_survivor_by_similarity": _derive_expected_tool_from_survivors(
             prompt,
-            [
-                orig
-                for (orig, rec, _tier, _name) in entries
-                if rec is not None and rec.tool_name in active_survivors
-            ],
+            sorted(active_survivors),
         ),
     }
 
@@ -713,56 +709,53 @@ def _append_jsonl(path: Path, record: Mapping[str, Any]) -> None:
 _EXPECTED_TOOL_MAX_SURVIVORS: int = 3  # TCP-IMP-16: count-based fallback threshold
 
 
-def _top_survivor_by_prompt_similarity(
-    prompt: str | None,
-    tools: list[Any],
+def _derive_expected_tool_from_survivors(
+    last_user_text: str | None,
+    survivor_names: list[str],
 ) -> str | None:
-    """Return the survivor tool name with the highest prompt similarity.
+    """Structured, state-aware expected-tool derivation.
 
-    Computes SequenceMatcher ratio between the task prompt and each tool's
-    ``name + description`` text, returning the argmax.  Returns None when
-    prompt is empty/None or tools list is empty.
+    TCP-IMP-18: Replaces SequenceMatcher-on-(name+description) approach.
 
-    TCP-IMP-17: produces expected_tool_name on every turn with a non-empty
-    prompt, regardless of survivor_count.
+    1. count == 1  → unambiguous; return the single survivor directly.
+    2. 1 < count ≤ k → match against tool name only (no description text)
+       using the last user message; return the argmax name.
+    3. count > k or empty → None.
+
+    Matching against name-only prevents tool descriptions that echo the
+    user's task from inflating the similarity score of the wrong tool.
     """
-    if not prompt or not tools:
+    if not survivor_names:
         return None
-    prompt_lc = prompt.lower()
-    best_name: str | None = None
-    best_score = -1.0
-    for tool in tools:
-        if not isinstance(tool, Mapping):
-            continue
-        name = tool.get("name", "") or ""
-        desc = tool.get("description", "") or ""
-        candidate = f"{name} {desc}".lower()
-        score = difflib.SequenceMatcher(None, prompt_lc, candidate).ratio()
-        if score > best_score:
-            best_score = score
-            best_name = name if isinstance(name, str) else None
-    return best_name
+    if len(survivor_names) == 1:
+        return survivor_names[0]
+    if len(survivor_names) <= _EXPECTED_TOOL_MAX_SURVIVORS:
+        if not last_user_text:
+            return None
+        text_lc = last_user_text.lower()
+        best_name: str | None = None
+        best_score = -1.0
+        for name in survivor_names:
+            score = difflib.SequenceMatcher(None, text_lc, name.lower()).ratio()
+            if score > best_score:
+                best_score = score
+                best_name = name
+        return best_name
+    return None
 
 
 def _compute_expected_tool_name(meta: dict[str, Any] | None) -> str | None:
     """Derive expected first tool from request-side survivor metadata.
 
-    Priority (TCP-IMP-17):
-      1. top_survivor_by_similarity  → prompt-ranked expectation (all survivor counts)
-      2. count-based fallback (k=3)  → first sorted survivor when count ≤ k
-      3. None                        → no expectation derivable
+    TCP-IMP-18: reads the pre-computed top_survivor_by_similarity field,
+    which is now produced by _derive_expected_tool_from_survivors (structured
+    state-aware, not SequenceMatcher-on-description).
     """
     if not meta:
         return None
-    # TCP-IMP-17: similarity ranking covers the high-survivor-count majority
     top_by_sim = meta.get("top_survivor_by_similarity")
     if top_by_sim is not None:
         return top_by_sim if isinstance(top_by_sim, str) else None
-    # TCP-IMP-16: count-based fallback for tight shortlists
-    count = meta.get("survivor_count", 0)
-    survivors = meta.get("survivor_names_sorted", [])
-    if 1 <= count <= _EXPECTED_TOOL_MAX_SURVIVORS and len(survivors) >= 1:
-        return survivors[0]
     return None
 
 
