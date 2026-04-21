@@ -32,7 +32,12 @@ def _sse_content_block_start(name: str, index: int = 0) -> bytes:
         {
             "type": "content_block_start",
             "index": index,
-            "content_block": {"type": "tool_use", "id": "toolu_abc", "name": name, "input": {}},
+            "content_block": {
+                "type": "tool_use",
+                "id": "toolu_abc",
+                "name": name,
+                "input": {},
+            },
         }
     )
     return f"event: content_block_start\ndata: {data}\n\n".encode()
@@ -40,7 +45,11 @@ def _sse_content_block_start(name: str, index: int = 0) -> bytes:
 
 def _sse_text_block_start(index: int = 0) -> bytes:
     data = json.dumps(
-        {"type": "content_block_start", "index": index, "content_block": {"type": "text", "text": ""}}
+        {
+            "type": "content_block_start",
+            "index": index,
+            "content_block": {"type": "text", "text": ""},
+        }
     )
     return f"event: content_block_start\ndata: {data}\n\n".encode()
 
@@ -66,7 +75,9 @@ class TestFirstToolFromSseBuf:
         assert ended is False
 
     def test_text_block_then_tool_block(self):
-        buf = _sse_text_block_start(0) + _sse_content_block_start("mcp__fs__read_file", index=1)
+        buf = _sse_text_block_start(0) + _sse_content_block_start(
+            "mcp__fs__read_file", index=1
+        )
         tool, ended = _first_tool_from_sse_buf(buf)
         # text block is not tool_use; tool block is second
         assert tool == "mcp__fs__read_file"
@@ -131,7 +142,12 @@ class TestFirstToolFromResponseBody:
                 "type": "message",
                 "content": [
                     {"type": "text", "text": "Sure"},
-                    {"type": "tool_use", "id": "toolu_x", "name": "mcp__git__status", "input": {}},
+                    {
+                        "type": "tool_use",
+                        "id": "toolu_x",
+                        "name": "mcp__git__status",
+                        "input": {},
+                    },
                 ],
             }
         ).encode()
@@ -220,7 +236,10 @@ class TestComputeExpectedToolName:
 class TestDeriveExpectedToolFromSurvivors:
     # TCP-IMP-18: deterministic single-survivor path
     def test_single_survivor_always_returned(self):
-        assert _derive_expected_tool_from_survivors("anything at all", ["OnlyTool"]) == "OnlyTool"
+        assert (
+            _derive_expected_tool_from_survivors("anything at all", ["OnlyTool"])
+            == "OnlyTool"
+        )
 
     def test_single_survivor_no_text_still_returned(self):
         assert _derive_expected_tool_from_survivors("", ["Read"]) == "Read"
@@ -389,7 +408,13 @@ class TestResponseTapLatency:
         # Build a realistic-sized buffer: message_start + text delta * N + message_stop
         chunks = [_sse_message_start()]
         for i in range(20):
-            data = json.dumps({"type": "content_block_delta", "index": 0, "delta": {"type": "text_delta", "text": "word " * 10}})
+            data = json.dumps(
+                {
+                    "type": "content_block_delta",
+                    "index": 0,
+                    "delta": {"type": "text_delta", "text": "word " * 10},
+                }
+            )
             chunks.append(f"event: content_block_delta\ndata: {data}\n\n".encode())
         chunks.append(_sse_message_stop())
         buf = b"".join(chunks)
@@ -409,7 +434,12 @@ class TestResponseTapLatency:
                 "type": "message",
                 "content": [
                     {"type": "text", "text": "I'll help you with that. " * 20},
-                    {"type": "tool_use", "id": "toolu_x", "name": "Bash", "input": {"command": "ls"}},
+                    {
+                        "type": "tool_use",
+                        "id": "toolu_x",
+                        "name": "Bash",
+                        "input": {"command": "ls"},
+                    },
                 ],
             }
         ).encode()
