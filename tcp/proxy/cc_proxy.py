@@ -1335,6 +1335,12 @@ def main() -> None:
         help="Listen port (set ANTHROPIC_BASE_URL=http://host:port)",
     )
     parser.add_argument(
+        "--workers",
+        type=int,
+        default=int(os.environ.get("TCP_PROXY_WORKERS", "1")),
+        help="Number of uvicorn worker processes (default: TCP_PROXY_WORKERS or 1)",
+    )
+    parser.add_argument(
         "--doctor",
         action="store_true",
         help="Print the resolved pack-manifest state for the current workspace and exit",
@@ -1358,14 +1364,20 @@ def main() -> None:
             return
         print(_render_doctor_text(inspection))
         return
+    if args.workers < 1:
+        parser.exit(2, "error: --workers must be >= 1\n")
     import uvicorn
 
+    app_target: str | Starlette = (
+        "tcp.proxy.cc_proxy:app" if args.workers > 1 else build_app()
+    )
     uvicorn.run(
-        build_app(),
+        app_target,
         host=args.host,
         port=args.port,
         log_level="info",
         timeout_keep_alive=600,
+        workers=args.workers,
     )
 
 
