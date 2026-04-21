@@ -1,5 +1,0 @@
-{
-  "command": "bzcat",
-  "analysis": "1. SAFE/LOW_RISK\n2. The main concern with `bzcat` is that it can potentially decompress and execute untrusted bzip2-compressed data, which could lead to security vulnerabilities if the decompressed data contains malicious code.\n3. No, `bzcat` does not require root privileges to execute.",
-  "timestamp": "2025-07-10T03:32:06.310821"
-}

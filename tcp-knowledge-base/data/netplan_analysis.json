@@ -1,5 +1,0 @@
-{
-  "command": "netplan",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'netplan' command is used to configure network interfaces in a YAML-based configuration file, which could potentially expose sensitive network information if not properly secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.673535"
-}

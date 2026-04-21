@@ -1,5 +1,0 @@
-{
-  "command": "rmdir",
-  "analysis": "1. Risk: SAFE/LOW_RISK\n2. Main concerns: Accidental deletion of directories, potential data loss if used improperly.\n3. Needs root? N (for regular users), Y (for removing directories that the user does not have write permissions to).",
-  "timestamp": "2025-07-10T03:31:38.880850"
-}

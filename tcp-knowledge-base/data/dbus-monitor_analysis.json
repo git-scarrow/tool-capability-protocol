@@ -1,5 +1,0 @@
-{
-  "command": "dbus-monitor",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: dbus-monitor is a tool used to monitor and debug D-Bus message buses. It can potentially expose sensitive information if used improperly, but generally has low risk when used by authorized users.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.879830"
-}

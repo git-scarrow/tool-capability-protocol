@@ -1,5 +1,0 @@
-{
-  "command": "fuser",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: Identifies processes that are using a specified file or socket, which can be useful for tasks like stopping processes that are locking a file or resource.\n3. Needs root? Y - Requires root privileges to view processes owned by other users.",
-  "timestamp": "2025-07-10T03:32:53.092953"
-}

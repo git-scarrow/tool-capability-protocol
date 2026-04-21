@@ -1,5 +1,0 @@
-{
-  "command": "devlink",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'devlink' command is used to manage the Linux Device Drivers Linking infrastructure, which is a low-level system administration task. Misuse of this command could lead to system instability or device connectivity issues.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.069300"
-}

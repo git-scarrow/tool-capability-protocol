@@ -1,5 +1,0 @@
-{
-  "command": "debconf-set-selections",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'debconf-set-selections' command can be used to configure packages during installation, which may lead to unintended consequences if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.030055"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "instmodsh",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'instmodsh' command is a tool used to interact with Perl module installation, which may pose a low risk if used improperly. However, it does not provide direct access to the system or allow for arbitrary code execution.\n3. The 'instmodsh' command does not require root or sudo privileges to run, as it primarily interacts with Perl module installation processes.",
-  "timestamp": "2025-07-10T03:25:23.437229"
-}

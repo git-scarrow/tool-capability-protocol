@@ -1,5 +1,0 @@
-{
-  "command": "dbus-cleanup-sockets",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command may remove active D-Bus socket connections, potentially causing temporary disruption to running services that rely on D-Bus.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:48.080709"
-}

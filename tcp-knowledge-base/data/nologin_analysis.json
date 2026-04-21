@@ -1,5 +1,0 @@
-{
-  "command": "nologin",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'nologin' command is that it can be used to prevent users from logging into the system, which could be used to deny legitimate access if not properly configured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.931584"
-}

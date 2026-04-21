@@ -1,5 +1,0 @@
-{
-  "command": "dirmngr-client",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'dirmngr-client' command interacts with the Directory Manager (dirmngr) service, which handles certificates and keys, making it a potential target for attacks if not properly configured or secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:53.281100"
-}

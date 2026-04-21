@@ -1,5 +1,0 @@
-{
-  "command": "ntfsfallocate",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'ntfsfallocate' command can potentially allocate large amounts of disk space, which could lead to unexpected disk usage and potentially impact system performance or stability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:16.002613"
-}

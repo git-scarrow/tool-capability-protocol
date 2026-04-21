@@ -1,5 +1,0 @@
-{
-  "command": "telinit",
-  "analysis": "1. Risk: CRITICAL\n2. Main concerns: `telinit` can change the system's runlevel, potentially affecting system services, security, and stability. Improper usage can lead to system crashes, data loss, or unauthorized access.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.154700"
-}

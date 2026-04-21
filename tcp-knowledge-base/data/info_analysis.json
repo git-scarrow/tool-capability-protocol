@@ -1,5 +1,0 @@
-{
-  "command": "info",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'info' command is a text-based documentation viewer for the GNU project. It provides access to comprehensive documentation for various GNU tools and utilities, which could potentially expose sensitive information if used improperly.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:32:06.136425"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "jsondiff",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that the 'jsondiff' command is not a standard Unix command and may not be available on all systems. It is used to compare JSON data and identify differences between them.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.147730"
-}

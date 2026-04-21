@@ -1,5 +1,0 @@
-{
-  "command": "glib-compile-schemas",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `glib-compile-schemas` command is used to compile GSettings schema files, which are used to store application settings. It doesn't pose significant security risks, but users should ensure the schema files being compiled are from trusted sources.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:39.162928"
-}

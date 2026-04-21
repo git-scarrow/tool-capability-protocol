@@ -1,5 +1,0 @@
-{
-  "command": "gcc-ranlib-11",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'gcc-ranlib-11' command is a part of the GNU Compiler Collection (GCC) and is used to generate an index for the object files in a library. It is a standard tool used in the compilation process and does not pose significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.598122"
-}

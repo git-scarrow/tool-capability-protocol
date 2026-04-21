@@ -1,5 +1,0 @@
-{
-  "command": "export",
-  "analysis": "1. SAFE/LOW_RISK\n2. Main concerns: Exporting sensitive environment variables can potentially expose sensitive information, but when used properly, it is a low-risk command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:52.113479"
-}

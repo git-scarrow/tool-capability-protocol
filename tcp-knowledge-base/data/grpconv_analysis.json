@@ -1,5 +1,0 @@
-{
-  "command": "grpconv",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `grpconv` command can be used to convert the traditional `/etc/group` file to a shadow group file format, which may introduce potential security risks if not properly configured or managed.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:52.886268"
-}

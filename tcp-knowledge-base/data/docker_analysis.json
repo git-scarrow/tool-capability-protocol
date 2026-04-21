@@ -1,5 +1,0 @@
-{
-  "command": "docker",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: Docker can provide root-level access to the host system, potentially exposing sensitive data and system resources. Improper configuration or use of Docker can lead to vulnerabilities.\n3. Docker requires root/sudo privileges to run most commands, as it needs access to the Docker daemon and other system resources.",
-  "timestamp": "2025-07-10T03:47:56.356136"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "json_pp",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for malicious input leading to command injection or denial of service, but generally considered safe for basic JSON formatting tasks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:52.242015"
-}

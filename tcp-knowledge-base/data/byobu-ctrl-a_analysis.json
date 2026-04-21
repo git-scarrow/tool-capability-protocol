@@ -1,5 +1,0 @@
-{
-  "command": "byobu-ctrl-a",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that this command is used to toggle the Byobu session management tool, which may have some security implications if not used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:05.844844"
-}

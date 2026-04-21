@@ -1,5 +1,0 @@
-{
-  "command": "pzstd",
-  "analysis": "1. Risk: SAFE\n2. The main concern with 'pzstd' is its ability to compress and decompress data using the Zstandard algorithm, which could potentially be used to hide or transmit malicious content.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:30.073950"
-}

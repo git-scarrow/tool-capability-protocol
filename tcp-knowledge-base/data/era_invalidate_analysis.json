@@ -1,5 +1,0 @@
-{
-  "command": "era_invalidate",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'era_invalidate' command can potentially impact system performance and stability if used incorrectly or without proper understanding.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.222144"
-}

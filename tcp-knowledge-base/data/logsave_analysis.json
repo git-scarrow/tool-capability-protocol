@@ -1,5 +1,0 @@
-{
-  "command": "logsave",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, as the 'logsave' command is a standard Unix utility used to save the output of a command to a log file.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.780713"
-}

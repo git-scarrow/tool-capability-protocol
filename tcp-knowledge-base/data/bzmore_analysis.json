@@ -1,5 +1,0 @@
-{
-  "command": "bzmore",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'bzmore' command is a utility for viewing compressed files in the bzip2 format. It does not pose significant security risks, but users should exercise caution when viewing untrusted compressed files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:16.236019"
-}

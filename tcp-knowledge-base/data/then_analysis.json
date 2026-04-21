@@ -1,5 +1,0 @@
-{
-  "command": "then",
-  "analysis": "1. Risk: SAFE\n2. The 'then' command in Unix is a control flow statement used in shell scripts and has no direct security implications. It is a part of the standard shell programming syntax and is commonly used in conditional statements.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:16.944479"
-}

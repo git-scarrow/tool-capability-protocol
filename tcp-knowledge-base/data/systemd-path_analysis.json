@@ -1,5 +1,0 @@
-{
-  "command": "systemd-path",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'systemd-path' command is used to query paths defined by the systemd system and service manager. It does not directly execute external commands, but it can provide information that could be used to facilitate attacks if misused.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:53.500808"
-}

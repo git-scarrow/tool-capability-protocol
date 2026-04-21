@@ -1,5 +1,0 @@
-{
-  "command": "groff",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, 'groff' is a command-line tool used for typesetting and formatting text documents, and it is generally considered a safe and low-risk command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:15.674581"
-}

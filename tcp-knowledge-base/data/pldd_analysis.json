@@ -1,5 +1,0 @@
-{
-  "command": "pldd",
-  "analysis": "1. SAFE/LOW_RISK: The 'pldd' command in Unix is generally considered a low-risk operation, as it simply displays the dynamic libraries used by a running process.\n\n2. Main concerns: The 'pldd' command could potentially be used to gather information about a running process, which could be useful for an attacker. However, it does not directly compromise system security.\n\n3. Needs root? N: The 'pld",
-  "timestamp": "2025-07-10T03:34:38.239389"
-}

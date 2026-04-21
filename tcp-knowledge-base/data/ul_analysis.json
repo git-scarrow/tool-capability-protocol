@@ -1,5 +1,0 @@
-{
-  "command": "ul",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'ul' command is generally low-risk, but it can be used to generate underlined text, which may have limited use cases and could potentially be used for obfuscation or social engineering purposes.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:16.695395"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ssh-import-id-lp",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command is used to import SSH public keys from the Launchpad service, which can be useful for quickly setting up SSH access. However, it involves downloading and executing a script from a third-party service, which may pose a minor security risk.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:29.804641"
-}

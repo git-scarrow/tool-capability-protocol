@@ -1,5 +1,0 @@
-{
-  "command": "rdma",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'rdma' command is used to manage Remote Direct Memory Access (RDMA) devices, which can potentially allow unauthorized access to system memory if not properly configured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.328325"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "readonly",
-  "analysis": "1. Risk: SAFE\n2. The `readonly` command in Unix is used to make a variable read-only, preventing it from being modified or overwritten. It poses a low risk as it is a built-in command used for managing variable scope and behavior.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:29.826113"
-}

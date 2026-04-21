@@ -1,5 +1,0 @@
-{
-  "command": "fdfind",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with the 'fdfind' command is that it can be used to search for and access sensitive files on the system. However, it does not have any inherent vulnerabilities or malicious functionalities.\n3. 'fdfind' does not require root/sudo privileges to run, but it may not be able to access certain files or directories without elevated permissions.",
-  "timestamp": "2025-07-10T03:46:51.936424"
-}

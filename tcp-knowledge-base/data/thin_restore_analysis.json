@@ -1,5 +1,0 @@
-{
-  "command": "thin_restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'thin_restore' command is used to restore data from a thin backup, which could potentially overwrite existing data on the system. Improper usage or restoring from a compromised backup could lead to data loss or system compromise.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.376578"
-}

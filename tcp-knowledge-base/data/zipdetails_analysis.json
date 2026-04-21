@@ -1,5 +1,0 @@
-{
-  "command": "zipdetails",
-  "analysis": "1. Risk: SAFE\n2. The 'zipdetails' command is a basic utility that provides information about a ZIP file, such as its contents, size, and compression ratio. It does not pose any significant security risks when used as intended.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:44.660566"
-}

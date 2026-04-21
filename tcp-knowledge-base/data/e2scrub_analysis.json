@@ -1,5 +1,0 @@
-{
-  "command": "e2scrub",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'e2scrub' command can potentially modify or corrupt data on the ext2/ext3/ext4 file systems, which could lead to data loss or system instability if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.750236"
-}

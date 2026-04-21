@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.btrfs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Accidental data loss or corruption during the filesystem creation process, potential for mistakes in the command options leading to unexpected behavior.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.216133"
-}

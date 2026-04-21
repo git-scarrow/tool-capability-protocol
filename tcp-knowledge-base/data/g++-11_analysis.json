@@ -1,5 +1,0 @@
-{
-  "command": "g++-11",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: None. 'g++-11' is a command used to invoke the GNU C++ compiler version 11, which is a widely used and trusted tool for compiling C++ code.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.584109"
-}

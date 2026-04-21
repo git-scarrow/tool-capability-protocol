@@ -1,5 +1,0 @@
-{
-  "command": "jsonpatch",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper handling of JSON data could lead to potential security vulnerabilities, such as injection attacks or data leakage.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:15.326719"
-}

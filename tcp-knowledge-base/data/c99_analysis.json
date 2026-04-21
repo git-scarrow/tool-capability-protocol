@@ -1,5 +1,0 @@
-{
-  "command": "c99",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'c99' command is that it is a compiler, which can be used to compile potentially malicious code. However, it is a common and widely-used tool, and its risks are generally low when used by authorized users.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.548920"
-}

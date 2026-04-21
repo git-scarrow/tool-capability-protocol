@@ -1,5 +1,0 @@
-{
-  "command": "setarch",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `setarch` command can potentially allow users to change the architecture of the system, which could lead to compatibility issues or security vulnerabilities if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:23.529558"
-}

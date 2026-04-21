@@ -1,5 +1,0 @@
-{
-  "command": "vcs-run",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'vcs-run' command can execute arbitrary commands, potentially leading to security risks if not used with caution.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.849460"
-}

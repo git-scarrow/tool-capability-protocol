@@ -1,5 +1,0 @@
-{
-  "command": "rev",
-  "analysis": "1. Risk: SAFE/LOW_RISK\n2. The main concern with the 'rev' command is that it can be used to reverse the order of characters in a file, which could potentially be used to obfuscate or hide sensitive information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:53.477994"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "splain",
-  "analysis": "1. Risk: SAFE\n2. The 'splain' command is a simple Unix utility that displays a list of available commands and their descriptions. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.222969"
-}

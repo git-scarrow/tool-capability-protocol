@@ -1,5 +1,0 @@
-{
-  "command": "addr2line",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `addr2line` is a utility used to convert addresses into file names and line numbers, which is useful for debugging.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:39.606547"
-}

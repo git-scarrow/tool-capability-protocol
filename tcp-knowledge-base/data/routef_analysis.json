@@ -1,5 +1,0 @@
-{
-  "command": "routef",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'routef' command can modify the kernel's routing table, which can have significant impact on network connectivity and potentially allow privilege escalation or system compromise if misused.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:40.443161"
-}

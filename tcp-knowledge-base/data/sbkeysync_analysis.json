@@ -1,5 +1,0 @@
-{
-  "command": "sbkeysync",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'sbkeysync' command is that it synchronizes the SSH host keys between different systems, which could potentially introduce security risks if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.728423"
-}

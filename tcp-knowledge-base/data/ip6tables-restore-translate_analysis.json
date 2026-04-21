@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-restore-translate",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `ip6tables-restore-translate` command is used to translate an IPv6 iptables-style firewall configuration to an equivalent nftables configuration. Misconfiguration or improper use of this command can lead to unintended changes in the firewall rules, potentially exposing the system to security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:21.699020"
-}

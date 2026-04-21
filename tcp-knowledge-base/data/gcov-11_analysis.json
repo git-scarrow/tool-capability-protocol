@@ -1,5 +1,0 @@
-{
-  "command": "gcov-11",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'gcov-11' command is a code coverage tool that analyzes program execution to identify untested parts of a codebase. While it does not pose significant security risks, improper usage or handling of the generated coverage data could potentially lead to information disclosure.\n3. The 'gcov-11' command does not require root/sudo privileges to run, but certain operations, such as accessing protected files or directories, may require elevated permissions.",
-  "timestamp": "2025-07-10T03:29:00.657098"
-}

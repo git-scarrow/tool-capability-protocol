@@ -1,5 +1,0 @@
-{
-  "command": "era_check",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'era_check' command can potentially reveal sensitive information about the system, which could be exploited by malicious actors.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.113430"
-}

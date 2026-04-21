@@ -1,5 +1,0 @@
-{
-  "command": "ebtables-nft-restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'ebtables-nft-restore' command can modify the Ethernet bridge firewall rules, which could potentially disrupt network connectivity or introduce security vulnerabilities if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:08.862708"
-}

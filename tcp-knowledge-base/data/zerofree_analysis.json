@@ -1,5 +1,0 @@
-{
-  "command": "zerofree",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Zerofree is a tool that zeroes out unused blocks on a filesystem, which can help reduce the size of disk images or partitions. However, it should be used with caution, as it can potentially impact the performance and integrity of the filesystem.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.318798"
-}

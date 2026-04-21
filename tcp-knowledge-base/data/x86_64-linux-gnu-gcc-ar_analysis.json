@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gcc-ar",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that this command is a part of the GNU Compiler Collection (GCC), which is a widely used and trusted set of tools for building software on Unix-like systems. When used properly, it poses a low risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.370073"
-}

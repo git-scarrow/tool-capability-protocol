@@ -1,5 +1,0 @@
-{
-  "command": "ionice",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: Potential impact on system performance and resource allocation.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:31.617839"
-}

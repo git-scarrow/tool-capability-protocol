@@ -1,5 +1,0 @@
-{
-  "command": "reset",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'reset' command is that it can clear the screen and reset the terminal settings, which could potentially cause issues if used in a script or automation without proper error handling.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.431149"
-}

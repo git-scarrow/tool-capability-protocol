@@ -1,5 +1,0 @@
-{
-  "command": "modinfo",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `modinfo` command is generally safe, as it only displays information about kernel modules and does not modify the system directly. However, it could potentially be used to gather information about installed modules, which could be useful for an attacker.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.529742"
-}

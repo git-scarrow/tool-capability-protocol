@@ -1,5 +1,0 @@
-{
-  "command": "netcat",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Netcat can be used for network reconnaissance, port scanning, and executing remote commands, which can be abused by attackers.\n3. Needs root? Y - Netcat can require root privileges to access certain network features or perform specific tasks.",
-  "timestamp": "2025-07-10T03:31:48.002906"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "pybabel-python3",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command is related to the Python Babel library, which may be used for internationalization and localization purposes. However, the command itself does not pose a significant security risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.534216"
-}

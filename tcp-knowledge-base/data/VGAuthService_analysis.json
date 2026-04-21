@@ -1,5 +1,0 @@
-{
-  "command": "VGAuthService",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'VGAuthService' command is associated with VMware virtualization software and may contain vulnerabilities that could be exploited by attackers to gain unauthorized access or escalate privileges on the system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.453173"
-}

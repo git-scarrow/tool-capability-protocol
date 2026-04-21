@@ -1,5 +1,0 @@
-{
-  "command": "hostid",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'hostid' command is that it can reveal the unique identifier of the host system, which could potentially be used in combination with other information to compromise the system's security.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:47.028794"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "unzstd",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'unzstd' command is that it is used to decompress files compressed with the Zstandard algorithm, which could potentially be used to extract malicious content from compromised archives.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:48.223022"
-}

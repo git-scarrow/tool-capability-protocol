@@ -1,5 +1,0 @@
-{
-  "command": "gzexe",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `gzexe` command can potentially create security risks if used improperly, as it can modify executable files in ways that could lead to system vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.640251"
-}

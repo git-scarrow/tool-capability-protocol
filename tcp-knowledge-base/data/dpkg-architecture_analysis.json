@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-architecture",
-  "analysis": "1. Risk: SAFE\n2. The `dpkg-architecture` command is a low-risk utility used to determine the architecture of the current system, which is useful for package management and system configuration tasks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:39.403051"
-}

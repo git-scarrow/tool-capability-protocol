@@ -1,5 +1,0 @@
-{
-  "command": "ginstall-info",
-  "analysis": "1. Risk: SAFE\n2. The `ginstall-info` command is a utility used to install or update Info documentation files, which are the standard documentation format for the GNU project. It is a low-risk command that does not pose significant security concerns.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.442996"
-}

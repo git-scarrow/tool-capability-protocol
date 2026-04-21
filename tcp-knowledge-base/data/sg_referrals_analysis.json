@@ -1,5 +1,0 @@
-{
-  "command": "sg_referrals",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the `sg_referrals` command is that it is used to display the SCSI referrals page, which may not be relevant for all users.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.729486"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-ld",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are potential misuse for system exploitation, unauthorized access, and potential for malicious code execution if the input is not properly sanitized.\n3. N",
-  "timestamp": "2025-07-10T03:32:05.991081"
-}

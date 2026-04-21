@@ -1,5 +1,0 @@
-{
-  "command": "help",
-  "analysis": "1. Risk: SAFE\n2. The 'help' command is a built-in Unix command that provides information about other commands, utilities, and shell features. It does not pose any direct security risks when used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:59.634026"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "runuser",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'runuser' command can allow users to execute commands with elevated privileges, potentially leading to unauthorized access or privilege escalation if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.235337"
-}

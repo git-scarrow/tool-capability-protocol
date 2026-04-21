@@ -1,5 +1,0 @@
-{
-  "command": "dpkg",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'dpkg' can lead to system instability, package conflicts, and potential security vulnerabilities if installing untrusted packages.\n3. Needs root? Y - 'dpkg' requires root privileges to install, remove, or manage packages on the system.",
-  "timestamp": "2025-07-10T03:33:38.835559"
-}

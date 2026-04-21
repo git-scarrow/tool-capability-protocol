@@ -1,5 +1,0 @@
-{
-  "command": "screendump",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `screendump` command can potentially capture sensitive information displayed on the screen, but it is typically used for diagnostic or testing purposes and does not pose a significant security risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:09.041624"
-}

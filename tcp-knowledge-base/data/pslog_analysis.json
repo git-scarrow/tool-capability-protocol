@@ -1,5 +1,0 @@
-{
-  "command": "pslog",
-  "analysis": "1. Risk: SAFE\n2. The `pslog` command is a standard Unix utility that allows users to view information about running processes, including their process IDs, user, and other details. It does not pose any significant security risks when used by authorized users.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.827585"
-}

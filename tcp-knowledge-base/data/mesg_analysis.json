@@ -1,5 +1,0 @@
-{
-  "command": "mesg",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `mesg` command can be used to control the ability of other users to send messages to the current user's terminal, which could potentially be used to disrupt or annoy the user.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:33.673200"
-}

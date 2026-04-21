@@ -1,5 +1,0 @@
-{
-  "command": "chgrp",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Unauthorized change of file/directory ownership can lead to privilege escalation or data access violations.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.620205"
-}

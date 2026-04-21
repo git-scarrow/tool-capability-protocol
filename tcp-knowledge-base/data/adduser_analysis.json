@@ -1,5 +1,0 @@
-{
-  "command": "adduser",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use or configuration of the `adduser` command can lead to security vulnerabilities, such as creating accounts with weak passwords or granting unnecessary privileges.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.391300"
-}

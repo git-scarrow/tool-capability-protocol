@@ -1,5 +1,0 @@
-{
-  "command": "encguess",
-  "analysis": "1. Risk: SAFE\n2. The `encguess` command is a utility used to guess the encoding of a file. It does not pose any significant security risks, as it is a passive operation that does not modify or execute any code.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.750989"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "snapctl",
-  "analysis": "The 'snapctl' command is used to manage Snap packages, a containerized software distribution system for Linux. The risk level is LOW_RISK. The main security concern is the potential for privilege escalation if 'snapctl' is used improperly or by an unauthorized user. However, the command itself does not pose a significant security risk. It requires root/sudo privileges to perform most management tasks, which helps to mitigate the risk. Overall, 'snapctl' is a relatively safe command, but users should exercise caution and follow best practices when using it to maintain system security.",
-  "timestamp": "2025-07-10T03:27:42.535235"
-}

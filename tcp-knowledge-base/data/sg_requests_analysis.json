@@ -1,5 +1,0 @@
-{
-  "command": "sg_requests",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_requests` command can be used to send SCSI commands to a specific SCSI device, which could potentially be used to access sensitive data or perform unauthorized actions on the system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:29.924691"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "mdig",
-  "analysis": "1. Risk: SAFE\n2. The `mdig` command is a utility for performing DNS queries, which is generally considered a safe operation. It does not pose significant security risks when used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.994882"
-}

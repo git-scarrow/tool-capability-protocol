@@ -1,5 +1,0 @@
-{
-  "command": "telnet.netkit",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Telnet is an unencrypted protocol, making it vulnerable to eavesdropping and man-in-the-middle attacks. It can also be used to gain unauthorized access to remote systems.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:55.228742"
-}

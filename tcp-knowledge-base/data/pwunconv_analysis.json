@@ -1,5 +1,0 @@
-{
-  "command": "pwunconv",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that the 'pwunconv' command removes the shadow password file, which can impact the system's security if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.265778"
-}

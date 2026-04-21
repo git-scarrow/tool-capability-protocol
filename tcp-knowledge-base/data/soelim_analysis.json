@@ -1,5 +1,0 @@
-{
-  "command": "soelim",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'soelim' command is that it is used to preprocess include files in troff/nroff documents, which can potentially introduce security vulnerabilities if the input files are not properly sanitized.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.326354"
-}

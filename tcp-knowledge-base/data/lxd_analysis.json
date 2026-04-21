@@ -1,5 +1,0 @@
-{
-  "command": "lxd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: lxd is a command-line tool for managing LXD, a hypervisor for Linux containers. Improper configuration or misuse of lxd can lead to potential security vulnerabilities, such as container breakouts or privilege escalation.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:40.978696"
-}

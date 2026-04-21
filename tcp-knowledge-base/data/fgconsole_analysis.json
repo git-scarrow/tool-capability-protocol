@@ -1,5 +1,0 @@
-{
-  "command": "fgconsole",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'fgconsole' command is that it can potentially display sensitive information about the current virtual console, which could be a concern in a multi-user environment.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:38.736191"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "sosreport",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'sosreport' command is that it collects a large amount of system information, which could potentially expose sensitive data if the generated report is not handled securely.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:12.905173"
-}

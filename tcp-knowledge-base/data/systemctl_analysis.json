@@ -1,5 +1,0 @@
-{
-  "command": "systemctl",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are the ability to manage system services, which could potentially be abused by an attacker to disrupt or compromise the system.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:31.455510"
-}

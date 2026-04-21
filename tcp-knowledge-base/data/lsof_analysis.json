@@ -1,5 +1,0 @@
-{
-  "command": "lsof",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with the 'lsof' command is that it can potentially expose sensitive information about open files and network connections on the system. However, this information is generally not considered highly sensitive, and the command is commonly used for system administration and troubleshooting purposes.\n3. The 'lsof' command can be executed by regular users, but it may require root/sudo privileges to access certain system-level information.",
-  "timestamp": "2025-07-10T03:26:37.863514"
-}

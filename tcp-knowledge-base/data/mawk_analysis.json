@@ -1,5 +1,0 @@
-{
-  "command": "mawk",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: mawk can be used for powerful text processing and data manipulation, which could potentially be misused for malicious purposes if not handled carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.788604"
-}

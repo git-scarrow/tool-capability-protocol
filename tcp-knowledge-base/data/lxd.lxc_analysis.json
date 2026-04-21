@@ -1,5 +1,0 @@
-{
-  "command": "lxd.lxc",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'lxd.lxc' command is used to interact with LXD, a Linux container hypervisor. Potential risks include unauthorized access, container breakout, and privilege escalation if the command is not used with proper security measures.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:32:37.472165"
-}

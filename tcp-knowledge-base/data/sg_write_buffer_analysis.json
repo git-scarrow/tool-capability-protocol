@@ -1,5 +1,0 @@
-{
-  "command": "sg_write_buffer",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_write_buffer` command can potentially write data to a SCSI device, which could lead to data loss or system instability if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:46.064406"
-}

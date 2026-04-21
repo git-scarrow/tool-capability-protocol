@@ -1,5 +1,0 @@
-{
-  "command": "case",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'case' command in Unix is a control flow statement that allows for the execution of different code blocks based on the value of a variable. It is a relatively simple and straightforward command, with low risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:47.706404"
-}

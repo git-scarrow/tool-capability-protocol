@@ -1,5 +1,0 @@
-{
-  "command": "mkfs",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: Irreversibly formats and erases all data on the specified device, which can lead to permanent data loss if used incorrectly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:31.015253"
-}

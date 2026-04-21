@@ -1,5 +1,0 @@
-{
-  "command": "tempfile",
-  "analysis": "1. Risk: SAFE\n2. The 'tempfile' command is generally safe, as it creates a temporary file in a secure directory, reducing the risk of unauthorized access or data leakage.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.442790"
-}

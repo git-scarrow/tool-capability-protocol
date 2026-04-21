@@ -1,5 +1,0 @@
-{
-  "command": "perl",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Perl is a powerful scripting language that can be used to execute arbitrary code, which can potentially lead to security vulnerabilities if not used cautiously.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:16.065874"
-}

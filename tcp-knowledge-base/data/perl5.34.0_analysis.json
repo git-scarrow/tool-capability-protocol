@@ -1,5 +1,0 @@
-{
-  "command": "perl5.34.0",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'perl5.34.0' command is a specific version of the Perl programming language, which can be used to execute Perl scripts. Potential risks include the possibility of running malicious Perl scripts or unintended modifications to the system.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:32:06.024078"
-}

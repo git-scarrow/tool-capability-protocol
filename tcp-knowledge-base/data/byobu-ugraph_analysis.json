@@ -1,5 +1,0 @@
-{
-  "command": "byobu-ugraph",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command may display system-related information, which could potentially reveal sensitive details about the system's configuration or performance.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:37.619647"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "setpci",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns with the 'setpci' command are its ability to modify system-level configurations, which can potentially lead to system instability or security vulnerabilities if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:31.199251"
-}

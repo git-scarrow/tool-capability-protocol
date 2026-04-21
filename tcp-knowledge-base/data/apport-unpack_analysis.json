@@ -1,5 +1,0 @@
-{
-  "command": "apport-unpack",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command is used to extract and analyze crash report information, which may contain sensitive data. However, it is typically used by system administrators and developers to debug and troubleshoot system issues.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:23.090996"
-}

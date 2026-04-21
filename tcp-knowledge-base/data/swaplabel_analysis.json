@@ -1,5 +1,0 @@
-{
-  "command": "swaplabel",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, as the 'swaplabel' command is a safe and low-risk utility that allows users to change the label of a swap partition.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.469492"
-}

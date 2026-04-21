@@ -1,5 +1,0 @@
-{
-  "command": "scsi_mandat",
-  "analysis": "The 'scsi_mandat' command is used to manage SCSI devices and their associated mandatory access control (MAC) policies. \n\n1. Risk level: MEDIUM_RISK\n2. Main security concerns: Improper configuration or usage of this command could lead to unauthorized access or privilege escalation on the system.\n3. The 'scsi_mandat' command requires root/sudo privileges to execute, as it deals with sensitive system-level operations.\n\nOverall, this command should be used with caution and in a controlled environment, as it has the potential to impact the security of the system if not handled properly.",
-  "timestamp": "2025-07-10T03:25:21.661461"
-}

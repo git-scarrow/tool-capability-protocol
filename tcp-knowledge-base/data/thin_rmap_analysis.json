@@ -1,5 +1,0 @@
-{
-  "command": "thin_rmap",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `thin_rmap` command can potentially modify the mapping of virtual memory, which could lead to system instability or data loss if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:30.655873"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "tcpdump",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Capturing sensitive network traffic, potential for unauthorized access, and potential for abuse by malicious actors.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:52.772296"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "break",
-  "analysis": "1. Risk: SAFE\n2. The `break` command is used to exit a loop in a shell script. It does not pose any direct security risks when used correctly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:52.896967"
-}

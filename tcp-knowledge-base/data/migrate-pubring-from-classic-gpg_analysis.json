@@ -1,5 +1,0 @@
-{
-  "command": "migrate-pubring-from-classic-gpg",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: This command may modify sensitive cryptographic keys, which could compromise the security of the system if not executed properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:39.503163"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "hwclock",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential misconfiguration of the system clock can lead to issues with time-sensitive applications and processes.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:05.789064"
-}

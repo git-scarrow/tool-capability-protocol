@@ -1,5 +1,0 @@
-{
-  "command": "dumpe2fs",
-  "analysis": "1. Risk: SAFE/LOW_RISK\n2. Main concerns: Exposing sensitive filesystem metadata, potential data loss if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.278722"
-}

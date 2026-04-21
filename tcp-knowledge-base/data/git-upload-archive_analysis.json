@@ -1,5 +1,0 @@
-{
-  "command": "git-upload-archive",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command is used to create an archive of a Git repository, which could potentially include sensitive information if the repository contains such data. However, it does not pose a significant security risk on its own.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:38.532061"
-}

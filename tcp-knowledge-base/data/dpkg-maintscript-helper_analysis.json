@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-maintscript-helper",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `dpkg-maintscript-helper` command is a tool used by package maintainers to assist with the execution of maintainer scripts during package installation, upgrade, or removal. It is a low-risk command when used correctly, but can pose risks if mishandled.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.916068"
-}

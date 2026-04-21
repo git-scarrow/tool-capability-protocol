@@ -1,5 +1,0 @@
-{
-  "command": "lzmore",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'lzmore' command is that it can potentially be used to view and manipulate compressed files, which could pose a risk if the files contain malicious content.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:53.528962"
-}

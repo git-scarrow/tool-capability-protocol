@@ -1,5 +1,0 @@
-{
-  "command": "iptables-translate",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that 'iptables-translate' is a command that interacts with the Linux firewall, which can have a significant impact on the system's security if used improperly.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:37.684813"
-}

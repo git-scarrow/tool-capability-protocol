@@ -1,5 +1,0 @@
-{
-  "command": "ssh-argv0",
-  "analysis": "1. Risk level: SAFE\n2. The 'ssh-argv0' command is a utility used to execute an SSH command with a specific program name. It does not pose any direct security concerns.\n3. The 'ssh-argv0' command does not require root or sudo privileges to execute.",
-  "timestamp": "2025-07-10T03:23:18.525387"
-}

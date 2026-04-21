@@ -1,5 +1,0 @@
-{
-  "command": "cryptdisks_stop",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Stopping encrypted disks may lead to data loss if the encryption keys are not properly managed.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:59.492310"
-}

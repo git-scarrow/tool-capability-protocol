@@ -1,5 +1,0 @@
-{
-  "command": "bzegrep",
-  "analysis": "1. Risk: SAFE\n2. The `bzegrep` command is a safe and low-risk tool that allows you to search for regular expressions within bzip2-compressed files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:16.071439"
-}

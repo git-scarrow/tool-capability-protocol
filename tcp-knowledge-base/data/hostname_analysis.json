@@ -1,5 +1,0 @@
-{
-  "command": "hostname",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'hostname' command is that it can reveal information about the system, which could potentially be used by attackers to gain more information about the target.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.457356"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "pvchange",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `pvchange` is a command used to change the attributes of a physical volume (PV) in a Logical Volume Manager (LVM) environment. Improper usage could potentially affect the integrity of the LVM setup.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:40.090512"
-}

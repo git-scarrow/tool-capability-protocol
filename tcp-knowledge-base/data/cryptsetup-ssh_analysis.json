@@ -1,5 +1,0 @@
-{
-  "command": "cryptsetup-ssh",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: Potential for unauthorized access, data breach, and system compromise if not used with extreme caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:05.556360"
-}

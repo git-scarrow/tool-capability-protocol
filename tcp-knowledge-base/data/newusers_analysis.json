@@ -1,5 +1,0 @@
-{
-  "command": "newusers",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'newusers' command can be used to create new user accounts, which could potentially be misused by an attacker to gain unauthorized access to the system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:37.779524"
-}

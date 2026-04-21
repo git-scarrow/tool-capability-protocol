@@ -1,5 +1,0 @@
-{
-  "command": "gzip",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Unintended decompression of sensitive files, potential for data loss if used incorrectly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:07.944944"
-}

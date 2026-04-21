@@ -1,5 +1,0 @@
-{
-  "command": "iotop",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with 'iotop' is that it can provide information about the disk I/O activity of running processes, which could potentially be used by an attacker to identify and target sensitive processes or data.\n3. 'iotop' requires root/sudo privileges to access the system's I/O statistics.",
-  "timestamp": "2025-07-10T03:46:52.533220"
-}

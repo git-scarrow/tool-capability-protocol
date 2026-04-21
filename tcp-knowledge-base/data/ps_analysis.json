@@ -1,5 +1,0 @@
-{
-  "command": "ps",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, the 'ps' command is a standard and commonly used tool to view running processes on a Unix-based system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:30.773934"
-}

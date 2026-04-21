@@ -1,5 +1,0 @@
-{
-  "command": "rtmon",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are that 'rtmon' can potentially be used to monitor network traffic, which could lead to privacy and security issues if misused.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.614601"
-}

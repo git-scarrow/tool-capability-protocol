@@ -1,5 +1,0 @@
-{
-  "command": "vgmerge",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Merging Volume Groups (VGs) can potentially lead to data loss or corruption if not performed correctly, especially when dealing with large or critical VGs.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.356125"
-}

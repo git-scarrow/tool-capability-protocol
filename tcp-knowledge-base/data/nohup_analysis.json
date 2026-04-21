@@ -1,5 +1,0 @@
-{
-  "command": "nohup",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for abandoned processes if not properly managed, can hide terminal output, and can be used to run potentially harmful commands in the background.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.551029"
-}

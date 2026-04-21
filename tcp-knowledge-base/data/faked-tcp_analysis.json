@@ -1,5 +1,0 @@
-{
-  "command": "faked-tcp",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'faked-tcp' command can be used to create fake TCP connections, which could potentially be misused for malicious purposes such as network sniffing, denial-of-service attacks, or evading security measures.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.367202"
-}

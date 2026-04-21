@@ -1,5 +1,0 @@
-{
-  "command": "geqn",
-  "analysis": "1. Risk: SAFE\n2. The `geqn` command is a Unix utility that is used to format mathematical equations for output. It has no known security risks and is generally considered safe to use.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.408863"
-}

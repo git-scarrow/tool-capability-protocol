@@ -1,5 +1,0 @@
-{
-  "command": "python3",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: The 'python3' command is generally safe, as it allows users to execute Python scripts and programs. However, the risk level can vary depending on the contents of the script being executed.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:59.972513"
-}

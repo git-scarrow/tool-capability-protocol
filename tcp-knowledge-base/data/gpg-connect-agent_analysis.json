@@ -1,5 +1,0 @@
-{
-  "command": "gpg-connect-agent",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `gpg-connect-agent` command is used to interact with the GnuPG (GNU Privacy Guard) agent, which is responsible for managing cryptographic keys and operations. If used improperly, it could potentially expose sensitive information or enable unauthorized access.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:30.343672"
-}

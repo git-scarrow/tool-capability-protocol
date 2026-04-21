@@ -1,5 +1,0 @@
-{
-  "command": "sgdisk",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improperly using `sgdisk` can lead to data loss or partition table corruption, which could render a system unbootable.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:15.801096"
-}

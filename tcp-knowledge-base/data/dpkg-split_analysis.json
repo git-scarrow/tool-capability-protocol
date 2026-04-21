@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-split",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with the 'dpkg-split' command is the potential for it to be used in a Denial of Service (DoS) attack by creating or manipulating large split package files, which could consume system resources.\n3. The 'dpkg-split' command does not require root/sudo privileges, but its use may have security implications if the split packages are not properly verified or handled.",
-  "timestamp": "2025-07-10T03:26:38.923141"
-}

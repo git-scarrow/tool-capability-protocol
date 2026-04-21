@@ -1,5 +1,0 @@
-{
-  "command": "vmware-checkvm",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'vmware-checkvm' command is that it is used to check the status of a VMware virtual machine, which could potentially expose information about the virtual machine's configuration or performance.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.871934"
-}

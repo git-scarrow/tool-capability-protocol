@@ -1,5 +1,0 @@
-{
-  "command": "grub-reboot",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `grub-reboot` command allows you to set the default boot entry for the next system reboot, which could potentially be misused to boot into an unintended or insecure environment.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.918282"
-}

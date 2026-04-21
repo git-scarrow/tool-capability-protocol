@@ -1,5 +1,0 @@
-{
-  "command": "setfont",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of the 'setfont' command can cause system instability, display issues, or even prevent users from interacting with the system effectively.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:37.368326"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "sg_write_x",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. The main concerns with the 'sg_write_x' command are the potential for data loss or system damage if used improperly, as it allows direct manipulation of storage device parameters.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:30.450205"
-}

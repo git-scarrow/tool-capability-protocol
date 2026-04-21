@@ -1,5 +1,0 @@
-{
-  "command": "byobu-silent",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'byobu-silent' command is that it may have some potential security implications, as it can be used to launch a terminal session that is not easily visible or accessible to other users on the system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:52.315654"
-}

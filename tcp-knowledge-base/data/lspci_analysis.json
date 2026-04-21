@@ -1,5 +1,0 @@
-{
-  "command": "lspci",
-  "analysis": "1. SAFE\n2. The main concern is that the command may reveal sensitive information about the system's hardware, which could be useful for attackers.\n3. N",
-  "timestamp": "2025-07-10T03:33:46.632448"
-}

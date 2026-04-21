@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gcc-ranlib-11",
-  "analysis": "1. Risk: SAFE\n2. The command `x86_64-linux-gnu-gcc-ranlib-11` is a safe command used for creating and maintaining archives of object files. It is a part of the GNU Compiler Collection (GCC) and is commonly used in software development.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:33:08.523433"
-}

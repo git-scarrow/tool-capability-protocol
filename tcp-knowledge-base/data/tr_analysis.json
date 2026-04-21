@@ -1,5 +1,0 @@
-{
-  "command": "tr",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, `tr` is a safe and commonly used Unix command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:08.152612"
-}

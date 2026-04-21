@@ -1,5 +1,0 @@
-{
-  "command": "mountpoint",
-  "analysis": "1. Risk: SAFE\n2. The `mountpoint` command is a low-risk tool that checks whether a directory is a mount point. It does not perform any potentially dangerous operations.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:38.874415"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-nft",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The `ip6tables-nft` command is a part of the nftables firewall framework, which is a more modern and flexible replacement for the traditional `iptables` command. It is generally considered a safe and reliable tool for managing IPv6 firewall rules.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:30.191807"
-}

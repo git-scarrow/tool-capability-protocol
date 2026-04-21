@@ -1,5 +1,0 @@
-{
-  "command": "sg_map26",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sg_map26` is a utility that can interact with SCSI devices, potentially exposing the system to risks if misused or if the device is compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.800499"
-}

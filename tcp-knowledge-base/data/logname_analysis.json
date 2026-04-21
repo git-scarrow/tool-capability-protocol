@@ -1,5 +1,0 @@
-{
-  "command": "logname",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, the 'logname' command simply displays the name of the current user's login.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:52.948602"
-}

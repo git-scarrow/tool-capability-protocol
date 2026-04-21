@@ -1,5 +1,0 @@
-{
-  "command": "lxc",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: LXC (Linux Containers) allows creating and managing Linux containers, which can potentially be used for privilege escalation, resource exhaustion, or isolation breaches if not properly configured and secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:46.859148"
-}

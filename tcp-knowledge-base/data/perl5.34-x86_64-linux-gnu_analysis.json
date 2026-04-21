@@ -1,5 +1,0 @@
-{
-  "command": "perl5.34-x86_64-linux-gnu",
-  "analysis": "The Unix command 'perl5.34-x86_64-linux-gnu' is generally considered SAFE. It is the Perl 5.34 interpreter for the x86_64 architecture on Linux. The main security concern would be the potential for vulnerabilities in the Perl interpreter itself, which could be exploited if the interpreter is used to run untrusted code. However, this is a common and widely-used software component, and security updates are typically provided in a timely manner. The command does not require root or sudo privileges to run, as it is a user-level executable.",
-  "timestamp": "2025-07-10T03:31:14.551983"
-}

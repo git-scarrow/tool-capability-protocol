@@ -1,5 +1,0 @@
-{
-  "command": "lzless",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'lzless' command is that it is a utility for viewing compressed files, which could potentially be used to view and extract sensitive information from compressed data.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:38.284406"
-}

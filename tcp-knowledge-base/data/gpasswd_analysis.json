@@ -1,5 +1,0 @@
-{
-  "command": "gpasswd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The gpasswd command can be used to modify group passwords, which could be a security risk if misused or if the system is compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:51.936250"
-}

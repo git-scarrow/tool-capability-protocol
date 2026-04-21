@@ -1,5 +1,0 @@
-{
-  "command": "sg_decode_sense",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that `sg_decode_sense` is a utility used to decode SCSI sense data, which could potentially be used to gather sensitive information about storage devices.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:23.251668"
-}

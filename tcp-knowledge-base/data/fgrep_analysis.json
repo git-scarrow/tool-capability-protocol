@@ -1,5 +1,0 @@
-{
-  "command": "fgrep",
-  "analysis": "1. SAFE/LOW_RISK\n2. The main concern with 'fgrep' is that it can be used to search for sensitive information, such as passwords or other confidential data, in text files. However, it is generally safe when used for legitimate purposes.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:55.262286"
-}

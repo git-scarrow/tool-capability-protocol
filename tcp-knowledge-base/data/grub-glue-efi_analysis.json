@@ -1,5 +1,0 @@
-{
-  "command": "grub-glue-efi",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'grub-glue-efi' command is used to configure the GRUB bootloader for EFI systems. Improper usage or misconfiguration can lead to boot issues or even system unbootability, making it a medium-risk command.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.745641"
-}

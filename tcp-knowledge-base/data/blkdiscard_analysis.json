@@ -1,5 +1,0 @@
-{
-  "command": "blkdiscard",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: `blkdiscard` can erase all data on a block device, making it irreversible and potentially causing data loss.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.195249"
-}

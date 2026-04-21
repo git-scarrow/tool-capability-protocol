@@ -1,5 +1,0 @@
-{
-  "command": "zcmp",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential security risks if used to compare sensitive files, but overall low risk as it is a standard Unix utility.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:59.725550"
-}

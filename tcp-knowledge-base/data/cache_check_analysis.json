@@ -1,5 +1,0 @@
-{
-  "command": "cache_check",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The 'cache_check' command is a Unix utility that checks the status of the system's cache. It does not pose any significant security risks when used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:51.991983"
-}

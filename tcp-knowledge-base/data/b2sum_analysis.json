@@ -1,5 +1,0 @@
-{
-  "command": "b2sum",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None. b2sum is a utility that calculates the BLAKE2 cryptographic hash function, which is a secure and widely-used hashing algorithm.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.949132"
-}

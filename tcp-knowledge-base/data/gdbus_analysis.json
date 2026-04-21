@@ -1,5 +1,0 @@
-{
-  "command": "gdbus",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: gdbus is a command-line tool for interacting with D-Bus, a communication mechanism between applications on a system. It poses minimal risk when used properly, but improper usage could potentially allow unauthorized access to system resources.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:06.054739"
-}

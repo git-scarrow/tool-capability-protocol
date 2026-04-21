@@ -1,5 +1,0 @@
-{
-  "command": "xzegrep",
-  "analysis": "The Unix command 'xzegrep' is used to search for patterns in compressed files using the LZMA compression algorithm. The risk level for this command is LOW_RISK, as it does not directly execute any external code or make significant system changes. However, it is important to be cautious when using it to search for potentially malicious content within compressed files. The main security concern is the possibility of handling untrusted input, which could lead to vulnerabilities. This command does not require root or sudo privileges to execute, but its usage should be limited to trusted sources and environments.",
-  "timestamp": "2025-07-10T03:44:45.944541"
-}

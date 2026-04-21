@@ -1,5 +1,0 @@
-{
-  "command": "mtr-packet",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: 'mtr-packet' is a network diagnostic tool that can be used to gather information about network connections, which could potentially be exploited by malicious actors if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.373668"
-}

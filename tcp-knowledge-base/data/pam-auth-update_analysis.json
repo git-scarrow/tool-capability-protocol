@@ -1,5 +1,0 @@
-{
-  "command": "pam-auth-update",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `pam-auth-update` modifies the system's Pluggable Authentication Modules (PAM) configuration, which can impact user authentication and system security if not handled carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:01.371994"
-}

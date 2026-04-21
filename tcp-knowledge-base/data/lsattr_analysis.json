@@ -1,5 +1,0 @@
-{
-  "command": "lsattr",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'lsattr' command is that it can reveal sensitive information about file system attributes, which could potentially be used by an attacker to gain unauthorized access or perform other malicious activities.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:22.486599"
-}

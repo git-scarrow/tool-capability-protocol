@@ -1,5 +1,0 @@
-{
-  "command": "sg_get_lba_status",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command retrieves the LBA (Logical Block Address) status of a SCSI device, which can be useful for storage diagnostics, but improper usage or on sensitive devices could potentially lead to data loss or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:47.857592"
-}

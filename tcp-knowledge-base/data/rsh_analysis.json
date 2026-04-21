@@ -1,5 +1,0 @@
-{
-  "command": "rsh",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: Rsh (Remote Shell) is an insecure protocol that transmits data, including passwords, in plain text, making it vulnerable to eavesdropping and man-in-the-middle attacks. It also allows remote execution of commands without authentication, posing a significant security risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.336043"
-}

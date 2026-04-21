@@ -1,5 +1,0 @@
-{
-  "command": "else",
-  "analysis": "The 'else' command in Unix is not a standalone command, but rather a control structure used in shell scripts. It is considered SAFE/LOW_RISK as it is a standard feature of shell programming and does not pose any direct security threats.\n\nMain concerns: The 'else' command is used to execute alternative code blocks based on the result of a preceding conditional statement. Proper usage and handling of conditional logic is essential to avoid unintended behavior.\n\nNeeds root",
-  "timestamp": "2025-07-10T03:31:38.606457"
-}

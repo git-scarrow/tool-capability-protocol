@@ -1,5 +1,0 @@
-{
-  "command": "bzip2",
-  "analysis": "1. SAFE/LOW_RISK\n2. The main concern with bzip2 is the potential for unintended data corruption or loss if the command is used improperly or on corrupt files.\n3. N",
-  "timestamp": "2025-07-10T03:32:59.907721"
-}

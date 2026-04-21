@@ -1,5 +1,0 @@
-{
-  "command": "wget",
-  "analysis": "1. Risk: SAFE/LOW_RISK\n2. Main concerns: Potential for unintended downloads, execution of malicious scripts, and security vulnerabilities in the software being downloaded.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.020282"
-}

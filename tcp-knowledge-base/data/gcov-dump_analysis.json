@@ -1,5 +1,0 @@
-{
-  "command": "gcov-dump",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `gcov-dump` command is used to analyze the coverage data produced by the `gcov` tool, which is part of the GNU Compiler Collection (GCC). It does not pose any inherent security risks, but caution should be exercised when handling coverage data, as it may contain sensitive information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.333782"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ntfssecaudit",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'ntfssecaudit' command is used to audit NTFS file system security permissions, which can help identify potential security issues, but it does not pose significant risks if used properly.\n3. Needs root? Y - The 'ntfssecaudit' command requires root/administrative privileges to access and analyze the NTFS file system.",
-  "timestamp": "2025-07-10T03:31:38.521795"
-}

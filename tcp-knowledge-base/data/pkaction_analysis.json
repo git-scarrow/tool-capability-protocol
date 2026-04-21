@@ -1,5 +1,0 @@
-{
-  "command": "pkaction",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'pkaction' command is used to query or modify the configuration of the PolicyKit daemon, which manages access control for system-wide operations. Improper use could potentially grant unauthorized access to sensitive system functions.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.978812"
-}

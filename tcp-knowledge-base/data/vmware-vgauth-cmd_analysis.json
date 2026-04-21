@@ -1,5 +1,0 @@
-{
-  "command": "vmware-vgauth-cmd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'vmware-vgauth-cmd' command is used for VMware's Virtual Machine communication and authentication, which could potentially expose the system to vulnerabilities if not properly configured or managed.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:32:15.018571"
-}

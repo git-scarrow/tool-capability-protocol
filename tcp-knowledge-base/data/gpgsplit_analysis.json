@@ -1,5 +1,0 @@
-{
-  "command": "gpgsplit",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `gpgsplit` is a command-line tool used to split a GPG-encrypted file into multiple parts, which can be useful for secure data transfer or storage.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:33.636486"
-}

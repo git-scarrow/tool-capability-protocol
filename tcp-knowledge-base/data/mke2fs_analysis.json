@@ -1,5 +1,0 @@
-{
-  "command": "mke2fs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Incorrectly formatting a disk partition can lead to data loss, and the command requires root privileges, which can pose security risks if misused.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:39.155664"
-}

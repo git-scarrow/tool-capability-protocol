@@ -1,5 +1,0 @@
-{
-  "command": "sg_reset",
-  "analysis": "1. SAFE\n2. The main concern with the `sg_reset` command is that it can potentially disrupt the operation of connected SCSI devices, which could lead to data loss or system instability if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.641049"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "sulogin",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sulogin` is used to enter single-user mode, which provides full root access, potentially exposing the system to unauthorized access or misuse if not properly secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:35.756893"
-}

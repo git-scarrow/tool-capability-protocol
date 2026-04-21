@@ -1,5 +1,0 @@
-{
-  "command": "pollinate",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'pollinate' command is that it may be used to send system information to a remote server, which could pose a security risk if the server is not trusted.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:35.165624"
-}

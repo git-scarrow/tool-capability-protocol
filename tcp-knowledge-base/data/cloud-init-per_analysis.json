@@ -1,5 +1,0 @@
-{
-  "command": "cloud-init-per",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: None. `cloud-init-per` is a utility that runs a specified command during a certain cloud-init stage, ensuring consistency and reliability in cloud-based deployments.\n\n3. Needs root? Y - `cloud-init-per` is a system-level command that requires root privileges to execute.",
-  "timestamp": "2025-07-10T03:32:29.953402"
-}

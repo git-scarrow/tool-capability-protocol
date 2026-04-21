@@ -1,5 +1,0 @@
-{
-  "command": "wifi-status",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'wifi-status' command is a standard Unix command that provides information about the current state of the wireless network interface. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:47.396781"
-}

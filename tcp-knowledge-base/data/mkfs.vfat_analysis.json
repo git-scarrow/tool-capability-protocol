@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.vfat",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper usage of `mkfs.vfat` can lead to data loss or corruption, as it formats a storage device with the FAT file system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:52.758175"
-}

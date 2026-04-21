@@ -1,5 +1,0 @@
-{
-  "command": "integritysetup",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, 'integritysetup' is a low-level utility for managing Integrity Measurement Architecture (IMA) and Extended Verification Module (EVM) on Linux systems.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:44.942844"
-}

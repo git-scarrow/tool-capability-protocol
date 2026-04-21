@@ -1,5 +1,0 @@
-{
-  "command": "static-sh",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The 'static-sh' command is a low-risk Unix command that does not pose any significant security risks. It is commonly used to create a statically-linked shell script.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:52.731436"
-}

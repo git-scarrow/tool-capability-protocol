@@ -1,5 +1,0 @@
-{
-  "command": "dash",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `dash` command is a lightweight and fast shell that can be used as an alternative to the default shell, `bash`. However, it may have fewer features and security measures compared to `bash`.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:39.171159"
-}

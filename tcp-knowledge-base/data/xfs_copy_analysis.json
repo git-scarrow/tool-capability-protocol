@@ -1,5 +1,0 @@
-{
-  "command": "xfs_copy",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential data loss or corruption during the copy process, especially if the source or destination file system is damaged or has errors.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.409228"
-}

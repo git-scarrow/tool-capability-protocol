@@ -1,5 +1,0 @@
-{
-  "command": "plymouthd",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'plymouthd' command is that it is a system service responsible for handling the boot splash screen, which could potentially be a vector for privilege escalation or other security vulnerabilities if not properly configured or maintained.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:32:37.901217"
-}

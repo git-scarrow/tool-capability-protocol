@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gcc",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command `x86_64-linux-gnu-gcc` is a compiler that can be used to compile and build programs, which may include potential security vulnerabilities if not used carefully.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:33:38.763972"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "genl",
-  "analysis": "1. Risk: LOW_RISK\n2. The `genl` command is a low-risk utility that generates a list of genotypes from a sequence alignment file.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.167799"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "gawk",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: gawk (GNU awk) is a powerful text processing tool that can execute complex scripts, potentially leading to security vulnerabilities if not used cautiously.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.410978"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "bzip2recover",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'bzip2recover' command is used to recover data from damaged or corrupted bzip2 files. While it can be useful in data recovery scenarios, improper usage or recovering files without authorization could pose a security risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:35.366856"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "nawk",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: nawk (also known as \"new awk\") is a powerful scripting language that can be used to perform complex text processing tasks. If used carelessly, it can be a potential attack vector for malicious code execution.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:23.037889"
-}

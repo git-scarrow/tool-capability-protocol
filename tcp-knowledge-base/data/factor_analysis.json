@@ -1,5 +1,0 @@
-{
-  "command": "factor",
-  "analysis": "1. Risk: SAFE\n2. The `factor` command is a low-risk utility that decomposes a number into its prime factors, which is a common operation in various mathematical and computational tasks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:23.268049"
-}

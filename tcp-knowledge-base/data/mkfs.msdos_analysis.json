@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.msdos",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'mkfs.msdos' command can permanently erase and format a storage device, potentially leading to data loss if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.500808"
-}

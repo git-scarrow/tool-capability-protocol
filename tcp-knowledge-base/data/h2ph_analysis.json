@@ -1,5 +1,0 @@
-{
-  "command": "h2ph",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `h2ph` command is used to convert C header files to Perl header files, which can be useful for cross-language compatibility. However, it may expose the system to potential vulnerabilities if the input files are not properly sanitized.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:17.604087"
-}

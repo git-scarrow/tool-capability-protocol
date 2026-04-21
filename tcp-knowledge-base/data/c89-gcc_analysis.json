@@ -1,5 +1,0 @@
-{
-  "command": "c89-gcc",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'c89-gcc' command is a compiler that compiles C89 (ANSI C) code. It does not pose significant risks, but users should be cautious when compiling code from untrusted sources, as it could potentially contain malicious content.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:35:00.824824"
-}

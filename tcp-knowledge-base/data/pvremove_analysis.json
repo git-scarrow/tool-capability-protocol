@@ -1,5 +1,0 @@
-{
-  "command": "pvremove",
-  "analysis": "1. MEDIUM_RISK\n2. Removing a physical volume from a volume group can lead to data loss if not done carefully.\n3. Yes, 'pvremove' requires root privileges to execute.",
-  "timestamp": "2025-07-10T03:34:37.325111"
-}

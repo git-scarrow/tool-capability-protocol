@@ -1,5 +1,0 @@
-{
-  "command": "apt-key",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: 'apt-key' is used to manage the GPG keys used by the APT package manager, which can be a potential attack vector if the keys are compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.930664"
-}

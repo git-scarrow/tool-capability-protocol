@@ -1,5 +1,0 @@
-{
-  "command": "lvreduce",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Reducing the size of a logical volume can lead to data loss if not done carefully, and it may require careful planning and testing to ensure the integrity of the file system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:06.134275"
-}

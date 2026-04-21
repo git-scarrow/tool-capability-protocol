@@ -1,5 +1,0 @@
-{
-  "command": "chattr",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Modifying file attributes can lead to unintended consequences, potentially affecting system stability or security if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:16.096173"
-}

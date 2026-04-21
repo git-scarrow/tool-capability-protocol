@@ -1,5 +1,0 @@
-{
-  "command": "libnetcfg",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'libnetcfg' command is used to configure network interfaces on Unix-like systems. While it can be used to modify network settings, it does not directly interact with sensitive system components, making it a low-risk command.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.242274"
-}

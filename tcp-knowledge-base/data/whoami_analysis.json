@@ -1,5 +1,0 @@
-{
-  "command": "whoami",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. The `whoami` command is a standard Unix utility that simply displays the current user's username.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.049153"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "head",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: None, the 'head' command is a standard Unix utility that displays the first few lines of a file, and it does not pose any significant security risks.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:48.067915"
-}

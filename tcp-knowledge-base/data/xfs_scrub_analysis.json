@@ -1,5 +1,0 @@
-{
-  "command": "xfs_scrub",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'xfs_scrub' command is used to check and repair the file system metadata on an XFS file system. If not used carefully, it can potentially cause data loss or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:00.651973"
-}

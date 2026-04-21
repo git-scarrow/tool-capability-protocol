@@ -1,5 +1,0 @@
-{
-  "command": "irqbalance-ui",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `irqbalance-ui` command is a graphical user interface (GUI) for the `irqbalance` daemon, which is responsible for balancing interrupt requests (IRQs) across multiple CPU cores. The main concern is ensuring that the GUI is properly configured and secured to avoid potential vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:31.260613"
-}

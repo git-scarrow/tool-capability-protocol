@@ -1,5 +1,0 @@
-{
-  "command": "su",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for unauthorized access and privilege escalation if used improperly or by an attacker.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.023957"
-}

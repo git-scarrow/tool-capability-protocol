@@ -1,5 +1,0 @@
-{
-  "command": "getcap",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The `getcap` command is used to display the capabilities associated with a file, which is generally a low-risk operation.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:22.725562"
-}

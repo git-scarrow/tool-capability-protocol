@@ -1,5 +1,0 @@
-{
-  "command": "tnftp",
-  "analysis": "1. Risk: SAFE\n2. The 'tnftp' command is a standard Unix tool for transferring files over the network, and it is generally considered a safe and low-risk utility.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.917802"
-}

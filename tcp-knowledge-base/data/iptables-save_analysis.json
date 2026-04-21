@@ -1,5 +1,0 @@
-{
-  "command": "iptables-save",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concerns with the 'iptables-save' command are related to potential security implications if the saved firewall rules are not properly secured or if they are modified by unauthorized individuals.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.640489"
-}

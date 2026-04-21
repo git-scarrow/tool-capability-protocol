@@ -1,5 +1,0 @@
-{
-  "command": "zcat",
-  "analysis": "1. Risk: SAFE\n\n2. The main concern with the 'zcat' command is that it can potentially expose the contents of compressed files, which may include sensitive information if the files are not properly secured.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:46.832100"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "uptime",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concerns with the 'uptime' command are minimal, as it only displays information about the system's uptime and load average, which can be useful for system monitoring and troubleshooting.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:52.541445"
-}

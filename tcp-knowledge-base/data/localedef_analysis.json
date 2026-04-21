@@ -1,5 +1,0 @@
-{
-  "command": "localedef",
-  "analysis": "1. Risk: MEDIUM_RISK\n\n2. Main concerns: The `localedef` command can be used to create or modify locale definitions, which are used to customize the behavior of various system components based on language, cultural conventions, and character encoding. If used improperly, it can lead to system instability or security issues.\n\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.627830"
-}

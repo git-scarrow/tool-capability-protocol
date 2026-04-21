@@ -1,5 +1,0 @@
-{
-  "command": "mount.fuse",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential security vulnerabilities in the FUSE (Filesystem in Userspace) implementation, unauthorized access to mounted file systems, and potential system instability due to improper usage.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:48.802050"
-}

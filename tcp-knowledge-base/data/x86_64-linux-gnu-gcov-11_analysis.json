@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gcov-11",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `x86_64-linux-gnu-gcov-11` command is a tool used for code coverage analysis, which can help identify untested code areas. While it doesn't pose significant risks, it's important to ensure the code being analyzed is trustworthy.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.135488"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "dosfslabel",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is the potential to modify the label of a DOS file system, which could affect system operations if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:39.015856"
-}

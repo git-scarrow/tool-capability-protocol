@@ -1,5 +1,0 @@
-{
-  "command": "vmware-toolbox-cmd",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'vmware-toolbox-cmd' command is that it is used to interact with the VMware Tools, which are installed on a virtual machine. It can be used to perform various administrative tasks, but it is generally considered safe when used within a trusted environment.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:30.832032"
-}

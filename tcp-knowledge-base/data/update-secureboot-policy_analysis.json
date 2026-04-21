@@ -1,5 +1,0 @@
-{
-  "command": "update-secureboot-policy",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'update-secureboot-policy' command can modify the secure boot configuration, which is a critical security feature. Improper usage or malicious intent could potentially compromise the system's security.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.594086"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "exec",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `exec` command can be used to replace the current process with a new one, which could potentially be used to execute malicious code or bypass security measures.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:31.198897"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "sg_prevent",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_prevent` command can be used to prevent a SCSI device from being accessed, which could potentially disrupt critical systems or data.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:46.156907"
-}

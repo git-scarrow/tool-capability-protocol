@@ -1,5 +1,0 @@
-{
-  "command": "rg",
-  "analysis": "1. Risk level: SAFE\n2. The 'rg' command (Ripgrep) is a fast, safe, and efficient text search tool that does not have any significant security concerns.\n3. 'rg' does not require root/sudo privileges to run, as it is a standard command-line tool that can be executed by regular users.",
-  "timestamp": "2025-07-10T03:46:51.492368"
-}

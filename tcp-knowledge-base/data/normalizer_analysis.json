@@ -1,6 +1,0 @@
-{
-  "command": "normalizer",
-  "analysis": "The Unix command 'normalizer' is used to convert Unicode text to a normal form, which is useful for tasks like text processing and data storage. This command is generally considered SAFE and LOW_RISK, as it does not require root privileges and does not pose any significant security concerns when used correctly.",
-  "source": "anthropic",
-  "timestamp": "2025-07-10T03:40:54.089954"
-}

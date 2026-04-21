@@ -1,5 +1,0 @@
-{
-  "command": "pyserial-ports",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'pyserial-ports' is a Python script that retrieves information about available serial ports on the system. It does not pose significant security risks unless used in an unintended or malicious manner.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.458048"
-}

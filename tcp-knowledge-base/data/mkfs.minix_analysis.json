@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.minix",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Formatting a file system can result in data loss, so caution is advised. Incorrect usage can lead to unintended consequences.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.939896"
-}

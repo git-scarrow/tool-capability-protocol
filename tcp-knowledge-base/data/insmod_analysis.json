@@ -1,5 +1,0 @@
-{
-  "command": "insmod",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: 'insmod' is used to insert a kernel module, which can potentially compromise the system's security and stability if the module is malicious or incompatible.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.109847"
-}

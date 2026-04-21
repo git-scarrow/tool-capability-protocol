@@ -1,5 +1,0 @@
-{
-  "command": "gcov",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `gcov` is a coverage testing tool that analyzes the execution paths of a program and identifies which parts of the code are executed during a test run.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:22.835917"
-}

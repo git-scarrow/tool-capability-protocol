@@ -1,5 +1,0 @@
-{
-  "command": "pidof",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: The 'pidof' command is generally safe, as it simply retrieves the process ID (PID) of a running process, which can be useful for various system administration tasks.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:30.393980"
-}

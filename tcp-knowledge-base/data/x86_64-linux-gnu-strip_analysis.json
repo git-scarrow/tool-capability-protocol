@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-strip",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are the potential for unintended removal of important debugging information, which could lead to issues with troubleshooting and reverse engineering, and the possibility of inadvertently modifying or corrupting the target binary.\n3. N",
-  "timestamp": "2025-07-10T03:31:34.622423"
-}

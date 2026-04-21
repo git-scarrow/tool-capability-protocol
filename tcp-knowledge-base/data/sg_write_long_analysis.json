@@ -1,5 +1,0 @@
-{
-  "command": "sg_write_long",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Allows writing data directly to a storage device, which can potentially lead to data corruption or device failure if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:22.758933"
-}

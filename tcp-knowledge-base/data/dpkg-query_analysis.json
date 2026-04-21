@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-query",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, `dpkg-query` is a safe command used to retrieve information about installed packages on a Debian-based system.\n3. Needs root? Y - The `dpkg-query` command requires root privileges to access the package database.",
-  "timestamp": "2025-07-10T03:32:38.162167"
-}

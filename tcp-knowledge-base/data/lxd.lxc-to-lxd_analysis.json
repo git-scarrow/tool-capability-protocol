@@ -1,5 +1,0 @@
-{
-  "command": "lxd.lxc-to-lxd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: This command is used to migrate containers from the older LXC format to the newer LXD format, which may involve data migration and potential compatibility issues.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.506068"
-}

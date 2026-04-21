@@ -1,5 +1,0 @@
-{
-  "command": "dcb",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'dcb' command is that it may be used to manipulate low-level device control blocks, which could potentially lead to system instability or data loss if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:23.406295"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "swapoff",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Disabling the swap partition can cause system performance issues, especially on systems with limited physical memory. Improper usage or timing can lead to system instability or data loss.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:53.225447"
-}

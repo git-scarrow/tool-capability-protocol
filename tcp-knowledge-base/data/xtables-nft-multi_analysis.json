@@ -1,5 +1,0 @@
-{
-  "command": "xtables-nft-multi",
-  "analysis": "1. Risk: SAFE\n2. The 'xtables-nft-multi' command is a tool used to manage firewall rules in Linux systems. It is generally considered a safe command, as it is a part of the standard Netfilter/iptables framework.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:44.653219"
-}

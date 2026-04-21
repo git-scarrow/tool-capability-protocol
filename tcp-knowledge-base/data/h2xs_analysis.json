@@ -1,5 +1,0 @@
-{
-  "command": "h2xs",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `h2xs` command is used to create a Perl extension module, which can potentially contain security vulnerabilities if not properly implemented. However, the command itself does not pose a significant risk when used for its intended purpose.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:46.093057"
-}

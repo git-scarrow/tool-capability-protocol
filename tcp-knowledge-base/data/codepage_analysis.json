@@ -1,5 +1,0 @@
-{
-  "command": "codepage",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'codepage' command is a low-risk command that allows users to view and set the code page (character encoding) used by the system, which can be useful for ensuring proper display of text in different languages.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.019937"
-}

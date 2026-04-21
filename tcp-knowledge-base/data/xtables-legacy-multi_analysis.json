@@ -1,5 +1,0 @@
-{
-  "command": "xtables-legacy-multi",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. The main concerns are that the command is used to configure the legacy iptables firewall, which can have security implications if not properly configured.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:32:29.795847"
-}

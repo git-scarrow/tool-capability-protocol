@@ -1,5 +1,0 @@
-{
-  "command": "killall",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'killall' command can terminate all running processes with a given name, which can lead to unintended consequences if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:55.843719"
-}

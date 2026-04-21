@@ -1,5 +1,0 @@
-{
-  "command": "gpgcompose",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'gpgcompose' command is used to create and manage GPG (GNU Privacy Guard) key pairs, which can be used for encryption and digital signatures. Improper usage or configuration could lead to security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:52.970881"
-}

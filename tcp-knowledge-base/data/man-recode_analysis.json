@@ -1,5 +1,0 @@
-{
-  "command": "man-recode",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, 'man-recode' is a safe command that displays the manual page for the 'recode' utility, which is used to convert between character encodings.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:39.498310"
-}

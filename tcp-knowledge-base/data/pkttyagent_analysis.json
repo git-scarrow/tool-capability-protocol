@@ -1,5 +1,0 @@
-{
-  "command": "pkttyagent",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `pkttyagent` is a command used to manage packet forwarding, which could potentially be exploited by malicious actors to intercept or modify network traffic.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.439451"
-}

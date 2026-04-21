@@ -1,5 +1,0 @@
-{
-  "command": "iptables-apply",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The 'iptables-apply' command is a utility that applies firewall rules defined in an iptables configuration file, which can be used to configure the system's network security.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:30.627412"
-}

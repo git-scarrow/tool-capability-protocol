@@ -1,5 +1,0 @@
-{
-  "command": "purge-old-kernels",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'purge-old-kernels' may accidentally remove the currently running kernel, making the system unbootable. It's important to ensure that the command is executed carefully and that a backup of the system is available.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.409784"
-}

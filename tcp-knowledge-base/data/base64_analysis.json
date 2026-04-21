@@ -1,5 +1,0 @@
-{
-  "command": "base64",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with the `base64` command is that it can be used to encode and decode data, which could potentially be used to hide malicious content. However, the `base64` command itself is not inherently malicious.\n3. The `base64` command does not require root or sudo privileges to use.",
-  "timestamp": "2025-07-10T03:30:04.740452"
-}

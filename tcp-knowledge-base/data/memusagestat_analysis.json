@@ -1,5 +1,0 @@
-{
-  "command": "memusagestat",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None. The 'memusagestat' command is a utility that provides information about the memory usage of a running process, which can be useful for system administrators and developers.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:32.410042"
-}

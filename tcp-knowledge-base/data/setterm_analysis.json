@@ -1,5 +1,0 @@
-{
-  "command": "setterm",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `setterm` command allows users to change terminal settings, which could potentially impact the system's functionality or security if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:31.528472"
-}

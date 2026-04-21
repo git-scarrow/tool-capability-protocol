@@ -1,5 +1,0 @@
-{
-  "command": "hwe-support-status",
-  "analysis": "1. Risk: SAFE\n2. The 'hwe-support-status' command provides information about the hardware enablement (HWE) stack support status, which is generally safe to use.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:37.298129"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "setlogcons",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `setlogcons` allows changing the console device used for kernel messages, which could potentially be used to redirect sensitive system logs or enable unauthorized access to the console.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:17.628140"
-}

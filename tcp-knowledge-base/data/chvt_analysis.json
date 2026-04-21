@@ -1,5 +1,0 @@
-{
-  "command": "chvt",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `chvt` command can potentially be used to switch between virtual terminals, which could allow an attacker to access sensitive information or perform unauthorized actions if the user has insufficient permissions.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:39.044346"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "gpgsm",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: gpgsm is a command-line tool for interacting with the GnuPG (GNU Privacy Guard) software, which is used for encrypting and signing data. Improper use or configuration can lead to potential security risks.\n3. Needs root? Y - gpgsm requires root/administrative privileges to access system-wide configuration files and perform certain operations.",
-  "timestamp": "2025-07-10T03:31:47.706232"
-}

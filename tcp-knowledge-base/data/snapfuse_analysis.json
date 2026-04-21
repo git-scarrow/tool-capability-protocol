@@ -1,5 +1,0 @@
-{
-  "command": "snapfuse",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `snapfuse` is a command used for managing and interacting with Snapfusion, a cloud storage solution. Improper usage or configuration could potentially lead to data loss or unauthorized access, depending on the specific use case.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:32:37.227853"
-}

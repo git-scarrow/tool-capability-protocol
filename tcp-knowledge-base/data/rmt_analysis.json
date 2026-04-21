@@ -1,5 +1,0 @@
-{
-  "command": "rmt",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'rmt' command is used for remote magnetic tape control, which can be a potential security risk if not properly configured or used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.470187"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "rootlesskit",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: Rootlesskit is a tool that allows running a container or process without root privileges, which could potentially be exploited by an attacker to escalate privileges or bypass security measures.\n3. Rootlesskit requires root/sudo privileges to set up the necessary network and mount namespaces, but the containerized process or application itself can run without root privileges.",
-  "timestamp": "2025-07-10T03:47:58.073561"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "corelist",
-  "analysis": "1. Risk: SAFE\n2. The 'corelist' command is a built-in Perl command that displays a list of installed Perl modules, which is generally safe to use.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.460818"
-}

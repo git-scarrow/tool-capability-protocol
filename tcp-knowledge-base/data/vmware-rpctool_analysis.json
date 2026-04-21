@@ -1,5 +1,0 @@
-{
-  "command": "vmware-rpctool",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'vmware-rpctool' command can be used to interact with the VMware management interface, potentially allowing for unauthorized access or misuse if not properly secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:00.609282"
-}

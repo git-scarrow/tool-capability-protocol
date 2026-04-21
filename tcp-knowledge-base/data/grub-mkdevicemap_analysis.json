@@ -1,5 +1,0 @@
-{
-  "command": "grub-mkdevicemap",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the `grub-mkdevicemap` command is that it generates a device map file, which is used by the GRUB bootloader to identify the physical devices on the system. Misconfiguration or improper usage of this command could lead to boot issues.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:46.556454"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "tipc",
-  "analysis": "1. Risk level: SAFE\n2. The 'tipc' command is a utility for managing the Transparent Inter-Process Communication (TIPC) protocol, which is mainly used for inter-process communication within a local network. It does not pose any significant security concerns on its own.\n3. The 'tipc' command does not require root or sudo privileges to execute, as it is primarily used for managing the TIPC protocol configuration and does not have direct access to sensitive system resources.",
-  "timestamp": "2025-07-10T03:28:57.489700"
-}

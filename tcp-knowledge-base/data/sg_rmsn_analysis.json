@@ -1,5 +1,0 @@
-{
-  "command": "sg_rmsn",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'sg_rmsn' command is that it can be used to remove SCSI generic device nodes, which may impact the functionality of certain storage devices or services.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:30.463417"
-}

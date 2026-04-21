@@ -1,5 +1,0 @@
-{
-  "command": "setkeycodes",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'setkeycodes' command can be used to modify the kernel's key mapping, which could potentially be exploited by an attacker to gain unauthorized access or disrupt system functionality.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.474041"
-}

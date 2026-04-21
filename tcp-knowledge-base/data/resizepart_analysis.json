@@ -1,5 +1,0 @@
-{
-  "command": "resizepart",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Resizing partitions can lead to data loss or system instability if not done properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:39.480708"
-}

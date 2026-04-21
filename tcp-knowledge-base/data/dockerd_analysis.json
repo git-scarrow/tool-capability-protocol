@@ -1,5 +1,0 @@
-{
-  "command": "dockerd",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: Dockerd, the Docker daemon, runs with elevated privileges and can potentially be exploited to gain unauthorized access to the host system. Improper configuration or vulnerabilities in the Docker engine can lead to container breakouts and potential privilege escalation.\n3. Dockerd requires root/sudo privileges to function properly, as it needs access to control the Docker engine and manage containers.",
-  "timestamp": "2025-07-10T03:47:59.022871"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "glances",
-  "analysis": "1. Risk level: SAFE\n2. Glances is a system monitoring tool that provides an overview of the system's health and performance. It does not pose any significant security concerns.\n3. Glances can be run without root/sudo privileges, but certain features that require access to system resources may require elevated permissions.",
-  "timestamp": "2025-07-10T03:46:50.918385"
-}

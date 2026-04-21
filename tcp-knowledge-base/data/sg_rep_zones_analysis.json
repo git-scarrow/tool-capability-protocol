@@ -1,5 +1,0 @@
-{
-  "command": "sg_rep_zones",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'sg_rep_zones' command is that it can modify the SCSI device's report zones configuration, which could potentially impact the device's performance or functionality if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:17.084755"
-}

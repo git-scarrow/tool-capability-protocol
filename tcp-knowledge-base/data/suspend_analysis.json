@@ -1,5 +1,0 @@
-{
-  "command": "suspend",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'suspend' command allows a user to temporarily suspend their current process, which could potentially be used to bypass security measures or conceal malicious activities. However, the impact is generally limited to the user's own session.\n3. The 'suspend' command does not require root or sudo privileges and can be used by any user with access to the shell.",
-  "timestamp": "2025-07-10T03:29:00.773927"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-g++-11",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command is a compiler that can be used to build applications for the x86_64 architecture running on Linux with the GNU C++ version 11 toolchain. Potential risks include compiling malicious code or using it to build system-level components.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.251772"
-}

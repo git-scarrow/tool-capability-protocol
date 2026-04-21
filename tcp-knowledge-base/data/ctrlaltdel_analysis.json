@@ -1,5 +1,0 @@
-{
-  "command": "ctrlaltdel",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'ctrlaltdel' command is used to reboot the system, which could lead to data loss or system downtime if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:16.186858"
-}

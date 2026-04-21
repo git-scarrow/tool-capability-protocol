@@ -1,5 +1,0 @@
-{
-  "command": "vgremove",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: `vgremove` can permanently delete a volume group, which can lead to data loss if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.591567"
-}

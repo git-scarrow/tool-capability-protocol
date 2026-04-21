@@ -1,5 +1,0 @@
-{
-  "command": "ssh-agent",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The ssh-agent command is used to manage the user's SSH keys, which can be a potential security risk if the keys are not properly managed or if the agent is compromised.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:51.841301"
-}

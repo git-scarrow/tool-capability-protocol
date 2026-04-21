@@ -1,5 +1,0 @@
-{
-  "command": "dbus-update-activation-environment",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that this command can be used to update the D-Bus activation environment, which could potentially be used by an attacker to gain unauthorized access or escalate privileges.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.743081"
-}

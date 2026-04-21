@@ -1,5 +1,0 @@
-{
-  "command": "era_dump",
-  "analysis": "1. SAFE/LOW_RISK: 'era_dump' is a Unix command used to extract and analyze data from an Extended Retransmission Analyzer (ERA) log file, which is typically used for network troubleshooting.\n\n2. Main concerns: None, as this command is primarily used for diagnostic and analysis purposes.\n\n3. Needs root? N: 'era_dump' can be executed by regular users without requiring root privileges.",
-  "timestamp": "2025-07-10T03:33:15.619052"
-}

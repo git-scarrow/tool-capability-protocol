@@ -1,5 +1,0 @@
-{
-  "command": "sg_read_buffer",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_read_buffer` command can be used to read data from a SCSI device, which could potentially be used to access sensitive information or disrupt system operations if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:53.370982"
-}

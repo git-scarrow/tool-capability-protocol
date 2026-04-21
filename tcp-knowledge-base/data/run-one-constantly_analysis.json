@@ -1,5 +1,0 @@
-{
-  "command": "run-one-constantly",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that the 'run-one-constantly' command may result in the continuous execution of a specified command, which could potentially lead to resource exhaustion or system instability if not used with caution.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:33:00.792080"
-}

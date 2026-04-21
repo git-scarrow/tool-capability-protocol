@@ -1,5 +1,0 @@
-{
-  "command": "init",
-  "analysis": "1. Risk: CRITICAL\n2. Main concerns: `init` is the first process started by the kernel and is responsible for initializing the system and managing other processes. Improper configuration or malicious modifications to `init` can lead to system compromise and inability to boot.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:34:38.085381"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "chcpu",
-  "analysis": "1. Risk: LOW_RISK\n2. The `chcpu` command is used to enable, disable, or configure CPU resources on a Unix-like system. It does not directly pose a high risk, but improper usage or configuration could potentially impact system performance and stability.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:37.815280"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.xfs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Formatting a filesystem can result in data loss if the command is executed on the wrong partition or drive.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:17.411558"
-}

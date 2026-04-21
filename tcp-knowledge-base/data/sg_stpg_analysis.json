@@ -1,5 +1,0 @@
-{
-  "command": "sg_stpg",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'sg_stpg' command can be used to send SCSI commands to storage devices, which could potentially be misused to cause data loss or system disruption if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.682886"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "dmstats",
-  "analysis": "1. Risk: SAFE\n2. The 'dmstats' command is a utility that displays information about the device mapper, which is a Linux kernel feature used for logical volume management. It does not pose any significant security risks when used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:30.171688"
-}

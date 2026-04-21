@@ -1,5 +1,0 @@
-{
-  "command": "infocmp",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'infocmp' command is used to compare or print out the terminfo descriptions for one or more terminals. It does not directly pose a security risk, but improper use or incorrect configuration could lead to unexpected behavior.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:09.046508"
-}

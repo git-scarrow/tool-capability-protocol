@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.ext4",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Formatting a disk or partition can result in data loss, so caution is needed to ensure the correct device is targeted.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:00.094205"
-}

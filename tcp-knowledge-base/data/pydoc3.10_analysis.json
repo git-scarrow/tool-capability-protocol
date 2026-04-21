@@ -1,5 +1,0 @@
-{
-  "command": "pydoc3.10",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that the 'pydoc3.10' command is a built-in Python tool for accessing the online documentation, which does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:45.923722"
-}

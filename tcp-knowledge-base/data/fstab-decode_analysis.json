@@ -1,5 +1,0 @@
-{
-  "command": "fstab-decode",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'fstab-decode' is a utility that helps interpret the content of the `/etc/fstab` file, which is used to define how file systems are mounted on a Unix-like system. It does not pose significant security risks if used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:23.167914"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "vmhgfs-fuse",
-  "analysis": "1. MEDIUM_RISK\n2. Main concerns: Potential security vulnerabilities in the implementation, potential for system instability or performance issues, and potential for data leakage or unauthorized access.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:52.141565"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "select",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The 'select' command is a built-in command in various Unix-like shells, such as Bash, Zsh, and Ksh. It is used for selecting options from a list, and it does not pose any significant security risks when used correctly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:09.451897"
-}

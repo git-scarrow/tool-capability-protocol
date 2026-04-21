@@ -1,5 +1,0 @@
-{
-  "command": "gcov-tool-11",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'gcov-tool-11' command is a part of the GNU Compiler Collection (GCC) and is used for code coverage analysis. It is generally considered safe, but its usage may depend on the specific context and the files/directories it is applied to.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:38.338723"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "lvremove",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Removes logical volumes, which can lead to data loss if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.841176"
-}

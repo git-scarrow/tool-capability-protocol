@@ -1,5 +1,0 @@
-{
-  "command": "caller",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'caller' command is that it can expose information about the current execution context, which could potentially be used in an attack, but it does not directly allow for privilege escalation or system modification.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:05.975946"
-}

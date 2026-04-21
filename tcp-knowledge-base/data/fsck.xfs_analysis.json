@@ -1,5 +1,0 @@
-{
-  "command": "fsck.xfs",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is to check and repair the XFS file system, ensuring data integrity and system stability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:54.976587"
-}

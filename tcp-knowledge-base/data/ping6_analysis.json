@@ -1,5 +1,0 @@
-{
-  "command": "ping6",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for network reconnaissance and Denial-of-Service (DoS) attacks if used maliciously.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:47.978204"
-}

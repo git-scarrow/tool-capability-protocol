@@ -1,5 +1,0 @@
-{
-  "command": "logout",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'logout' command is that it simply logs out the current user from the Unix/Linux system, which is a standard and expected behavior.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.243081"
-}

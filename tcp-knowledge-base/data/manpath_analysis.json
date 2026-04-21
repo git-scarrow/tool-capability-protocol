@@ -1,5 +1,0 @@
-{
-  "command": "manpath",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: The 'manpath' command is a safe utility that displays the manual page search path. It does not pose any significant security risks when used as intended.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:23.767245"
-}

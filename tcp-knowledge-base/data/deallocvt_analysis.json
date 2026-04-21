@@ -1,5 +1,0 @@
-{
-  "command": "deallocvt",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'deallocvt' command is that it may be used to free up virtual terminals, which could potentially lead to unexpected behavior or system disruption if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.800315"
-}

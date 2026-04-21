@@ -1,5 +1,0 @@
-{
-  "command": "pkexec",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns with `pkexec` are the potential for privilege escalation and the risk of executing untrusted commands with elevated privileges.\n3. Y, `pkexec` requires root privileges to execute.",
-  "timestamp": "2025-07-10T03:31:37.058275"
-}

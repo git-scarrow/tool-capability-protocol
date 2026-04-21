@@ -1,5 +1,0 @@
-{
-  "command": "nsupdate",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: nsupdate is a tool used to update DNS records, which can be abused for DNS cache poisoning, domain hijacking, or denial-of-service attacks if not properly configured and secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:47.294249"
-}

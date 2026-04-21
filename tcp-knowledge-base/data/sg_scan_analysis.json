@@ -1,5 +1,0 @@
-{
-  "command": "sg_scan",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'sg_scan' command is generally used for scanning and discovering SCSI devices, which can potentially reveal sensitive information about the system's storage configuration. However, it does not directly pose a high security risk.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.290881"
-}

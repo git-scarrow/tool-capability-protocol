@@ -1,5 +1,0 @@
-{
-  "command": "return",
-  "analysis": "1. Risk: SAFE\n2. The 'return' command is used to exit a shell function or script, posing no significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:30.935930"
-}

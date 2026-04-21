@@ -1,5 +1,0 @@
-{
-  "command": "chpasswd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'chpasswd' command allows changing user passwords in batch mode, which could be a security risk if misused or if the script file containing the password changes is compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.720618"
-}

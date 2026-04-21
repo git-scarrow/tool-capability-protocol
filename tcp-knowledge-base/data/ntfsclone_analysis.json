@@ -1,5 +1,0 @@
-{
-  "command": "ntfsclone",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential data loss or corruption during the cloning process, especially if the target device is not properly configured or has underlying issues.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:01.412179"
-}

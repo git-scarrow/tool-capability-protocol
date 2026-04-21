@@ -1,5 +1,0 @@
-{
-  "command": "mkhomedir_helper",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command creates home directories for users, which could potentially lead to unauthorized access or misuse if not properly configured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:46.780177"
-}

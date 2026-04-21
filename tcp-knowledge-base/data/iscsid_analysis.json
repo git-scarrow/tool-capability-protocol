@@ -1,5 +1,0 @@
-{
-  "command": "iscsid",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `iscsid` is a Linux daemon that handles iSCSI (Internet Small Computer System Interface) connections, which can potentially be targeted by attackers if not properly configured or secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:53.069735"
-}

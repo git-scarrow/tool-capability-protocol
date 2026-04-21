@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-legacy-restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for misconfigurations or improper usage leading to unintended changes in network traffic filtering and security policies.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:30.874520"
-}

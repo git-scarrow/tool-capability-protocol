@@ -1,5 +1,0 @@
-{
-  "command": "jobs",
-  "analysis": "1. Risk: SAFE\n2. The 'jobs' command is used to list the jobs currently running in the background on a Unix-based system. It does not pose any significant security risks when used correctly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.378733"
-}

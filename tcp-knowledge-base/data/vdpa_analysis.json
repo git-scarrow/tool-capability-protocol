@@ -1,5 +1,0 @@
-{
-  "command": "vdpa",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'vdpa' command is that it may be used to interact with virtual devices, which could potentially lead to system modifications if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.624466"
-}

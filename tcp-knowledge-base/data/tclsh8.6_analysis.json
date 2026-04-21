@@ -1,5 +1,0 @@
-{
-  "command": "tclsh8.6",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'tclsh8.6' command is a Tcl (Tool Command Language) shell, which is a scripting language used for various purposes, including system administration, automation, and application development. It does not have inherent security risks, but the scripts executed within it may pose potential risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.210619"
-}

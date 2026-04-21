@@ -1,5 +1,0 @@
-{
-  "command": "sg_bg_ctl",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sg_bg_ctl` is a command used to control the behavior of the SCSI generic (sg) device driver, which can potentially impact the performance and stability of the system if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:31.136905"
-}

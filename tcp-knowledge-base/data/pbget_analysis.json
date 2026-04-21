@@ -1,5 +1,0 @@
-{
-  "command": "pbget",
-  "analysis": "1. Risk: SAFE\n2. The 'pbget' command is a utility used to retrieve content from the clipboard or pasteboard on Unix-like systems. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.244010"
-}

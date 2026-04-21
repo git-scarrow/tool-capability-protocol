@@ -1,5 +1,0 @@
-{
-  "command": "cron",
-  "analysis": "1. SAFE/LOW_RISK\n2. The main concerns with the 'cron' command are potential security risks if misconfigured or used to execute malicious scripts.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:45.141036"
-}

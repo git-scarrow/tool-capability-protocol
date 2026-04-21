@@ -1,5 +1,0 @@
-{
-  "command": "fg",
-  "analysis": "1. Risk: SAFE\n\n2. The main concern with the 'fg' command is that it brings a suspended job to the foreground, which could potentially interrupt other running processes or expose sensitive information if the suspended job was handling sensitive data.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.207462"
-}

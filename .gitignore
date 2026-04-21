@@ -151,3 +151,33 @@ layered-results*.json
 test_payload.json
 .codex
 *-local-command-caveatcaveat-the-messages-below.txt
+
+# Nested local environments and caches
+**/.venv/
+**/venv/
+**/*_env/
+**/__pycache__/
+**/.pytest_cache/
+
+# Local agent/session state
+**/.claude/settings.local.json
+consortium/**/.claude-session-*
+
+# Ad hoc local outputs
+gemini-conversation-*.json
+exp*-results.json
+*-results.json
+*_results.txt
+regression_report.json
+layered-exp*.json
+comprehensive_tcp_analysis_*.json
+tcp_conflicts.db
+tcp_stealth_analysis_dashboard.png
+
+# Regenerable TCP knowledge-base outputs
+tcp-knowledge-base/data/
+tcp-knowledge-base/binaries/
+tcp-knowledge-base/progress_reports/
+tcp-knowledge-base/multi_stage_refinery_results.json
+tcp-knowledge-base/optimized_multi_stage_results.json
+tcp-knowledge-base/refined_tcp_descriptors.json

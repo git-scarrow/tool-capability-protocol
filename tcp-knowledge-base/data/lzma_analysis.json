@@ -1,5 +1,0 @@
-{
-  "command": "lzma",
-  "analysis": "1. SAFE/LOW_RISK: The 'lzma' command is generally considered a low-risk Unix command.\n\n2. Main concerns: The command is used for data compression, so potential risks may include accidental data loss or overwriting existing files if not used carefully.\n\n3. Needs root? N: The 'lzma' command can be executed without root privileges, but certain operations may require elevated permissions.",
-  "timestamp": "2025-07-10T03:33:53.403375"
-}

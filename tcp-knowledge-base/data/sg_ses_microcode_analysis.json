@@ -1,5 +1,0 @@
-{
-  "command": "sg_ses_microcode",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_ses_microcode` command can be used to update the microcode of SCSI Enclosure Services (SES) devices, which could potentially impact the stability and functionality of the system if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:38.085177"
-}

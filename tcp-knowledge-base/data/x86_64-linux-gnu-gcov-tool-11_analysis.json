@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gcov-tool-11",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: This command is part of the GNU Compiler Collection (GCC) and is used for code coverage analysis. Potential risks include misuse or abuse of the tool, or vulnerabilities in the underlying GCC software.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.981779"
-}

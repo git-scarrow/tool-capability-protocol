@@ -1,5 +1,0 @@
-{
-  "command": "vm-support",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concerns are that the 'vm-support' command collects system information, which could potentially expose sensitive data if not properly secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:01.710844"
-}

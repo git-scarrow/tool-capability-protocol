@@ -1,5 +1,0 @@
-{
-  "command": "xfs_fsr",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper usage or configuration of 'xfs_fsr' can lead to data loss or file system corruption, especially on production systems.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:59.987921"
-}

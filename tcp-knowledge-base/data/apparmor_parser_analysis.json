@@ -1,5 +1,0 @@
-{
-  "command": "apparmor_parser",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. The main security concern is that the `apparmor_parser` command is used to load and manage AppArmor security profiles, which can have a significant impact on the system's security. Improper configuration or the use of vulnerable profiles can lead to security vulnerabilities.\n3. The `apparmor_parser` command requires root/sudo privileges to execute, as it needs access to modify the system's security policies.",
-  "timestamp": "2025-07-10T03:29:01.160681"
-}

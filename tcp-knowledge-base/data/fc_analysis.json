@@ -1,5 +1,0 @@
-{
-  "command": "fc",
-  "analysis": "1. Risk: SAFE\n2. The `fc` command (Fix Command) is a built-in shell command in Unix-like systems that allows users to edit and re-execute previous commands, which can be useful for debugging and efficient command-line work.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:38.028825"
-}

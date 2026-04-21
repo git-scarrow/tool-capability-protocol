@@ -1,5 +1,0 @@
-{
-  "command": "dbus-run-session",
-  "analysis": "1. SAFE\n2. The main concern is that the 'dbus-run-session' command is used to start a new D-Bus session, which could potentially be used to interact with system services, but it is generally considered a safe command when used correctly.\n3. N - 'dbus-run-session' does not require root privileges.",
-  "timestamp": "2025-07-10T03:32:13.305884"
-}

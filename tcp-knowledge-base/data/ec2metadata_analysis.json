@@ -1,5 +1,0 @@
-{
-  "command": "ec2metadata",
-  "analysis": "1. Risk: SAFE\n2. The 'ec2metadata' command is a safe and low-risk utility for retrieving metadata about the Amazon EC2 instance on which it is executed, such as instance ID, public IP, and other instance-specific information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.037371"
-}

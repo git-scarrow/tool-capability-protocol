@@ -1,5 +1,0 @@
-{
-  "command": "lessfile",
-  "analysis": "1. Risk level: SAFE\n2. The 'lessfile' command is a basic Unix command used to view the contents of a file. It does not pose any significant security concerns.\n3. The 'lessfile' command does not require root or sudo privileges to execute.",
-  "timestamp": "2025-07-10T03:30:03.393593"
-}

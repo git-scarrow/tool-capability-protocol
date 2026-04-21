@@ -1,5 +1,0 @@
-{
-  "command": "lxd.benchmark",
-  "analysis": "1. Risk: SAFE\n2. The 'lxd.benchmark' command is a tool provided by the LXD container manager to measure the performance of a system. It does not pose any significant security risks when used properly.\n3. Needs root? Y - The 'lxd.benchmark' command requires root privileges to access system resources and perform the benchmark tests.",
-  "timestamp": "2025-07-10T03:32:53.666634"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-cpp",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'x86_64-linux-gnu-cpp' is a preprocessor for the C programming language, which is a low-risk tool commonly used in software development. However, it should be used with caution to avoid potential security vulnerabilities.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.571031"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "nm",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'nm' command is that it can be used to extract information about the symbols in an object file, which could potentially be used by attackers to gain insights into a system's internals.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:15.650539"
-}

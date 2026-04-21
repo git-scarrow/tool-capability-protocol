@@ -1,5 +1,0 @@
-{
-  "command": "tailscaled",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with 'tailscaled' is that it is a system service that runs with elevated privileges, which could potentially be exploited by an attacker if the software has any vulnerabilities.\n3. 'tailscaled' requires root/sudo privileges to run, as it is responsible for managing the Tailscale VPN client on the system.",
-  "timestamp": "2025-07-10T03:44:45.207640"
-}

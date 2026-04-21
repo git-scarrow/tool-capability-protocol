@@ -1,5 +1,0 @@
-{
-  "command": "prlimit",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `prlimit` command can be used to modify system-wide resource limits, which could potentially be abused by an attacker to gain unauthorized access or disrupt system operations.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.249483"
-}

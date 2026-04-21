@@ -1,5 +1,0 @@
-{
-  "command": "pydoc3",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'pydoc3' command is a Python documentation tool that can potentially display sensitive information from the Python interpreter, but it is generally considered a low-risk command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:16.161898"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "disown",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `disown` command can potentially detach a running process from the current shell, which may lead to unintended consequences if the process requires user interaction or input.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:37.391725"
-}

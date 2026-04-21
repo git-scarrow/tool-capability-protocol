@@ -1,5 +1,0 @@
-{
-  "command": "delgroup",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Deleting a group can have unintended consequences, such as removing user access and breaking dependencies in system configurations.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.357771"
-}

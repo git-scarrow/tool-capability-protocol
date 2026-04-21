@@ -1,5 +1,0 @@
-{
-  "command": "lxd.buginfo",
-  "analysis": "1. Risk level: SAFE\n2. The 'lxd.buginfo' command is a utility provided by the LXD project, which is a container management system for Linux. It is used to gather information about potential bugs or issues in the LXD system. The command itself does not pose any direct security concerns, as it is designed to collect and report diagnostic information.\n3. The 'lxd.buginfo' command does not require root or sudo privileges to run, as it is a non-privileged utility.",
-  "timestamp": "2025-07-10T03:30:08.455209"
-}

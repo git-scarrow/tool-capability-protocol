@@ -1,5 +1,0 @@
-{
-  "command": "pl2pm",
-  "analysis": "1. Risk level: SAFE\n2. The 'pl2pm' command is a Perl utility that converts Perl scripts to Perl modules. It does not pose any significant security concerns on its own.\n3. The 'pl2pm' command does not require root or sudo privileges to run.",
-  "timestamp": "2025-07-10T03:23:17.617585"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "systemd-sysext",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The systemd-sysext command is used to manage system extensions, which can have potential security implications if not properly configured or managed.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.098865"
-}

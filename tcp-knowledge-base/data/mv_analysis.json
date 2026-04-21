@@ -1,5 +1,0 @@
-{
-  "command": "mv",
-  "analysis": "1. SAFE/LOW_RISK\n2. Unintended file deletion or overwriting if the destination file already exists.\n3. N (but may require permissions depending on the file/directory locations).",
-  "timestamp": "2025-07-10T03:33:53.051362"
-}

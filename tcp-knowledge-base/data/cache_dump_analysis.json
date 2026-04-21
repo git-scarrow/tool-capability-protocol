@@ -1,5 +1,0 @@
-{
-  "command": "cache_dump",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. The 'cache_dump' command can potentially expose sensitive information from the system's cache, which could be exploited by an attacker. It may reveal details about running processes, network connections, or other system internals.\n3. The 'cache_dump' command does not require root/sudo privileges, but its use should be limited to authorized personnel and with caution, as it can provide access to potentially sensitive data.",
-  "timestamp": "2025-07-10T03:31:14.779715"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "byobu-keybindings",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None. This command simply displays the default Byobu keybindings, which is a screen/tmux session manager for Unix-like systems.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:53.571428"
-}

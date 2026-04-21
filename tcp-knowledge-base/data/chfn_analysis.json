@@ -1,5 +1,0 @@
-{
-  "command": "chfn",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'chfn' command allows users to change their personal information, which could potentially be used to impersonate other users or gain unauthorized access to sensitive information.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.418571"
-}

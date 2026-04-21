@@ -1,5 +1,0 @@
-{
-  "command": "sensible-pager",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'sensible-pager' command is a utility that determines the default pager program to use for displaying text content. It has limited risk as it does not directly execute any commands or modify system files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.992561"
-}

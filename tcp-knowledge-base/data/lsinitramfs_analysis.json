@@ -1,5 +1,0 @@
-{
-  "command": "lsinitramfs",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'lsinitramfs' command is generally safe, as it only lists the contents of the initial RAM disk (initramfs) without modifying it.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.059279"
-}

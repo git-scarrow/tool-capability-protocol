@@ -1,5 +1,0 @@
-{
-  "command": "script",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are the potential for recording sensitive information, including user input and output, and the ability to execute arbitrary commands within the terminal session.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.136329"
-}

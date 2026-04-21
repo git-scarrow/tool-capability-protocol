@@ -1,5 +1,0 @@
-{
-  "command": "zstdgrep",
-  "analysis": "1. Risk: SAFE\n2. The main concern with 'zstdgrep' is that it may be used to search for sensitive information within compressed files, but it is a standard Unix utility that is generally considered safe when used properly.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:39.687025"
-}

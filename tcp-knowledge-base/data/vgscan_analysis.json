@@ -1,5 +1,0 @@
-{
-  "command": "vgscan",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'vgscan' command is used to scan for and identify logical volume groups on a system. It is a low-risk operation that does not directly modify data or system configurations.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:06.197922"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "lastb",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `lastb` command can expose information about failed login attempts, which could be used by an attacker to plan a more targeted attack. However, the information is generally not considered sensitive.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:37.615910"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "perlbug",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concerns with the 'perlbug' command are potential misuse for reporting false or malicious bug reports, or the possibility of information disclosure if the command is used to report sensitive system details.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:47.122263"
-}

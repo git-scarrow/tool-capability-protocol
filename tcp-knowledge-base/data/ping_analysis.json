@@ -1,5 +1,0 @@
-{
-  "command": "ping",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for Denial of Service (DoS) attacks if the target system is flooded with ping requests.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:48.925524"
-}

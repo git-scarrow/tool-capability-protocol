@@ -1,5 +1,0 @@
-{
-  "command": "ldconfig.real",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper configuration or execution of `ldconfig.real` can lead to system instability, missing libraries, and potential security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.536850"
-}

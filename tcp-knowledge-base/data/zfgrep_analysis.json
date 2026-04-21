@@ -1,5 +1,0 @@
-{
-  "command": "zfgrep",
-  "analysis": "1. Risk level: LOW_RISK\n2. Main security concerns: The 'zfgrep' command is a variant of the 'grep' command, which is generally safe to use. However, it is important to be cautious when using any command that can search and display the contents of files, as it could potentially expose sensitive information if the user is not careful.\n3. The 'zfgrep' command does not require root or sudo privileges to run, as it is a regular user-level command.",
-  "timestamp": "2025-07-10T03:31:14.967864"
-}

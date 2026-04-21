@@ -1,5 +1,0 @@
-{
-  "command": "mtr",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential network information leakage, but it is a commonly used network diagnostic tool.\n3. Needs root? Y (on most systems)",
-  "timestamp": "2025-07-10T03:33:38.567446"
-}

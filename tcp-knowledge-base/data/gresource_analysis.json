@@ -1,5 +1,0 @@
-{
-  "command": "gresource",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `gresource` is a command-line tool used to inspect and extract resources from GResource files, which are used by the GNOME desktop environment. While it does not pose a significant security risk, it can potentially be used to access sensitive information if mishandled.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.805802"
-}

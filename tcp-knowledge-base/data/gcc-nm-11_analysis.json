@@ -1,5 +1,0 @@
-{
-  "command": "gcc-nm-11",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'gcc-nm-11' command is that it is a utility used to inspect the symbol table of object files, which could potentially be used to examine the internals of compiled programs.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:44.935830"
-}

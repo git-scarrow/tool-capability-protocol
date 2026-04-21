@@ -1,5 +1,0 @@
-{
-  "command": "vi",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for unintended changes to system files, possibility of system crashes or data loss if used incorrectly.\n3. Needs root? N (can be used without root privileges, but certain operations may require elevated permissions).",
-  "timestamp": "2025-07-10T03:32:53.063899"
-}

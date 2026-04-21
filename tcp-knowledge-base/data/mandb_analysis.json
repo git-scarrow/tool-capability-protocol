@@ -1,5 +1,0 @@
-{
-  "command": "mandb",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with 'mandb' is that it updates the manual page database, which could potentially be used to escalate privileges if the database is not properly maintained or secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:31.985859"
-}

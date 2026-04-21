@@ -1,5 +1,0 @@
-{
-  "command": "lzfgrep",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, as 'lzfgrep' is a safe command that searches for patterns in compressed files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.556648"
-}

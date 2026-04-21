@@ -1,5 +1,0 @@
-{
-  "command": "xzdiff",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: 'xzdiff' is a utility that compares compressed files using the XZ compression format. It has a low risk profile, as it is a standard utility used for file comparison and does not pose significant security concerns.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:12.803847"
-}

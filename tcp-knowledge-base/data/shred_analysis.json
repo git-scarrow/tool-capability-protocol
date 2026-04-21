@@ -1,5 +1,0 @@
-{
-  "command": "shred",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: Permanently deletes data without the ability to recover it, posing a serious security risk if used improperly or on sensitive files.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.722824"
-}

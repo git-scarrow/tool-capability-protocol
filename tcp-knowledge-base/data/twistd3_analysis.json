@@ -1,5 +1,0 @@
-{
-  "command": "twistd3",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'twistd3' command is a part of the Twisted framework, a Python-based event-driven networking engine. While it may have some inherent risks, the overall risk is considered low as it is a widely used and well-documented tool.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.210478"
-}

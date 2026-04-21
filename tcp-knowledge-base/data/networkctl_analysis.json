@@ -1,5 +1,0 @@
-{
-  "command": "networkctl",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'networkctl' command provides information about network interfaces and can be used to manipulate network settings. While it does not directly pose a security risk, improper use or configuration could potentially lead to network-related vulnerabilities.\n3. The 'networkctl' command generally requires root or sudo privileges to access and modify network settings.",
-  "timestamp": "2025-07-10T03:29:01.885160"
-}

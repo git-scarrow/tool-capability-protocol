@@ -1,5 +1,0 @@
-{
-  "command": "mcookie",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the `mcookie` command is that it generates a random magic cookie, which could potentially be used to impersonate a user or gain unauthorized access to system resources if misused.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:53.360021"
-}

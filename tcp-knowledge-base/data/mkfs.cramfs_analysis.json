@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.cramfs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper usage or configuration of the 'mkfs.cramfs' command can lead to data loss or corruption on the target storage device.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:22.997594"
-}

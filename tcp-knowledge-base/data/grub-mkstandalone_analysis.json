@@ -1,5 +1,0 @@
-{
-  "command": "grub-mkstandalone",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `grub-mkstandalone` command can modify the system's bootloader, which if done incorrectly, can make the system unbootable. It also has the potential to overwrite existing bootloader configurations.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:11.300594"
-}

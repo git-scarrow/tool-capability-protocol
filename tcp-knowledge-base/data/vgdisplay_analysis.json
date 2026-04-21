@@ -1,5 +1,0 @@
-{
-  "command": "vgdisplay",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'vgdisplay' command displays information about the volume groups on a Linux system, which could potentially reveal sensitive information about the storage configuration.\n3. Needs root? Y - The 'vgdisplay' command requires root or superuser privileges to execute.",
-  "timestamp": "2025-07-10T03:34:01.004842"
-}

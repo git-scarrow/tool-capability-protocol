@@ -1,5 +1,0 @@
-{
-  "command": "pinentry-curses",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are related to potential vulnerabilities in the pinentry-curses command, which is used to handle password input in a text-based environment. Improper handling of user input could lead to security issues like privilege escalation or code execution.\n3. N",
-  "timestamp": "2025-07-10T03:31:34.996625"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "unicode_start",
-  "analysis": "1. Risk: SAFE\n2. The `unicode_start` command is a utility that sets the input and output character encoding to Unicode, ensuring proper handling of Unicode characters in the terminal. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.779315"
-}

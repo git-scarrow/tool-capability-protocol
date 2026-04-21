@@ -1,5 +1,0 @@
-{
-  "command": "groups",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'groups' command is a relatively safe and low-risk Unix command that displays the groups a user belongs to. It does not pose significant security risks when used as intended.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.338526"
-}

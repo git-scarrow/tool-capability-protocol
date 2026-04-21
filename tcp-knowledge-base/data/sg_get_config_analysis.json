@@ -1,5 +1,0 @@
-{
-  "command": "sg_get_config",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `sg_get_config` command is a utility from the `sg3_utils` package that retrieves configuration information from SCSI devices. It can be used to gather information about the device, but does not pose significant security risks if used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:08.948449"
-}

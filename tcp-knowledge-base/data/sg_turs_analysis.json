@@ -1,5 +1,0 @@
-{
-  "command": "sg_turs",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'sg_turs' command is that it is used to control SCSI generic devices, which can potentially access sensitive storage systems if misused.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:37.335216"
-}

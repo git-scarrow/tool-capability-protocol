@@ -1,5 +1,0 @@
-{
-  "command": "pam_extrausers_update",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command can modify user accounts and group memberships, potentially introducing security vulnerabilities if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:16.231006"
-}

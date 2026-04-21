@@ -1,5 +1,0 @@
-{
-  "command": "tracepath",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'tracepath' command is that it can reveal information about the network topology and the intermediate nodes between the source and destination, which could potentially be used by an attacker to plan a targeted attack.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:08.189503"
-}

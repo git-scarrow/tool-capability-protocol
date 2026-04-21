@@ -1,5 +1,0 @@
-{
-  "command": "git-shell",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for unauthorized access if misconfigured or used improperly.\n3. Needs root? N\n\nThe 'git-shell' command is a restricted shell for Git, which provides a secure way to allow remote users to interact with a Git repository without granting them full system access. It is generally considered low-risk, but proper configuration is necessary to maintain security.",
-  "timestamp": "2025-07-10T03:31:30.272444"
-}

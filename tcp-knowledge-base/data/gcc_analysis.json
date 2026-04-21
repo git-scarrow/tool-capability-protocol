@@ -1,5 +1,0 @@
-{
-  "command": "gcc",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns:\n   - Potential for abuse in compiling malicious code\n   - Possibility of code injection vulnerabilities if used improperly\n   - Potential for privilege escalation if used with insecure configurations\n3. The 'gcc' command does not require root/sudo privileges by default, but certain operations may require elevated permissions, such as accessing system libraries or writing to protected directories.",
-  "timestamp": "2025-07-10T03:30:06.984286"
-}

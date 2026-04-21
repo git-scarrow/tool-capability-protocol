@@ -1,5 +1,0 @@
-{
-  "command": "ssh-import-id-gh",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command retrieves and imports public SSH keys from a GitHub user's account, which could potentially allow unauthorized access if the keys are not properly managed.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:05.618943"
-}

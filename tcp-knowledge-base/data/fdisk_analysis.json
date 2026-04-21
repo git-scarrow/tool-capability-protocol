@@ -1,5 +1,0 @@
-{
-  "command": "fdisk",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns with the 'fdisk' command are the potential for data loss or corruption if not used carefully, as it allows partitioning and modifying the structure of storage devices.\n3. Yes, 'fdisk' requires root privileges to execute.",
-  "timestamp": "2025-07-10T03:31:37.924393"
-}

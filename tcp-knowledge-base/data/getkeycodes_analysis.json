@@ -1,5 +1,0 @@
-{
-  "command": "getkeycodes",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'getkeycodes' command is a low-risk utility that allows users to retrieve information about the key codes being used by the system. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.544723"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "bzexe",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns with the `bzexe` command are the potential for executing untrusted or malicious scripts, which could lead to system compromises or data loss.\n3. Yes, `bzexe` requires root privileges to execute.",
-  "timestamp": "2025-07-10T03:34:44.741247"
-}

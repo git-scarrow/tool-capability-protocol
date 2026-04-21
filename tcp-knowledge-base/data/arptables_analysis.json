@@ -1,5 +1,0 @@
-{
-  "command": "arptables",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of the 'arptables' command can lead to network connectivity issues, potential security vulnerabilities, and disruption of system operations.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:23.004073"
-}

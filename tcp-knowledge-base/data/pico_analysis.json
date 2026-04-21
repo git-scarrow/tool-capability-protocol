@@ -1,5 +1,0 @@
-{
-  "command": "pico",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Pico is a text editor that can be used to edit configuration files, which could potentially lead to unintended system changes if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.281388"
-}

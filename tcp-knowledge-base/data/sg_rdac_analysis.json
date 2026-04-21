@@ -1,5 +1,0 @@
-{
-  "command": "sg_rdac",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sg_rdac` is a utility that interacts with the SCSI RDAC (Redundant Dual-Ported Array Controller) device driver, which can be used to configure and manage RDAC-enabled storage devices. Improper usage or configuration can lead to potential data loss or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:16.080679"
-}

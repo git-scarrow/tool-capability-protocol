@@ -1,5 +1,0 @@
-{
-  "command": "pvmove",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential data loss or system downtime during the migration process, especially if the operation is not performed correctly or if there are issues with the underlying physical volumes.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:36.796388"
-}

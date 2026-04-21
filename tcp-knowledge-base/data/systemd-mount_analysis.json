@@ -1,5 +1,0 @@
-{
-  "command": "systemd-mount",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Incorrect usage or configuration of 'systemd-mount' can lead to system instability, data loss, or unauthorized access to resources.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.611741"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-legacy",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: This command allows for the configuration of IPv6 firewall rules, which can have significant security implications if not used properly. Misconfiguration or unintended rules could potentially expose the system to vulnerabilities or unauthorized access.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:45.175971"
-}

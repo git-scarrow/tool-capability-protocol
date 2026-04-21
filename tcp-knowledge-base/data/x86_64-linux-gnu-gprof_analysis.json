@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gprof",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command 'x86_64-linux-gnu-gprof' is a profiling tool that can reveal sensitive information about the system's performance and resource usage, which could be exploited by attackers.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.076671"
-}

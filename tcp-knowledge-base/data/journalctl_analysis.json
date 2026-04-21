@@ -1,5 +1,0 @@
-{
-  "command": "journalctl",
-  "analysis": "1. SAFE\n2. The main concern with the `journalctl` command is that it can potentially expose sensitive information from system logs, such as system errors, service failures, or user activities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:52.810734"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "vmware-vmblock-fuse",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for privilege escalation, unauthorized access, and system instability if not properly configured or used by untrusted entities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.804388"
-}

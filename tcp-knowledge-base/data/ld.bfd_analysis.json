@@ -1,5 +1,0 @@
-{
-  "command": "ld.bfd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: 'ld.bfd' is the GNU linker, a critical system tool that can potentially introduce security vulnerabilities if misused or exploited.\n3. Needs root? Y - 'ld.bfd' typically requires root privileges to perform certain system-level operations.",
-  "timestamp": "2025-07-10T03:32:30.108441"
-}

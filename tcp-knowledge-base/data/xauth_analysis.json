@@ -1,5 +1,0 @@
-{
-  "command": "xauth",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The xauth command manages the X authority file, which is used to control access to the X server. Improper use or misconfiguration of xauth can lead to unauthorized access to the X server and potential privilege escalation.\n3. Needs root? Y (for certain operations)",
-  "timestamp": "2025-07-10T03:31:36.162858"
-}

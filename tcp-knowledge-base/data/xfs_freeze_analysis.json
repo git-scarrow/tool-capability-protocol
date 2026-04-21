@@ -1,5 +1,0 @@
-{
-  "command": "xfs_freeze",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'xfs_freeze' command can temporarily suspend I/O operations on an XFS file system, which can potentially disrupt running applications and cause data corruption if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:46.203554"
-}

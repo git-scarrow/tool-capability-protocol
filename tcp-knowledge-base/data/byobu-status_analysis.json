@@ -1,5 +1,0 @@
-{
-  "command": "byobu-status",
-  "analysis": "1. Risk level: SAFE\n2. The 'byobu-status' command is a utility that displays the current status of the Byobu terminal multiplexer. It does not pose any direct security concerns as it is a simple status-reporting tool.\n3. The 'byobu-status' command does not require root or sudo privileges to run.",
-  "timestamp": "2025-07-10T03:31:09.693381"
-}

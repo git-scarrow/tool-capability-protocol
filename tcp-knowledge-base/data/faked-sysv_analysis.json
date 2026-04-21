@@ -1,5 +1,0 @@
-{
-  "command": "faked-sysv",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'faked-sysv' command is that it can be used to simulate System V init scripts, which could potentially be used for malicious purposes if not properly controlled.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.505217"
-}

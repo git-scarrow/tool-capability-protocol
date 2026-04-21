@@ -1,5 +1,0 @@
-{
-  "command": "openvt",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `openvt` is a safe command that allows users to switch to a different virtual terminal (VT) or console.\n3. Needs root? N. `openvt` can be used by regular users to switch between virtual terminals, but some operations may require root privileges.",
-  "timestamp": "2025-07-10T03:31:37.233114"
-}

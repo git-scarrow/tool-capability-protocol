@@ -1,5 +1,0 @@
-{
-  "command": "ssh-import-id",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: The `ssh-import-id` command is used to securely import SSH public keys from various sources, such as GitHub or Launchpad. It does not pose significant risks if used with trusted sources.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.236294"
-}

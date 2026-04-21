@@ -1,5 +1,0 @@
-{
-  "command": "which",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the `which` command is that it can be used to locate and execute external programs, which could potentially be malicious if the program's source is not trusted.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.914648"
-}

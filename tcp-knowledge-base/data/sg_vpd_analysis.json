@@ -1,5 +1,0 @@
-{
-  "command": "sg_vpd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_vpd` command can access and display sensitive device information, which could potentially be misused by an attacker.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.699783"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "systemd",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for privilege escalation if not properly configured or managed.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:52.576356"
-}

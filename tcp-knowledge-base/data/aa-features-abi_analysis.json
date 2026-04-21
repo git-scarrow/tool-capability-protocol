@@ -1,5 +1,0 @@
-{
-  "command": "aa-features-abi",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that this command is used to list the ABI features of the Linux kernel, which could potentially reveal sensitive information about the system's configuration.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:54.548628"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "e2label",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Labeling or changing the volume label of an ext2/ext3/ext4 file system, which can be useful for identifying the purpose or contents of a specific partition.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:39.028880"
-}

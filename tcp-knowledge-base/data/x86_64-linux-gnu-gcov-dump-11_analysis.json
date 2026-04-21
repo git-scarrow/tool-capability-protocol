@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gcov-dump-11",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that this command is used to dump coverage data from a GCC compiler, which could potentially expose sensitive information about the application's internal structure and behavior.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:52.217374"
-}

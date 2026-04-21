@@ -1,5 +1,0 @@
-{
-  "command": "gpgv",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. The `gpgv` command is used to verify the integrity and authenticity of digital signatures, which is a low-risk operation.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.750229"
-}

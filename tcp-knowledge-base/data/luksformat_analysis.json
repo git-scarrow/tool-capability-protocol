@@ -1,5 +1,0 @@
-{
-  "command": "luksformat",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: `luksformat` is a command used to encrypt a device using the LUKS (Linux Unified Key Setup) standard, which can result in data loss if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:00.037874"
-}

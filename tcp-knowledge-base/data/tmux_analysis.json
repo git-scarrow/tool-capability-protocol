@@ -1,5 +1,0 @@
-{
-  "command": "tmux",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for unauthorized access or privilege escalation if the tmux session is not properly secured.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:23.325026"
-}

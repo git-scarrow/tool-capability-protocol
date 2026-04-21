@@ -1,5 +1,0 @@
-{
-  "command": "lsipc",
-  "analysis": "1. Risk: LOW_RISK\n\n2. Main concerns: The 'lsipc' command is a low-risk Unix command that lists information about System V Interprocess Communication (IPC) resources, such as shared memory segments, message queues, and semaphores. It does not pose significant security risks when used properly.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.343456"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "diff",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `diff` is a safe command that compares the contents of files or directories and reports the differences.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:09.756746"
-}

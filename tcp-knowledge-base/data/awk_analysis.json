@@ -1,5 +1,0 @@
-{
-  "command": "awk",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for code injection, data manipulation, and access to sensitive system information if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:37.754577"
-}

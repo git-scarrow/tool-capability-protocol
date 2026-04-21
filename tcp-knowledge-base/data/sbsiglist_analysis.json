@@ -1,5 +1,0 @@
-{
-  "command": "sbsiglist",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'sbsiglist' command is that it is used to list the signatures associated with secure boot policies, which could potentially be used to bypass security measures if misused.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:35.916666"
-}

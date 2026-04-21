@@ -1,5 +1,0 @@
-{
-  "command": "streamzip",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `streamzip` is a standard Unix command that compresses files or directories using the zlib library, which is generally considered safe.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:39.411181"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "gcc-nm",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'gcc-nm' command is that it is used to display the symbols from object files, which could potentially expose sensitive information if the object files contain confidential data.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:45.102273"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ptargrep",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'ptargrep' command can potentially execute arbitrary code and access sensitive files if the input is not properly sanitized.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.528176"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "sg_luns",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_luns` command interacts with SCSI devices, which can potentially impact the storage system if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:47.402212"
-}

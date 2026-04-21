@@ -1,5 +1,0 @@
-{
-  "command": "dh_bash-completion",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'dh_bash-completion' command is that it is a Debian-specific utility used to generate bash completion scripts for packages, which could potentially contain vulnerabilities or be misused by an attacker.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:23.294235"
-}

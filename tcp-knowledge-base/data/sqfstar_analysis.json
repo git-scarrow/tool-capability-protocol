@@ -1,5 +1,0 @@
-{
-  "command": "sqfstar",
-  "analysis": "1. SAFE\n2. The `sqfstar` command is a utility used to create and manage Squashfs (Squashed Filesystem) archives, which are commonly used for distributing read-only data. It does not pose any inherent security risks when used appropriately.\n3. No, `sqfstar` does not require root privileges.",
-  "timestamp": "2025-07-10T03:31:38.993435"
-}

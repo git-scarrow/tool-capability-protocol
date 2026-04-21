@@ -1,5 +1,0 @@
-{
-  "command": "basenc",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `basenc` command is a low-risk utility that performs base encoding and decoding of data. However, it can be used to encode or decode potentially sensitive information, so it should be used with caution.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.952274"
-}

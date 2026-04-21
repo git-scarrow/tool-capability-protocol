@@ -1,5 +1,0 @@
-{
-  "command": "colrm",
-  "analysis": "1. Risk: SAFE\n2. The `colrm` command is a safe utility that removes specific columns from the input. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.468892"
-}

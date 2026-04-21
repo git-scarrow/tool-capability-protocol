@@ -1,5 +1,0 @@
-{
-  "command": "run-one",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'run-one' command is the potential for unintended consequences if it is used to execute potentially harmful or malicious commands.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:38.705604"
-}

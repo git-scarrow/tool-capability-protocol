@@ -1,5 +1,0 @@
-{
-  "command": "debian-distro-info",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'debian-distro-info' command is a utility that provides information about Debian-based distributions. It is generally a safe command, but it's important to be cautious when running any command that interacts with system information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:47.617429"
-}

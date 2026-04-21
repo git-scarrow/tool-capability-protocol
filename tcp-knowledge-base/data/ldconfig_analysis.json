@@ -1,5 +1,0 @@
-{
-  "command": "ldconfig",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Incorrect configuration or unauthorized modification of the dynamic linker cache can lead to system instability, security vulnerabilities, or unexpected behavior.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.359874"
-}

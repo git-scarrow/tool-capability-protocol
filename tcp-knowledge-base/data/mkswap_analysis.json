@@ -1,5 +1,0 @@
-{
-  "command": "mkswap",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Incorrect usage can lead to data loss or system instability, as it initializes and enables a swap space on a device.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:39.358216"
-}

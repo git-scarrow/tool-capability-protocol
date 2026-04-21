@@ -1,5 +1,0 @@
-{
-  "command": "col7",
-  "analysis": "1. Risk: SAFE\n2. The 'col7' command is a standard Unix utility that selects and displays specific columns from a text file or input stream. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.404160"
-}

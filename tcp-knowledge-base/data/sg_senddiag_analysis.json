@@ -1,5 +1,0 @@
-{
-  "command": "sg_senddiag",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sg_senddiag` is a command that can send diagnostic commands to SCSI devices, potentially exposing sensitive information or causing system disruptions if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:52.419089"
-}

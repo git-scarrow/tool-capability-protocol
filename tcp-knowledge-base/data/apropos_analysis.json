@@ -1,5 +1,0 @@
-{
-  "command": "apropos",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, as `apropos` is a safe command that searches for and displays information about Unix commands.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.784881"
-}

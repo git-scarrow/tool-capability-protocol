@@ -1,5 +1,0 @@
-{
-  "command": "kbd_mode",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Improper usage can potentially cause keyboard configuration issues, but it generally has a low impact on the system's security or stability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.812137"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "peekfd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `peekfd` can potentially be used to access and monitor sensitive information in running processes, which could lead to privacy or security breaches if not used cautiously.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.955238"
-}

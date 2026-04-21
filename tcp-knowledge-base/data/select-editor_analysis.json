@@ -1,5 +1,0 @@
-{
-  "command": "select-editor",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'select-editor' command is that it is used to set the default text editor for the system, which could potentially be used to execute malicious code if the selected editor is compromised.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.317783"
-}

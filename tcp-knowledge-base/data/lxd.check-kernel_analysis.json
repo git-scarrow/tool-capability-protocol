@@ -1,5 +1,0 @@
-{
-  "command": "lxd.check-kernel",
-  "analysis": "The 'lxd.check-kernel' command is used to check the compatibility of the kernel with the LXD (Linux Container Daemon) software. The risk level of this command is LOW_RISK. The main security concern is that it may require root/sudo privileges to execute, as it needs access to system-level information. However, it does not directly execute any potentially harmful actions. The command itself is primarily used for informational purposes and does not pose a significant security risk. It is recommended to use this command with caution and ensure that it is executed by authorized personnel with appropriate privileges.",
-  "timestamp": "2025-07-10T03:25:10.796086"
-}

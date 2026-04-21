@@ -1,5 +1,0 @@
-{
-  "command": "sftp",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for unauthorized access, data leakage, and privilege escalation if not properly configured and secured.\n3. Needs root: N (can be used by regular users), but may require elevated privileges for certain operations.",
-  "timestamp": "2025-07-10T03:31:35.644394"
-}

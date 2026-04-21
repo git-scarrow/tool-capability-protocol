@@ -1,5 +1,0 @@
-{
-  "command": "pkcon",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that 'pkcon' is a package management command that can be used to install, remove, or update software packages on a Unix-based system, which can potentially introduce security risks if not used properly.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:30.156771"
-}

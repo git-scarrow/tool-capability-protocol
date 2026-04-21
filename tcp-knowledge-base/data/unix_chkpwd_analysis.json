@@ -1,5 +1,0 @@
-{
-  "command": "unix_chkpwd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential security risks if the command is not used properly or if it is accessed by unauthorized users.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:45.631393"
-}

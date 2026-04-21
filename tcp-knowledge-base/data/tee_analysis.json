@@ -1,5 +1,0 @@
-{
-  "command": "tee",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'tee' command is that it can be used to write sensitive data to a file, potentially exposing that information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.943399"
-}

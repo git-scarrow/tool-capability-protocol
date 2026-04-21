@@ -1,5 +1,0 @@
-{
-  "command": "pod2text",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'pod2text' command is that it may expose the content of the Perl documentation to the terminal, which could potentially include sensitive information if the documentation contains confidential data.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:23.070628"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "py3versions",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'py3versions' command is a utility that displays the available Python 3 versions on a Unix system. It does not pose any significant security risks, but users should exercise caution when running any command from an untrusted source.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:33:59.926589"
-}

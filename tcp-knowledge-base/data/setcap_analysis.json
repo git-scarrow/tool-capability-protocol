@@ -1,5 +1,0 @@
-{
-  "command": "setcap",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: setcap can be used to grant elevated privileges to non-root processes, potentially bypassing standard security measures.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:31.420714"
-}

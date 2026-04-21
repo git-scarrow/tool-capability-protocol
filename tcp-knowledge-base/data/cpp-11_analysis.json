@@ -1,5 +1,0 @@
-{
-  "command": "cpp-11",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'cpp-11' command is a standard Unix command that compiles C++11 code, which is a low-risk operation. However, it's important to ensure that the input files and the compilation process are from a trusted source.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:38.914939"
-}

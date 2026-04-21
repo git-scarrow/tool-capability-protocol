@@ -1,5 +1,0 @@
-{
-  "command": "cpan5.34-x86_64-linux-gnu",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are potential security vulnerabilities, unintended system modifications, and the possibility of installing malicious software if the command is used without proper precautions.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.722379"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "upgrade-from-grub-legacy",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command 'upgrade-from-grub-legacy' is used to upgrade the GRUB bootloader from the legacy version to the newer version. This process can potentially cause issues with the system's boot process if not executed properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:21.615336"
-}

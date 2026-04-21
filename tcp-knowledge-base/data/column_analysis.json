@@ -1,5 +1,0 @@
-{
-  "command": "column",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'column' command is its potential to be used in a script or command injection attack, but it is generally considered a safe and commonly used Unix command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.779521"
-}

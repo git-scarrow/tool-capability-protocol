@@ -1,5 +1,0 @@
-{
-  "command": "iscsistart",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'iscsistart' command can potentially interact with sensitive network and storage configurations, which could lead to unintended consequences if misused or misconfigured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.025973"
-}

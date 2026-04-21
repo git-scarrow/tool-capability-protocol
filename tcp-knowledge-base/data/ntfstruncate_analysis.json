@@ -1,5 +1,0 @@
-{
-  "command": "ntfstruncate",
-  "analysis": "1. Risk level: HIGH_RISK\n2. Main security concerns: `ntfstruncate` is a command that can be used to truncate NTFS-formatted partitions, which could lead to data loss or corruption if used improperly. It can also be used to modify file permissions and ownership, potentially exposing sensitive information.\n3. `ntfstruncate` requires root/sudo privileges to execute, as it performs system-level operations that can have significant consequences if used incorrectly.",
-  "timestamp": "2025-07-10T03:25:24.858609"
-}

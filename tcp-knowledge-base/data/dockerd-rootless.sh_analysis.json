@@ -1,5 +1,0 @@
-{
-  "command": "dockerd-rootless.sh",
-  "analysis": "The 'dockerd-rootless.sh' script is used to run the Docker daemon in rootless mode, which means it does not require root privileges. The risk level is LOW_RISK, as rootless mode can provide additional security by reducing the attack surface and limiting the potential damage in case of a vulnerability. However, it's important to ensure proper configuration and understand the limitations of rootless mode. The main security concern is potential privilege escalation, as the script may interact with system components that could be exploited. The script does not require root/sudo privileges, as it is designed to run without elevated permissions.",
-  "timestamp": "2025-07-10T03:47:59.761250"
-}

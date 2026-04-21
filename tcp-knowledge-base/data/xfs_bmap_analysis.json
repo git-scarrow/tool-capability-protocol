@@ -1,5 +1,0 @@
-{
-  "command": "xfs_bmap",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `xfs_bmap` can expose sensitive information about the file system layout and can potentially be used to identify and exploit vulnerabilities in the file system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:46.864570"
-}

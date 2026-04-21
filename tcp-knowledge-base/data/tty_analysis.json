@@ -1,5 +1,0 @@
-{
-  "command": "tty",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'tty' command is that it can potentially reveal sensitive information about the user's terminal, which could be used by an attacker to gain unauthorized access or perform other malicious activities.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.556042"
-}

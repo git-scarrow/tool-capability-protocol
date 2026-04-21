@@ -1,5 +1,0 @@
-{
-  "command": "uniq",
-  "analysis": "1. Risk: SAFE\n2. The `uniq` command is used to filter out duplicate lines in a file, which is generally a safe operation. However, it's important to ensure that the input file is not modified unintentionally.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.163366"
-}

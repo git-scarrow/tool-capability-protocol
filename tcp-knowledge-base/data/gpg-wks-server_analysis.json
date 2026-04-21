@@ -1,5 +1,0 @@
-{
-  "command": "gpg-wks-server",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for unauthorized access, data leakage, and system compromise if not properly configured and secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:16.802786"
-}

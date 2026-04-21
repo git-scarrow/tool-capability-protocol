@@ -1,5 +1,0 @@
-{
-  "command": "clear_console",
-  "analysis": "1. Risk: SAFE\n2. The 'clear_console' command is a standard Unix command that clears the terminal screen, making it a safe and low-risk operation.\n3. Needs root? N\nThe 'clear_console' command does not require root privileges to execute.",
-  "timestamp": "2025-07-10T03:31:33.351918"
-}

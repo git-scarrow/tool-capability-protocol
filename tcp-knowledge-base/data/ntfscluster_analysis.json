@@ -1,5 +1,0 @@
-{
-  "command": "ntfscluster",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'ntfscluster' command can be used to access and modify the internal structure of NTFS file systems, which can potentially lead to data loss or system instability if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.179218"
-}

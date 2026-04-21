@@ -1,5 +1,0 @@
-{
-  "command": "btrfs-find-root",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, the 'btrfs-find-root' command is a safe utility that helps locate the root of a Btrfs file system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:35.341838"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "systemd-id128",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'systemd-id128' command is used to generate and manage 128-bit IDs, which are primarily used for internal system purposes. It poses a low risk if used correctly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.714242"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "vmware-xferlogs",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'vmware-xferlogs' command is that it may transfer sensitive log files from a VMware environment, which could potentially expose information about the system or its users.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.133189"
-}

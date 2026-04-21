@@ -1,5 +1,0 @@
-{
-  "command": "lvmdiskscan",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command is used to scan for available logical volumes on the system, which can help in managing storage and disk partitions. However, it does not perform any potentially destructive operations.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:29.796880"
-}

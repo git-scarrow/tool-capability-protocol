@@ -1,5 +1,0 @@
-{
-  "command": "runlevel",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'runlevel' command is used to determine the current system run level, which can provide information about the state of the system. It does not pose a direct security risk, but its use may be related to system administration tasks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:37.958912"
-}

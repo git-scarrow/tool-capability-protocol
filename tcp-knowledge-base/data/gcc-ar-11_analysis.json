@@ -1,5 +1,0 @@
-{
-  "command": "gcc-ar-11",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'gcc-ar-11' command is a part of the GNU Compiler Collection (GCC) and is used to manage static libraries. It is generally considered a low-risk command, as it is a standard tool used in software development.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:09.728136"
-}

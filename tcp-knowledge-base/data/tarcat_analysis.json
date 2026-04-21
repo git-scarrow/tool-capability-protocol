@@ -1,5 +1,0 @@
-{
-  "command": "tarcat",
-  "analysis": "'tarcat' is not a standard Unix command. It appears to be a custom command or a typo for a different command.\n\n1. Risk: UNKNOWN\n2. Main concerns: Without knowing the actual functionality of 'tarcat', it's impossible to determine the main concerns or risks associated with it.\n3. Needs root?: UNKNOWN",
-  "timestamp": "2025-07-10T03:33:38.790716"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "sshd",
-  "analysis": "1. MEDIUM_RISK\n2. Main concerns include unauthorized access, privilege escalation, and potential vulnerabilities in the SSH implementation.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:33:59.653682"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "xfs_metadump",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. The main security concern with 'xfs_metadump' is that it can be used to extract sensitive metadata from an XFS file system, including file names, permissions, and other potentially confidential information.\n3. 'xfs_metadump' requires root/sudo privileges to run, as it needs access to the file system's metadata.",
-  "timestamp": "2025-07-10T03:28:44.306475"
-}

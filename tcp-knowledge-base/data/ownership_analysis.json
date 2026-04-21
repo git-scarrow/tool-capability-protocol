@@ -1,5 +1,0 @@
-{
-  "command": "ownership",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Modifying file/directory ownership can impact system operations if not done carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.840953"
-}

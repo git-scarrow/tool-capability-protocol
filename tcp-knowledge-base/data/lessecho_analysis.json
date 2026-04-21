@@ -1,5 +1,0 @@
-{
-  "command": "lessecho",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, the 'lessecho' command is a utility that simply echoes its arguments to the standard output, with special characters escaped to prevent them from being interpreted by the shell.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:08.504304"
-}

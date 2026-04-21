@@ -1,5 +1,0 @@
-{
-  "command": "cloud-id",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'cloud-id' command is a utility that retrieves the instance ID of a cloud instance. It poses a low risk as it does not execute any potentially harmful commands or modify system files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:08.276116"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "strip",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'strip' command is that it removes debugging symbols from object files and executables, which can make it harder to debug issues or analyze the code if needed.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.892718"
-}

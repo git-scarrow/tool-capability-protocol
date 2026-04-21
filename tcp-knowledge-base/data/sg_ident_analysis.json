@@ -1,5 +1,0 @@
-{
-  "command": "sg_ident",
-  "analysis": "1. Risk level: LOW_RISK\n\n2. The main security concern with 'sg_ident' is that it can provide information about connected SCSI devices, which could potentially be used by an attacker to gather information about the target system.\n\n3. 'sg_ident' does not require root/sudo privileges to run, as it is designed to be used by regular users to identify SCSI devices.",
-  "timestamp": "2025-07-10T03:31:11.104944"
-}

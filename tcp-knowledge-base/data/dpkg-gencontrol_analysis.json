@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-gencontrol",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command is used to generate package control files for Debian-based Linux distributions, which is a common and necessary task for package maintainers. However, improper usage or malicious input could potentially lead to unintended consequences.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:05.811877"
-}

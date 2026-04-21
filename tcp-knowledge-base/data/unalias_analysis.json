@@ -1,5 +1,0 @@
-{
-  "command": "unalias",
-  "analysis": "1. SAFE\n2. The main concern is that the 'unalias' command can be used to remove custom aliases that might have been set up for security or convenience purposes, potentially leading to unintended consequences.\n3. N (Does not require root privileges)",
-  "timestamp": "2025-07-10T03:34:16.781631"
-}

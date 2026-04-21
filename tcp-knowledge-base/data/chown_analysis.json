@@ -1,5 +1,0 @@
-{
-  "command": "chown",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'chown' can lead to unauthorized access, data loss, or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:45.935155"
-}

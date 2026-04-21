@@ -1,5 +1,0 @@
-{
-  "command": "catman",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'catman' command is that it is typically used to display the manual pages (man pages) for various Unix/Linux commands, which can be a benign operation.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:23.084965"
-}

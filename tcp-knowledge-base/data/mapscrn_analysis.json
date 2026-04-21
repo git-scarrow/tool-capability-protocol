@@ -1,5 +1,0 @@
-{
-  "command": "mapscrn",
-  "analysis": "1. Risk: SAFE\n2. The `mapscrn` command is a utility that allows users to map the character set of the console to a specified character set file. It poses minimal risk as it primarily deals with console configuration and does not directly execute external commands or modify critical system files.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:46.135222"
-}

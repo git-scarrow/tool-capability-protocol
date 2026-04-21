@@ -1,5 +1,0 @@
-{
-  "command": "runc",
-  "analysis": "The `runc` command is a low-level container runtime tool used by various container platforms like Docker and Kubernetes. \n\nRisk level: MEDIUM_RISK\nMain security concerns: Improper configuration or usage of `runc` can lead to container breakout, privilege escalation, or denial of service attacks. It requires careful handling of container images and runtime parameters.\nRequires root/sudo: Yes, `runc` requires root or sudo privileges to manage containers, as it interacts directly with the Linux kernel.\n\nOverall, `runc` is a powerful tool, but it should be used with caution and within a secure container management ecosystem to mitigate potential security risks.",
-  "timestamp": "2025-07-10T03:47:57.518591"
-}

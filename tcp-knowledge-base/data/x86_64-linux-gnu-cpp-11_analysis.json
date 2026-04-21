@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-cpp-11",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. This is a standard GNU C++ preprocessor command for the x86_64 architecture running Linux.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:37.381451"
-}

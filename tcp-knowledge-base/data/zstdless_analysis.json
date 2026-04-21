@@ -1,5 +1,0 @@
-{
-  "command": "zstdless",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, as 'zstdless' is a safe command that allows you to view the contents of a file compressed with the Zstandard compression algorithm.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.149230"
-}

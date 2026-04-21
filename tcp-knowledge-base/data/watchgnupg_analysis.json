@@ -1,5 +1,0 @@
-{
-  "command": "watchgnupg",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'watchgnupg' is a monitoring tool for the GnuPG daemon, which is a widely used encryption software. It may not pose significant risks if used as intended, but users should exercise caution and ensure the trustworthiness of the source.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:53.233859"
-}

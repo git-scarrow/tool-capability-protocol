@@ -1,5 +1,0 @@
-{
-  "command": "sg_persist",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sg_persist` can be used to manage SCSI persistent reservations, which can have security implications if not used properly. Improper use can lead to potential data corruption or denial of service.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.610408"
-}

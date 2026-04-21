@@ -1,5 +1,0 @@
-{
-  "command": "gcov-tool",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `gcov-tool` is a utility used to analyze the coverage data produced by the GCC compiler's `gcov` tool, which is used for code coverage analysis.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:33.188307"
-}

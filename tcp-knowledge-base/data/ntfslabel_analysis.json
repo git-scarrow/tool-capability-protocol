@@ -1,5 +1,0 @@
-{
-  "command": "ntfslabel",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the `ntfslabel` command is the potential to inadvertently modify the volume label of an NTFS file system, which could cause issues if the label is used in other applications or scripts.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:21.305674"
-}

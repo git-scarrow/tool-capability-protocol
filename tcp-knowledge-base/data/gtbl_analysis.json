@@ -1,5 +1,0 @@
-{
-  "command": "gtbl",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'gtbl' command is that it is a legacy command from the early days of Unix, and its functionality may be limited or obsolete compared to more modern alternatives.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:05.854139"
-}

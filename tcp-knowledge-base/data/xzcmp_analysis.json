@@ -1,5 +1,0 @@
-{
-  "command": "xzcmp",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'xzcmp' command is that it is not a standard Unix command, and its functionality is not immediately clear.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:08.147769"
-}

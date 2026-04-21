@@ -1,5 +1,0 @@
-{
-  "command": "sg",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'sg' command can potentially escalate user privileges, allowing users to execute commands with the permissions of a specified group, which could lead to unintended access or actions if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.579329"
-}

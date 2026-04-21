@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-gensymbols",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `dpkg-gensymbols` command is used to generate a list of symbols exported by a Debian package. It is a standard part of the Debian package building process and does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:33.727111"
-}

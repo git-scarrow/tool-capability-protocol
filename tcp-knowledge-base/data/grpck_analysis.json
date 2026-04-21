@@ -1,5 +1,0 @@
-{
-  "command": "grpck",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `grpck` command is used to check the integrity of the group file and can be used to fix any issues found. It is generally safe to use, but caution should be exercised as it can modify system files.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:47.166358"
-}

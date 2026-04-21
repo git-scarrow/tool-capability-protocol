@@ -1,5 +1,0 @@
-{
-  "command": "update-locale",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'update-locale' command can modify system-wide locale settings, which could potentially impact the behavior of various applications and services. Improper usage or misconfiguration could lead to system instability or compatibility issues.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:38.275515"
-}

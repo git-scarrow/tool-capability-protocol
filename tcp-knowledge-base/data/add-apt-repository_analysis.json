@@ -1,5 +1,0 @@
-{
-  "command": "add-apt-repository",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command can add third-party repositories to your system, which may contain untrusted software or introduce potential security vulnerabilities if not properly vetted.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.823934"
-}

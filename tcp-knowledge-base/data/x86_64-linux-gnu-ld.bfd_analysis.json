@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-ld.bfd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: This command is the GNU linker for the x86_64 architecture running on Linux, which could potentially be used to link and execute malicious code if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:52.836989"
-}

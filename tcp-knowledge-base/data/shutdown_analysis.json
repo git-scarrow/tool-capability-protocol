@@ -1,5 +1,0 @@
-{
-  "command": "shutdown",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of the 'shutdown' command can lead to data loss, system downtime, and potential security breaches if the system is not properly secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:47.543368"
-}

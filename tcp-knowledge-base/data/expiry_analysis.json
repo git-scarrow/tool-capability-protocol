@@ -1,5 +1,0 @@
-{
-  "command": "expiry",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'expiry' command is that it can be used to display information about user account expiration, which could potentially be used by an attacker to gather information about the system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:33.517435"
-}

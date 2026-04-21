@@ -1,5 +1,0 @@
-{
-  "command": "cc",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'cc' command is a compiler that can be used to compile C programs. If the source code being compiled contains vulnerabilities, it could lead to security issues. However, the command itself is not inherently risky.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.517962"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "getpcaps",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'getpcaps' command can potentially expose sensitive information about the capabilities of processes running on the system, which could be used by an attacker to identify potential attack vectors.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:54.540973"
-}

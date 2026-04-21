@@ -1,5 +1,0 @@
-{
-  "command": "neqn",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `neqn` is a command-line tool for typesetting equations in Unix-like systems. It is generally safe to use, but as with any command-line tool, there is a potential risk of misuse or unintended consequences.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:33:47.079871"
-}

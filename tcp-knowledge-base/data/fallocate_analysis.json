@@ -1,5 +1,0 @@
-{
-  "command": "fallocate",
-  "analysis": "1. Risk: SAFE/LOW_RISK\n2. The main concern with 'fallocate' is that it can pre-allocate space on a file system, which could potentially lead to disk space exhaustion if used carelessly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.611381"
-}

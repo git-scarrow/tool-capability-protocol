@@ -1,5 +1,0 @@
-{
-  "command": "systemd-sysusers",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The `systemd-sysusers` command is used to create system users and groups specified in configuration files. It is a core component of the systemd init system and poses minimal risk when used as intended.\n3. Needs root? Y - This command requires root privileges to create system users and groups.",
-  "timestamp": "2025-07-10T03:32:21.379438"
-}

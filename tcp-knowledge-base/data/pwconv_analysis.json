@@ -1,5 +1,0 @@
-{
-  "command": "pwconv",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: pwconv can potentially modify user account passwords and shadow files, which could lead to unauthorized access if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:37.160324"
-}

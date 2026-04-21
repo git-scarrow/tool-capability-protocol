@@ -1,5 +1,0 @@
-{
-  "command": "ranlib",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `ranlib` is a utility that creates or updates the symbol table within an archive file, such as a static library. It is generally a safe command, but improper usage or malicious input could potentially lead to issues.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.506263"
-}

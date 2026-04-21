@@ -1,5 +1,0 @@
-{
-  "command": "gsettings",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The `gsettings` command is a utility for accessing the GNOME Settings database, which is primarily used for managing desktop environment settings. It poses minimal risk when used by authorized users to customize their own desktop environment.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.708384"
-}

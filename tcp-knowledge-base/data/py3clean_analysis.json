@@ -1,5 +1,0 @@
-{
-  "command": "py3clean",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'py3clean' command is that it removes Python 3 bytecode files, which could potentially cause issues if the files are still in use or needed for specific applications.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:09.183717"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "sg_read_long",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_read_long` command can potentially read sensitive data from a SCSI device, which could pose a security risk if the device contains confidential information.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.201071"
-}

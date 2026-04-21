@@ -1,5 +1,0 @@
-{
-  "command": "deb-systemd-helper",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'deb-systemd-helper' command is used to manage systemd-related files in Debian-based Linux distributions. It has few security implications and is generally considered safe for use, but should be used with caution as it can modify system files.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:39.366213"
-}

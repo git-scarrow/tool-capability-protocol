@@ -1,5 +1,0 @@
-{
-  "command": "trap",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: Ensuring proper handling of signals and exit conditions in shell scripts.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:08.080114"
-}

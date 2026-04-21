@@ -1,5 +1,0 @@
-{
-  "command": "usbhid-dump",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `usbhid-dump` command is a diagnostic tool that can potentially expose sensitive information about connected USB devices, including their Human Interface Device (HID) data. However, it does not directly pose a high security risk.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.564073"
-}

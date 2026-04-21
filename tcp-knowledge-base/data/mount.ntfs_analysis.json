@@ -1,5 +1,0 @@
-{
-  "command": "mount.ntfs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential security vulnerabilities, data integrity issues, and compatibility problems when mounting NTFS (Windows) file systems on Unix-like systems.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.260753"
-}

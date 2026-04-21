@@ -1,5 +1,0 @@
-{
-  "command": "applygnupgdefaults",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command may modify the default configuration of the GnuPG software, which could potentially impact the security and privacy of the user's encrypted data or communications.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:32:20.908005"
-}

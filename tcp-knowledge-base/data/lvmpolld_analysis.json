@@ -1,5 +1,0 @@
-{
-  "command": "lvmpolld",
-  "analysis": "1. Risk: SAFE\n2. The `lvmpolld` command is a background daemon that monitors logical volumes and manages their state, ensuring the integrity and availability of the logical volume management (LVM) system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:06.575830"
-}

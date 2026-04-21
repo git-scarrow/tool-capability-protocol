@@ -1,5 +1,0 @@
-{
-  "command": "ldd",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential misuse to gather information about system dependencies, which could be used for malicious purposes.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.170989"
-}

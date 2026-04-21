@@ -1,5 +1,0 @@
-{
-  "command": "sha512sum",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `sha512sum` is a cryptographic hash function that calculates the SHA-512 hash of a file, which is commonly used for data integrity verification and comparison.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:53.002376"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "futurize",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'futurize' command is a Python script that helps to modernize Python 2 code to Python 3. It does not directly pose any major security concerns, but like any code execution, it should be used with caution, especially on untrusted input.\n3. 'futurize' does not require root or sudo privileges to run, as it operates on the user's Python environment.",
-  "timestamp": "2025-07-10T03:46:51.154266"
-}

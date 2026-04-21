@@ -1,5 +1,0 @@
-{
-  "command": "sg_compare_and_write",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential data corruption or loss if used improperly. Requires careful handling of sensitive storage devices.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:52.094654"
-}

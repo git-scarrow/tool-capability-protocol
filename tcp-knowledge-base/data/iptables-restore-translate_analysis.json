@@ -1,5 +1,0 @@
-{
-  "command": "iptables-restore-translate",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: This command can be used to restore firewall rules, which can have significant impact on network security. Improper usage or malicious intent could lead to unintended consequences, such as opening up the system to unauthorized access or disrupting network connectivity.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:34:09.737109"
-}

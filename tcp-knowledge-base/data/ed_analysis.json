@@ -1,5 +1,0 @@
-{
-  "command": "ed",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns with the 'ed' command are the potential for data loss or system modifications, as it provides direct access to the file system and allows for the execution of arbitrary commands.\n3. N",
-  "timestamp": "2025-07-10T03:33:31.898540"
-}

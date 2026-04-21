@@ -1,5 +1,0 @@
-{
-  "command": "keyring",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'keyring' command is generally used to manage the system's cryptographic keys, which can be a sensitive operation. However, it is a built-in Unix command and is not typically associated with high-risk activities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.817530"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "setsid",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'setsid' command is that it can be used to detach a process from the current session, which may have unintended consequences if not used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:38.784555"
-}

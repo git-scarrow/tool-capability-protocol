@@ -1,5 +1,0 @@
-{
-  "command": "xtables-monitor",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for unauthorized access or unintended modifications to firewall rules if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.284189"
-}

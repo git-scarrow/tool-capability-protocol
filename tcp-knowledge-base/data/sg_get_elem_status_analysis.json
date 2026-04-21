@@ -1,5 +1,0 @@
-{
-  "command": "sg_get_elem_status",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential data exposure if the command is misused or if the user has limited privileges.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.444520"
-}

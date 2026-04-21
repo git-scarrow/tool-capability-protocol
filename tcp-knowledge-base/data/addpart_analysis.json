@@ -1,5 +1,0 @@
-{
-  "command": "addpart",
-  "analysis": "The Unix command 'addpart' is used to add a new partition to a storage device. It is considered a MEDIUM_RISK command due to its potential to modify the partitioning scheme of a system, which could lead to data loss or system instability if not used with caution. The main security concern is the risk of unauthorized access to the command, which could allow an attacker to create, modify, or delete partitions without the user's knowledge or consent. The 'addpart' command typically requires root or sudo privileges to execute, as it operates at a low-level system management level.",
-  "timestamp": "2025-07-10T03:31:12.012576"
-}

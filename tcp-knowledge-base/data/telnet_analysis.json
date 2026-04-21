@@ -1,5 +1,0 @@
-{
-  "command": "telnet",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Telnet is an unencrypted protocol, allowing potential eavesdropping and data compromise. It can also be used to gain unauthorized access to systems if not properly configured and secured.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:37.874610"
-}

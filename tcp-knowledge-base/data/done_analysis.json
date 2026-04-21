@@ -1,5 +1,0 @@
-{
-  "command": "done",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'done' command is a built-in shell command used to mark the end of a loop or a block of code. It is a commonly used and well-understood command, and it does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.589156"
-}

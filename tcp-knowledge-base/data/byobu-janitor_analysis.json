@@ -1,5 +1,0 @@
-{
-  "command": "byobu-janitor",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'byobu-janitor' command is a utility that helps manage the Byobu session manager, which is a wrapper around the GNU Screen or Tmux terminal multiplexers. It is generally considered a low-risk command as it does not directly execute external commands or modify system files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.965371"
-}

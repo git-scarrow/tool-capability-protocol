@@ -1,5 +1,0 @@
-{
-  "command": "ipcs",
-  "analysis": "1. SAFE/LOW_RISK: The `ipcs` command is generally considered a low-risk Unix command.\n\n2. Main concerns: The `ipcs` command can display information about System V IPC (Inter-Process Communication) resources, which can potentially reveal sensitive information about the system's processes and memory usage.\n\n3. Needs root? Y: The `ipcs` command requires root privileges to display information about all IPC resources on the system.",
-  "timestamp": "2025-07-10T03:31:33.191823"
-}

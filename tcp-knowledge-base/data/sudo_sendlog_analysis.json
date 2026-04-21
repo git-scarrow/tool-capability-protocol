@@ -1,5 +1,0 @@
-{
-  "command": "sudo_sendlog",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'sudo_sendlog' command can potentially allow unauthorized access or privilege escalation if misused or misconfigured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:32.208364"
-}

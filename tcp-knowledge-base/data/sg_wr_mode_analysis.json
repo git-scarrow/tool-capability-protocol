@@ -1,5 +1,0 @@
-{
-  "command": "sg_wr_mode",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_wr_mode` command can be used to modify the write mode settings of SCSI devices, which can potentially impact data integrity and system stability if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.473016"
-}

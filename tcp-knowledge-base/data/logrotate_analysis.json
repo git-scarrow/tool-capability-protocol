@@ -1,5 +1,0 @@
-{
-  "command": "logrotate",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Improper configuration can lead to loss of log data or unintended log rotation.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:23.472587"
-}

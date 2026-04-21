@@ -1,5 +1,0 @@
-{
-  "command": "biosdecode",
-  "analysis": "1. Risk: SAFE\n2. The 'biosdecode' command is a safe utility that decodes BIOS information, providing details about the system's hardware configuration. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.572670"
-}

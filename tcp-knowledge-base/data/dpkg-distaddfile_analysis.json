@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-distaddfile",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `dpkg-distaddfile` command is used to add a file to the Debian package distribution. It is generally a low-risk operation, but care should be taken to ensure the file being added is legitimate and trusted.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:09.082207"
-}

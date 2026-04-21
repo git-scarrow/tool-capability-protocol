@@ -1,5 +1,0 @@
-{
-  "command": "vmtoolsd",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'vmtoolsd' command is used by the VMware Tools software to provide functionality such as mouse synchronization, file sharing, and power management. It does not pose significant security risks if properly configured and maintained.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.770583"
-}

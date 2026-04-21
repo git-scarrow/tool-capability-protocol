@@ -1,5 +1,0 @@
-{
-  "command": "pager",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. The 'pager' command is a safe and common Unix utility used to display text files one page at a time.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:53.279597"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "pdata_tools",
-  "analysis": "1. Risk: SAFE\n2. The 'pdata_tools' command is a utility for manipulating performance data, and it does not pose any significant security risks.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:32:52.750173"
-}

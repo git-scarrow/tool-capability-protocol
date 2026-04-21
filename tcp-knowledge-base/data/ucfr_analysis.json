@@ -1,5 +1,0 @@
-{
-  "command": "ucfr",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `ucfr` command is a utility for updating configuration files in a Unix-like system, which could potentially modify system settings and introduce vulnerabilities if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:01.151894"
-}

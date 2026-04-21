@@ -1,5 +1,0 @@
-{
-  "command": "dd",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns:\n   - Potential for data loss or overwriting if used incorrectly\n   - Ability to read and write to any storage device, including sensitive system partitions\n   - Potential for unauthorized access and data manipulation if used by malicious actors\n3. 'dd' requires root/sudo privileges to access and manipulate system storage devices.",
-  "timestamp": "2025-07-10T03:31:13.851027"
-}

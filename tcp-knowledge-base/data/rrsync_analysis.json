@@ -1,5 +1,0 @@
-{
-  "command": "rrsync",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. The main concerns with the 'rrsync' command are the potential risks associated with remote file synchronization, such as unauthorized access, data loss, or unintended modifications.\n3. Needs root: Y (the command typically requires root privileges to perform synchronization tasks across remote systems).",
-  "timestamp": "2025-07-10T03:33:47.653901"
-}

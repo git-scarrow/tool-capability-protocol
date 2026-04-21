@@ -1,5 +1,0 @@
-{
-  "command": "byobu-quiet",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'byobu-quiet' command is a wrapper for the 'byobu' command, which is a terminal multiplexer. It is generally considered safe, as it does not perform any system-level operations that could pose a significant risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.741019"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "lvdisplay",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'lvdisplay' command displays information about logical volumes (LVs) on a Linux system. While it does not directly pose a security risk, it can provide information about the system's storage configuration, which could be useful for an attacker.\n3. The 'lvdisplay' command does not require root/sudo privileges to execute, but it may return limited information without elevated permissions.",
-  "timestamp": "2025-07-10T03:30:08.250602"
-}

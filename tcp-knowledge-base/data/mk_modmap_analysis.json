@@ -1,5 +1,0 @@
-{
-  "command": "mk_modmap",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'mk_modmap' command can potentially modify system files, which could lead to unintended consequences or system instability if used improperly.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:33:38.751387"
-}

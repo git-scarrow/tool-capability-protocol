@@ -1,5 +1,0 @@
-{
-  "command": "e2mmpstatus",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'e2mmpstatus' command is used to display the status of the Ext2/Ext3/Ext4 file system's multiple mount protection (MMP) feature. It is a low-risk command that does not pose significant security concerns.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:21.554053"
-}

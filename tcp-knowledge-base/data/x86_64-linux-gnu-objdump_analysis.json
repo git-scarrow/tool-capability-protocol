@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-objdump",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for misuse by malicious actors to analyze and reverse-engineer binaries, but the command itself is a standard system utility.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.355043"
-}

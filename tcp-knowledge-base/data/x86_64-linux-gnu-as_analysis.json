@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-as",
-  "analysis": "1. Risk: SAFE\n2. The 'x86_64-linux-gnu-as' command is a GNU assembler tool used to convert assembly language code into machine-readable binary format. It is a standard tool used in software development and does not pose any significant security risks.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:52.593347"
-}

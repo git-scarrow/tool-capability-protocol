@@ -1,5 +1,0 @@
-{
-  "command": "xzless",
-  "analysis": "1. Risk: SAFE\n2. The main concern with 'xzless' is that it is a command-line tool that can be used to view the contents of compressed files, which could potentially be used to view sensitive or confidential information if the file contains such data.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.577417"
-}

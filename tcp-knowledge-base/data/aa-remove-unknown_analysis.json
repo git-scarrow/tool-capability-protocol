@@ -1,5 +1,0 @@
-{
-  "command": "aa-remove-unknown",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'aa-remove-unknown' command is used to remove AppArmor profiles for unconfined processes. While it doesn't pose a significant security risk, it could potentially be misused by an attacker to bypass security measures if executed without proper authorization.\n3. The 'aa-remove-unknown' command requires root/sudo privileges to execute, as it interacts with the AppArmor system and modifies the system's security configuration.",
-  "timestamp": "2025-07-10T03:30:05.049099"
-}

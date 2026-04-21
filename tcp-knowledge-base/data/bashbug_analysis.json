@@ -1,5 +1,0 @@
-{
-  "command": "bashbug",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'bashbug' command is that it could potentially expose information about the system or the user's environment, which could be used by an attacker to gain unauthorized access or perform further malicious actions.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.184191"
-}

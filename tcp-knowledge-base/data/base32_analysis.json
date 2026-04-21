@@ -1,5 +1,0 @@
-{
-  "command": "base32",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `base32` command is generally safe, but it can be used to encode and decode data, which could potentially be used for malicious purposes if the input data is not properly sanitized.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.180123"
-}

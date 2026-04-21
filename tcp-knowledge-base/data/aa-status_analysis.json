@@ -1,5 +1,0 @@
-{
-  "command": "aa-status",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'aa-status' command is that it provides information about the AppArmor security profiles, which could be used by an attacker to gain a better understanding of the system's security configuration.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:06.175244"
-}

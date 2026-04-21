@@ -1,5 +1,0 @@
-{
-  "command": "true",
-  "analysis": "1. Risk: SAFE\n2. The 'true' command in Unix simply returns a successful exit status (0) and has no other side effects, making it a safe and low-risk command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.768547"
-}

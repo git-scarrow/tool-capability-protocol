@@ -1,5 +1,0 @@
-{
-  "command": "xsubpp",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'xsubpp' command is that it is a Perl utility used for generating Perl XS (eXternal Subroutine) code from a Perl source file, which could potentially introduce security risks if the input file is not properly validated.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:23.442776"
-}

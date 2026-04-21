@@ -1,5 +1,0 @@
-{
-  "command": "mokutil",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `mokutil` command is used to manage the Secure Boot keys on Linux systems, which can pose a security risk if misused or compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:31.976414"
-}

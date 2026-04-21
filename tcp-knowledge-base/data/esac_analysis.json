@@ -1,5 +1,0 @@
-{
-  "command": "esac",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'esac' command is that it is part of the Bash shell scripting language and is used to terminate a case statement, which is a control structure used to execute different code blocks based on the value of a variable. It is not a standalone command and does not pose any direct risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:23.134932"
-}

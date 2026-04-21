@@ -1,5 +1,0 @@
-{
-  "command": "sha224sum",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None. `sha224sum` is a utility for computing and verifying SHA-224 cryptographic checksums, which is a common and secure hashing algorithm.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.084682"
-}

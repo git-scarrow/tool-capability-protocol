@@ -1,5 +1,0 @@
-{
-  "command": "fsck.cramfs",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `fsck.cramfs` is a utility for checking and repairing the CRAMFS file system, which is a read-only compressed file system. It is generally safe to use, but errors in the file system structure could potentially lead to data loss.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.401719"
-}

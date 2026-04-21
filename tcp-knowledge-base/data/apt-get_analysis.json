@@ -1,5 +1,0 @@
-{
-  "command": "apt-get",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for system modifications, package installation, and potential security vulnerabilities if used improperly or by unauthorized users.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.711372"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "size",
-  "analysis": "1. Risk: SAFE\n2. The 'size' command in Unix is a safe utility that displays the size of sections (text, data, bss, and total) of one or more object files. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.934367"
-}

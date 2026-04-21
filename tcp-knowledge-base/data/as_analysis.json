@@ -1,5 +1,0 @@
-{
-  "command": "as",
-  "analysis": "1. Risk: LOW_RISK\n\n2. The main concern with the 'as' command is that it can be used to execute arbitrary code, which could potentially lead to system compromise if the input is not properly sanitized.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.786972"
-}

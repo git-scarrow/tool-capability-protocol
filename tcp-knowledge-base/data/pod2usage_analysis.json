@@ -1,5 +1,0 @@
-{
-  "command": "pod2usage",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'pod2usage' command is a utility that converts Perl's Pod (Plain Old Documentation) format into a usage message. It is generally considered a low-risk command, as it does not directly execute any code or make changes to the system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.238506"
-}

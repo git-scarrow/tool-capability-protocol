@@ -1,5 +1,0 @@
-{
-  "command": "pvdisplay",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `pvdisplay` command is used to display information about physical volumes (PVs) in a Linux/Unix system. It does not pose any significant risks as it only retrieves and displays information about existing PVs.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:54.938751"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "byobu-launch",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: 'byobu-launch' is a command used to start the Byobu terminal multiplexer. It is generally safe, as it does not perform any high-risk operations by itself.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:52.311901"
-}

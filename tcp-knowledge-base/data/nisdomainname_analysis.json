@@ -1,5 +1,0 @@
-{
-  "command": "nisdomainname",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'nisdomainname' command is that it can be used to display the current NIS (Network Information Service) domain name, which could potentially reveal sensitive information about the system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:22.189373"
-}

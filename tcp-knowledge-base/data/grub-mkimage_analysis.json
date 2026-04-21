@@ -1,5 +1,0 @@
-{
-  "command": "grub-mkimage",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `grub-mkimage` command is used to create a GRUB (Grand Unified Bootloader) image, which can be used to boot an operating system. Improper use or configuration can lead to boot issues or potential security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:38.144426"
-}

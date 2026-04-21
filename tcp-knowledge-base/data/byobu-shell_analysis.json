@@ -1,5 +1,0 @@
-{
-  "command": "byobu-shell",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None. 'byobu-shell' is a command used to launch a terminal session with the Byobu terminal multiplexer, which provides additional features and customization options for the terminal.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:38.160284"
-}

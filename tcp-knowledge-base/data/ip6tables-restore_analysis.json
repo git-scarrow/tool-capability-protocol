@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `ip6tables-restore` allows modifying the IPv6 firewall rules, which can have significant impact on the system's security if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.574010"
-}

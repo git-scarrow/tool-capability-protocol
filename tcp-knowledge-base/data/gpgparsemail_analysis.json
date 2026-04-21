@@ -1,5 +1,0 @@
-{
-  "command": "gpgparsemail",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are potential security vulnerabilities in the implementation of the command, which could allow an attacker to execute arbitrary code or gain unauthorized access to sensitive information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:22.953855"
-}

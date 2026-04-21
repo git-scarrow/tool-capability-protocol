@@ -1,5 +1,0 @@
-{
-  "command": "sotruss",
-  "analysis": "1. Risk: MEDIUM_RISK\n\n2. Main concerns:\n   - Potential for information leakage or unintended behavior if used improperly\n   - Possibility of capturing sensitive system calls or data\n\n3. Needs root? N\n\nThe 'sotruss' command is a Unix utility that traces system calls made by a process, which can be useful for debugging and analysis. However, it has the potential to capture sensitive information, making it",
-  "timestamp": "2025-07-10T03:31:55.095796"
-}

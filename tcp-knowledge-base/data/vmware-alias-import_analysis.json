@@ -1,5 +1,0 @@
-{
-  "command": "vmware-alias-import",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'vmware-alias-import' command is used to import aliases for VMware tools, which could potentially be abused by an attacker to escalate privileges or gain unauthorized access to the system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.643610"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "thin_metadata_size",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'thin_metadata_size' command is that it may be used to adjust the size of thin-provisioned metadata, which could potentially impact the performance and behavior of the storage system if not used correctly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.769271"
-}

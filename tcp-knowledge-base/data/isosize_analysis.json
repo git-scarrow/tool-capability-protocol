@@ -1,5 +1,0 @@
-{
-  "command": "isosize",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `isosize` command is generally safe to use, but it may have some minor risks related to incorrect usage or parsing of the output.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:33.084689"
-}

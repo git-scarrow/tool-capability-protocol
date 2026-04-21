@@ -1,5 +1,0 @@
-{
-  "command": "update-pciids",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'update-pciids' command is that it updates the PCI ID database, which could potentially introduce vulnerabilities if the update source is compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.544447"
-}

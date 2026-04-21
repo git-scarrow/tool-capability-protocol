@@ -1,5 +1,0 @@
-{
-  "command": "ubuntu-advantage",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'ubuntu-advantage' command can provide access to paid support and security services from Canonical, the company behind Ubuntu. However, it may also enable additional software repositories or configurations that could introduce security risks if not properly managed.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.561878"
-}

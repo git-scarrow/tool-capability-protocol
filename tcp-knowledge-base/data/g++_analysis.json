@@ -1,5 +1,0 @@
-{
-  "command": "g++",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `g++` command is the GNU C++ compiler, which is a widely used and trusted tool. However, improper usage or compiling untrusted code can lead to potential security risks.\n3. Needs root: N, but may require elevated privileges for certain operations.",
-  "timestamp": "2025-07-10T03:31:34.284913"
-}

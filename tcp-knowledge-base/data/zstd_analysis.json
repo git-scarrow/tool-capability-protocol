@@ -1,5 +1,0 @@
-{
-  "command": "zstd",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for data corruption or loss if used improperly. Careful handling of sensitive data is advised.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.086138"
-}

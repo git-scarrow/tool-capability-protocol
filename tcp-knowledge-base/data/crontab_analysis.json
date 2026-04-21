@@ -1,5 +1,0 @@
-{
-  "command": "crontab",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper configuration of cron jobs can lead to unauthorized access, data leaks, or system disruptions.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:31.646654"
-}

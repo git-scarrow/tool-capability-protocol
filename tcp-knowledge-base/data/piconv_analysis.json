@@ -1,5 +1,0 @@
-{
-  "command": "piconv",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'piconv' is a utility for converting character encodings, which can be useful for text processing tasks, but it does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:33.931119"
-}

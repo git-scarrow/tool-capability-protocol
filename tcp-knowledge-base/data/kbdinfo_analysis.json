@@ -1,5 +1,0 @@
-{
-  "command": "kbdinfo",
-  "analysis": "1. SAFE\n2. The `kbdinfo` command is used to retrieve information about the keyboard configuration, which is generally low-risk and does not pose any significant security concerns.\n3. No, `kbdinfo` does not require root privileges to execute.",
-  "timestamp": "2025-07-10T03:31:29.589755"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "sg_map",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `sg_map` is a Linux utility that displays the mapping between SCSI generic devices and SCSI block devices. It is generally considered a low-risk command as it provides information and does not perform any potentially dangerous operations.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.365944"
-}

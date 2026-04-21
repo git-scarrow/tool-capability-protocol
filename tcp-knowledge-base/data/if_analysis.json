@@ -1,5 +1,0 @@
-{
-  "command": "if",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: Lack of error handling, improper use can lead to logical errors or security vulnerabilities.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:56.516057"
-}

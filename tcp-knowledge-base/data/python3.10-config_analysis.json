@@ -1,5 +1,0 @@
-{
-  "command": "python3.10-config",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'python3.10-config' command is a utility that provides information about the Python 3.10 installation, such as the include directories, library directories, and linker flags. It is generally safe to use, but care should be taken when running it in a production environment.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:45.658177"
-}

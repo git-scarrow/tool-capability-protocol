@@ -1,5 +1,0 @@
-{
-  "command": "deb-systemd-invoke",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command 'deb-systemd-invoke' is used to manage systemd services, which could potentially be used to start, stop, or modify critical system services, leading to potential disruptions or security vulnerabilities if misused.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:53.426615"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "eqn",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'eqn' command is used to format and typeset mathematical equations, and it is generally considered a low-risk command. However, improper usage or input could potentially lead to issues.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.275168"
-}

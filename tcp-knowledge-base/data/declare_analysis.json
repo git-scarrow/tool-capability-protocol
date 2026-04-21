@@ -1,5 +1,0 @@
-{
-  "command": "declare",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'declare' command is used to declare variables and functions in shell scripts. The main concern is the potential for unintended variable or function redefinition, which could lead to script errors or security issues if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.202014"
-}

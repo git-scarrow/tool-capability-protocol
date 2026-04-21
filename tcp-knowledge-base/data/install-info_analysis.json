@@ -1,5 +1,0 @@
-{
-  "command": "install-info",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `install-info` is a standard Unix command used to manage the Info documentation system, which is a hypertext-based documentation system for Unix-like systems.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.083370"
-}

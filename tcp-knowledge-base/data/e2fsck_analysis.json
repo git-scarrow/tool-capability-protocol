@@ -1,5 +1,0 @@
-{
-  "command": "e2fsck",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: e2fsck can potentially modify or even delete critical data on the file system, so it should be used with caution and appropriate backups.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.737065"
-}

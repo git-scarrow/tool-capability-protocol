@@ -1,5 +1,0 @@
-{
-  "command": "sgp_dd",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the `sgp_dd` command is that it can be used to perform disk cloning or imaging, which could potentially overwrite or corrupt data if used improperly.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:36.972888"
-}

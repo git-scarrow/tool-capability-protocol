@@ -1,5 +1,0 @@
-{
-  "command": "nfnl_osf",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'nfnl_osf' command is that it is a relatively obscure command, and its functionality may not be well-known or documented, making it potentially risky if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.629123"
-}

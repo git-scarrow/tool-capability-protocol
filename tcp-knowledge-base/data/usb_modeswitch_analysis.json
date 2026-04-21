@@ -1,5 +1,0 @@
-{
-  "command": "usb_modeswitch",
-  "analysis": "1. SAFE/LOW_RISK\n\n2. The main concern with the `usb_modeswitch` command is that it is used to switch the mode of a USB device, which could potentially be used to bypass security measures or enable unauthorized access.\n\n3. Needs root? Y\n\nUnder 50 words: The `usb_modeswitch` command is generally considered low-risk, but it requires root privileges and could be used to modify",
-  "timestamp": "2025-07-10T03:32:37.429453"
-}

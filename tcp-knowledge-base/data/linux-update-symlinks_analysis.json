@@ -1,5 +1,0 @@
-{
-  "command": "linux-update-symlinks",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command updates symbolic links related to the Linux kernel, which could potentially impact the system's stability if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:16.992742"
-}

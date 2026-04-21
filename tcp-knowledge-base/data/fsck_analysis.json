@@ -1,5 +1,0 @@
-{
-  "command": "fsck",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential data loss or system instability if the file system is in a severely corrupted state.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.953986"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "setupcon",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'setupcon' command is that it sets up the console environment, which could potentially expose sensitive information or enable privilege escalation if misused or configured improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:37.020506"
-}

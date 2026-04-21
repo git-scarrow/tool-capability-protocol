@@ -1,5 +1,0 @@
-{
-  "command": "gpg-agent",
-  "analysis": "1. SAFE/LOW_RISK\n2. The main concern is the secure management and storage of cryptographic keys used for encryption and digital signatures.\n3. N (the `gpg-agent` command can be run by a regular user).",
-  "timestamp": "2025-07-10T03:34:51.929195"
-}

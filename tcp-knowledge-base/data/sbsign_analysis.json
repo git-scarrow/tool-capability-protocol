@@ -1,5 +1,0 @@
-{
-  "command": "sbsign",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Signing UEFI images can enable system-level attacks if the signing key is compromised, and improper usage may lead to boot failures or security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:39.783700"
-}

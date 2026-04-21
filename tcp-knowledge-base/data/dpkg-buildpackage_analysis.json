@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-buildpackage",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: The 'dpkg-buildpackage' command can be used to build and package software, which could potentially introduce security vulnerabilities if the source code or build process is compromised.\n3. The command typically requires root/sudo privileges to access and modify system files during the packaging process.",
-  "timestamp": "2025-07-10T03:29:01.410565"
-}

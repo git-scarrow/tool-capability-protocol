@@ -1,5 +1,0 @@
-{
-  "command": "gcc-ar",
-  "analysis": "1. MEDIUM_RISK\n2. Main concerns: `gcc-ar` is a command used to create, modify, and extract archives of object files, which can potentially be used to distribute malware or compromise system security if not used with caution.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:31.441875"
-}

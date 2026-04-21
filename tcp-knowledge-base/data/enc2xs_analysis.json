@@ -1,5 +1,0 @@
-{
-  "command": "enc2xs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'enc2xs' command can be used to encrypt and decrypt data, which could potentially be used for malicious purposes if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.902307"
-}

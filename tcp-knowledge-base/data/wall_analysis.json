@@ -1,5 +1,0 @@
-{
-  "command": "wall",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: None. The 'wall' command is a safe and low-risk utility used to send a message to all logged-in users.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.307294"
-}

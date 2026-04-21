@@ -1,5 +1,0 @@
-{
-  "command": "xfs_ncheck",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: The `xfs_ncheck` command is a utility for the XFS file system, which is primarily used to list inode numbers and pathnames for files on an XFS file system. It does not pose significant risks when used correctly.\n\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:35.636172"
-}

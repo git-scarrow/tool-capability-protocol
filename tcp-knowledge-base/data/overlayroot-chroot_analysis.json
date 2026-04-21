@@ -1,5 +1,0 @@
-{
-  "command": "overlayroot-chroot",
-  "analysis": "1. Risk: MEDIUM_RISK\n\n2. Main concerns: The 'overlayroot-chroot' command can potentially modify the root file system, which could lead to system instability or data loss if not used with caution.\n\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:37.674651"
-}

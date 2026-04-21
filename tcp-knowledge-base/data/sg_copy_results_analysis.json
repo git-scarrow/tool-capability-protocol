@@ -1,5 +1,0 @@
-{
-  "command": "sg_copy_results",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'sg_copy_results' command is a utility used to copy SCSI device inquiry and other data to a file, which poses a low risk if used correctly.\n3. Needs root? Y (Requires root or elevated privileges to access SCSI device information).",
-  "timestamp": "2025-07-10T03:31:36.240147"
-}

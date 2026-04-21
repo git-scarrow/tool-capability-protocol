@@ -1,5 +1,0 @@
-{
-  "command": "unattended-upgrades",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for automatic updates to cause system conflicts or break functionality. Careful configuration is required to ensure updates are applied safely.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.018619"
-}

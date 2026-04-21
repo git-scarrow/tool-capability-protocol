@@ -1,5 +1,0 @@
-{
-  "command": "pinentry",
-  "analysis": "1. SAFE\n2. The main concern with the `pinentry` command is that it is used to handle sensitive information, such as passwords or encryption keys, and it is important to ensure that the command is used in a secure and trusted environment.\n3. No, `pinentry` does not require root privileges.",
-  "timestamp": "2025-07-10T03:34:23.185012"
-}

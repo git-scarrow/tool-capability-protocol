@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.ntfs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'mkfs.ntfs' command is used to create an NTFS file system, which is typically used on Windows systems. Improper usage or applying it to the wrong partition could lead to data loss or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.756325"
-}

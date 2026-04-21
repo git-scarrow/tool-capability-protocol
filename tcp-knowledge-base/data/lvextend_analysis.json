@@ -1,5 +1,0 @@
-{
-  "command": "lvextend",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential data loss or system instability if not used correctly, especially when extending logical volumes on critical systems.\n3. Needs root? Y - This command requires root privileges to execute.",
-  "timestamp": "2025-07-10T03:34:16.776878"
-}

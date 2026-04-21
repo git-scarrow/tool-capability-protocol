@@ -1,5 +1,0 @@
-{
-  "command": "curl",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for data leakage, script injection, and system exploitation if the command is used to interact with untrusted or malicious endpoints.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.357349"
-}

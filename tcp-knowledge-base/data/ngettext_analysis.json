@@ -1,5 +1,0 @@
-{
-  "command": "ngettext",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, the 'ngettext' command is a utility for translating plural forms of messages, and it is commonly used in localization and internationalization tasks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:54.071112"
-}

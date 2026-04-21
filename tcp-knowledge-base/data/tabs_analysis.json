@@ -1,5 +1,0 @@
-{
-  "command": "tabs",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'tabs' command is that it does not pose a significant security risk, as it is primarily used to set tab stops in the terminal.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.219114"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "apt-config",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'apt-config' command is used to retrieve configuration information from the APT package management system. It does not directly execute any potentially harmful commands, but it can be used to access sensitive information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:38.762945"
-}

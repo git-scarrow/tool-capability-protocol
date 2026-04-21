@@ -1,5 +1,0 @@
-{
-  "command": "du",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, 'du' is a standard Unix command used to estimate file and directory space usage.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:17.374005"
-}

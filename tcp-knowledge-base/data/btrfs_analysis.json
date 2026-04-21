@@ -1,5 +1,0 @@
-{
-  "command": "btrfs",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: Improper usage can lead to data loss or file system corruption.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.551691"
-}

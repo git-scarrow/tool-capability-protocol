@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.fat",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Formatting a file system can lead to data loss if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.488714"
-}

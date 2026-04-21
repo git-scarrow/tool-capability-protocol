@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-nft-restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Modifying the IPv6 firewall rules using the nft (nftables) infrastructure, which can have a significant impact on the system's network security if not used correctly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:39.002400"
-}

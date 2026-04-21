@@ -1,5 +1,0 @@
-{
-  "command": "mksquashfs",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, mksquashfs is a standard Unix command used to create compressed, read-only filesystem images.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.477673"
-}

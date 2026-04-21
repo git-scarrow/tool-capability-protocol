@@ -1,5 +1,0 @@
-{
-  "command": "pigz",
-  "analysis": "1. Risk level: LOW_RISK\n2. Main security concerns: Potential for denial-of-service attacks if the command is used to compress large files, which could lead to resource exhaustion on the system.\n3. The 'pigz' command does not require root/sudo privileges to run, as it is a user-level tool for compressing and decompressing files.",
-  "timestamp": "2025-07-10T03:47:57.377637"
-}

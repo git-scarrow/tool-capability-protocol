@@ -1,5 +1,0 @@
-{
-  "command": "psfxtable",
-  "analysis": "1. SAFE\n2. The 'psfxtable' command is a standard Unix command that displays information about running processes and their associated file descriptors. It does not pose any significant security risks when used correctly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:36.980383"
-}

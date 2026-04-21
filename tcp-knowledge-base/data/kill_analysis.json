@@ -1,5 +1,0 @@
-{
-  "command": "kill",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Accidental termination of critical processes, potential system instability, and unauthorized access to terminate processes.\n3. Needs root? Y - The 'kill' command requires root privileges to terminate processes that the current user does not own.",
-  "timestamp": "2025-07-10T03:32:37.695031"
-}

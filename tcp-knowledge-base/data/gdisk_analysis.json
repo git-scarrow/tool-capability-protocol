@@ -1,5 +1,0 @@
-{
-  "command": "gdisk",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: gdisk is a partitioning tool that can modify the partition table, potentially causing data loss if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:31.044488"
-}

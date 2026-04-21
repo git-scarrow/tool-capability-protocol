@@ -1,5 +1,0 @@
-{
-  "command": "unpigz",
-  "analysis": "The Unix command 'unpigz' is used to decompress files compressed with the 'pigz' command, which is a parallel implementation of the 'gzip' compression utility. The risk level associated with 'unpigz' is considered SAFE, as it is a standard decompression tool that does not inherently pose significant security concerns. However, as with any file decompression process, caution should be exercised to ensure the integrity and safety of the decompressed content. The 'unpigz' command does not require root or sudo privileges to run, and it can be safely used by regular users to decompress compressed files.",
-  "timestamp": "2025-07-10T03:47:58.921980"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "lcf",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'lcf' command is a Unix command that lists the contents of a file, which is a relatively safe operation. However, it could potentially expose sensitive information if used on confidential files.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:32:05.752889"
-}

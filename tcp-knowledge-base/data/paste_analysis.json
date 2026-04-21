@@ -1,5 +1,0 @@
-{
-  "command": "paste",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'paste' command is the potential for data leakage if sensitive information is included in the files being combined.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:39.019240"
-}

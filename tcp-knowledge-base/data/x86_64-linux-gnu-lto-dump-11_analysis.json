@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-lto-dump-11",
-  "analysis": "1. SAFE: 'x86_64-linux-gnu-lto-dump-11' is a command used for debugging and analyzing LTO (Link Time Optimization) data, which is a low-risk operation.\n\n2. The main concern is ensuring the command is used by authorized personnel for legitimate purposes, as it provides insights into the internal workings of compiled binaries.\n\n3. Needs root? N: This command can be executed by regular users",
-  "timestamp": "2025-07-10T03:34:30.579646"
-}

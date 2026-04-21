@@ -1,5 +1,0 @@
-{
-  "command": "systemd-umount",
-  "analysis": "1. Risk: LOW_RISK\n\n2. Main concerns: The 'systemd-umount' command is a part of the systemd suite, which is a system and service manager for Linux. It is generally used to unmount file systems, and if not used carefully, it can lead to data loss or system instability.\n\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:47.293218"
-}

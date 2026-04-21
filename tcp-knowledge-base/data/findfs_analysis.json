@@ -1,5 +1,0 @@
-{
-  "command": "findfs",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The findfs command is used to locate a filesystem by label or UUID, which can be useful for system administration tasks. However, it does not have any inherent security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.748820"
-}

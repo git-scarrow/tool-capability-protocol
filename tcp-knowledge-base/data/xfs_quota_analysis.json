@@ -1,5 +1,0 @@
-{
-  "command": "xfs_quota",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of `xfs_quota` can lead to unintended changes in file system quotas, potentially causing service disruptions or data loss.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.478435"
-}

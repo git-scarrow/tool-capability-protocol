@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-shlibdeps",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: dpkg-shlibdeps is a tool used to determine the shared library dependencies of a package. It is generally safe, but can be used to analyze potentially malicious packages, which could pose a risk if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:39.052057"
-}

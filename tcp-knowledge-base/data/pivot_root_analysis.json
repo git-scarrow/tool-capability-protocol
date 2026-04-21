@@ -1,5 +1,0 @@
-{
-  "command": "pivot_root",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: `pivot_root` can be used to change the root filesystem, potentially leading to system instability or data loss if not used correctly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.728918"
-}

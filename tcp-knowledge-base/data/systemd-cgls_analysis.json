@@ -1,5 +1,0 @@
-{
-  "command": "systemd-cgls",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'systemd-cgls' command is that it displays the control group hierarchy, which could potentially reveal sensitive information about running processes and services on the system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:47.467203"
-}

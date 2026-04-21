@@ -1,5 +1,0 @@
-{
-  "command": "efibootmgr",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'efibootmgr' can potentially damage the system's boot configuration, leading to issues with booting the operating system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:35.591709"
-}

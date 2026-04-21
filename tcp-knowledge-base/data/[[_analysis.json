@@ -1,5 +1,0 @@
-{
-  "command": "[[",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the `[[` command is a shell builtin that can be used for conditional expressions, which could potentially lead to command injection vulnerabilities if not used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.244183"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "busctl",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, as 'busctl' is a safe and low-risk command used to interact with the D-Bus message bus.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:44.463035"
-}

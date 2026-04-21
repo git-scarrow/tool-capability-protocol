@@ -1,5 +1,0 @@
-{
-  "command": "nc.openbsd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'nc.openbsd' command can be used for both legitimate and malicious purposes, such as port scanning, file transfers, and even remote code execution if used incorrectly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:22.310357"
-}

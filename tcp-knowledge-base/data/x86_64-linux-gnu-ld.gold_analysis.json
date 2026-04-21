@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-ld.gold",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command 'x86_64-linux-gnu-ld.gold' is a linker tool used to combine object files and libraries into an executable. It may pose a risk if used improperly or by untrusted sources, as it can potentially execute code on the system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:46.044407"
-}

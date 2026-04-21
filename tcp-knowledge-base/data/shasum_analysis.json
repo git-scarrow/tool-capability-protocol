@@ -1,5 +1,0 @@
-{
-  "command": "shasum",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'shasum' is a command that calculates and verifies cryptographic hash values, which is a common and essential task in system administration and security.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.244537"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "containerd-shim-runc-v1",
-  "analysis": "The 'containerd-shim-runc-v1' command is a component of the containerd container runtime, used to manage and run containers. The risk level is MEDIUM_RISK. The main security concerns are potential privilege escalation and container breakout vulnerabilities if the command is not properly configured or maintained. It requires root/sudo privileges to execute, as it needs access to manage the container environment and resources. Regular security updates and following best practices for container runtime configuration are recommended to mitigate the risks associated with this command.",
-  "timestamp": "2025-07-10T03:47:59.098916"
-}

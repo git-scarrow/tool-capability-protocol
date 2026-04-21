@@ -1,5 +1,0 @@
-{
-  "command": "add-shell",
-  "analysis": "1. Risk: LOW_RISK\n2. The `add-shell` command is a standard Unix utility that adds a shell to the list of valid login shells for a user. It does not directly execute any commands, but rather modifies system configuration files.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:34:00.530129"
-}

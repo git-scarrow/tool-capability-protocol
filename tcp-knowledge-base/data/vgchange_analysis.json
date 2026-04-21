@@ -1,5 +1,0 @@
-{
-  "command": "vgchange",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `vgchange` can activate or deactivate volume groups, which can impact the availability and integrity of the system's storage. Improper usage can lead to data loss or system disruption.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.708457"
-}

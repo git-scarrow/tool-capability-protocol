@@ -1,5 +1,0 @@
-{
-  "command": "mdmon",
-  "analysis": "1. SAFE\n2. The main concern with the 'mdmon' command is that it is a part of the Linux software RAID monitoring system, which may be a potential target for privilege escalation or denial-of-service attacks if not properly configured or maintained.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.642407"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ip",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'ip' command can potentially expose network information, but it is a standard Unix utility that is generally safe when used by authorized users.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.752728"
-}

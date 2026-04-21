@@ -1,5 +1,0 @@
-{
-  "command": "reboot",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: Rebooting the system can cause downtime, data loss, and service interruptions if not performed properly or at the wrong time.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:37.708306"
-}

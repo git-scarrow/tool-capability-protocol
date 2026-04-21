@@ -1,5 +1,0 @@
-{
-  "command": "stty",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of stty can lead to changes in terminal settings, potentially disrupting user interaction or causing system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:39.432542"
-}

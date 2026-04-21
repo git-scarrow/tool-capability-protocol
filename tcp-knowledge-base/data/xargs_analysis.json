@@ -1,5 +1,0 @@
-{
-  "command": "xargs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for command injection, unintended file manipulation, and resource exhaustion if the input is not properly validated.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.357752"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gcov-tool",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'x86_64-linux-gnu-gcov-tool' is a code coverage analysis tool, which is generally considered safe. However, it may pose a low risk if used to analyze untrusted code, as it could potentially be used to extract sensitive information from the analyzed application.\n3. The tool does not require root/sudo privileges to run, but it may require certain permissions to access the files being analyzed.",
-  "timestamp": "2025-07-10T03:31:13.646378"
-}

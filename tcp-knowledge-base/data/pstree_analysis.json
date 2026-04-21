@@ -1,5 +1,0 @@
-{
-  "command": "pstree",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `pstree` is a safe and widely-used command that displays the current running processes in a tree-like format, providing a visual representation of the process hierarchy.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:30.441439"
-}

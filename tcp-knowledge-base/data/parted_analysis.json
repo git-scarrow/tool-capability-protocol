@@ -1,5 +1,0 @@
-{
-  "command": "parted",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: 'parted' can modify and manipulate disk partitions, potentially leading to data loss or system instability if used improperly. Unauthorized access to this command could be exploited by attackers to modify or delete critical system partitions.\n3. 'parted' requires root/sudo privileges to execute most of its functionality, as it needs elevated permissions to access and modify disk partitions.",
-  "timestamp": "2025-07-10T03:28:57.047540"
-}

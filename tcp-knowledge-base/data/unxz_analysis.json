@@ -1,5 +1,0 @@
-{
-  "command": "unxz",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'unxz' command is the potential for extracting and executing malicious content from compressed files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:38.000889"
-}

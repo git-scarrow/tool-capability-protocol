@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-readelf",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. The 'x86_64-linux-gnu-readelf' command is a tool used to analyze the contents of ELF (Executable and Linkable Format) files, which is a standard file format for executables and shared libraries on Unix-like systems.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.778961"
-}

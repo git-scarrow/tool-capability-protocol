@@ -1,5 +1,0 @@
-{
-  "command": "xfs_repair",
-  "analysis": "1. MEDIUM_RISK\n2. Main concerns include potential data loss or corruption during the repair process, especially if the filesystem is severely damaged or if the command is used incorrectly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.223483"
-}

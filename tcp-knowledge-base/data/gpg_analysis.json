@@ -1,5 +1,0 @@
-{
-  "command": "gpg",
-  "analysis": "1. MEDIUM_RISK\n2. Potential security risks if used improperly, such as exposing sensitive data or enabling unauthorized access.\n3. N",
-  "timestamp": "2025-07-10T03:31:34.140757"
-}

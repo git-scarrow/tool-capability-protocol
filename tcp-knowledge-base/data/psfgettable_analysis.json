@@ -1,5 +1,0 @@
-{
-  "command": "psfgettable",
-  "analysis": "1. Risk: SAFE\n2. The 'psfgettable' command is a Unix utility that retrieves information about the process scheduling table, which is generally considered a safe operation.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:39.288104"
-}

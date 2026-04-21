@@ -1,5 +1,0 @@
-{
-  "command": "addgnupghome",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command may modify the user's GnuPG home directory, potentially affecting the security and privacy of encrypted data.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:22.736810"
-}

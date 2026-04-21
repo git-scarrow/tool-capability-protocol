@@ -1,5 +1,0 @@
-{
-  "command": "[",
-  "analysis": "1. Risk: SAFE\n2. The `[` command is a built-in shell command used to evaluate conditional expressions. It is generally considered a safe and commonly used command in Unix-based systems.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:45.220108"
-}

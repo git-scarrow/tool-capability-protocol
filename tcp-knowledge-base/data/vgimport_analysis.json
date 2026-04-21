@@ -1,5 +1,0 @@
-{
-  "command": "vgimport",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential data loss or corruption if the volume group being imported is already in use or has been modified without proper backup and verification.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:00.230022"
-}

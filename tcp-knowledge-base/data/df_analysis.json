@@ -1,5 +1,0 @@
-{
-  "command": "df",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, the `df` command is a basic file system information utility.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:00.105898"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "iptables-nft",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Incorrect configuration or misuse of `iptables-nft` can lead to unintended network traffic blocking or allowing, potentially exposing the system to security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:06.247406"
-}

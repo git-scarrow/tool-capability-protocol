@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-legacy-save",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command is used to save the current state of the IPv6 firewall rules, which could potentially expose sensitive network information if misused.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.424627"
-}

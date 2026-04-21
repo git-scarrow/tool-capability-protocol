@@ -1,5 +1,0 @@
-{
-  "command": "systemd-cgtop",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'systemd-cgtop' is used to monitor the resource usage of control groups (cgroups) on a system, which can be helpful for troubleshooting and optimizing system performance. However, it does not pose significant security risks.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.564466"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "mount.lowntfs-3g",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential security vulnerabilities in the underlying NTFS driver, possibility of data corruption or loss during the mount process.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.324875"
-}

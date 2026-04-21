@@ -1,5 +1,0 @@
-{
-  "command": "pam_timestamp_check",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The `pam_timestamp_check` command is a PAM (Pluggable Authentication Module) module that checks the timestamp of a user's authentication, ensuring that the user has been authenticated within a specified time frame.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.182249"
-}

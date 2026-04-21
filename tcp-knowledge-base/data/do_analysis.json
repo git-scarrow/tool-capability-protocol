@@ -1,5 +1,0 @@
-{
-  "command": "do",
-  "analysis": "The Unix command 'do' is considered SAFE for security classification.\n\n1. Risk level: SAFE\n2. Main security concerns: The 'do' command is a built-in shell command that is used to execute a list of commands in a loop. It does not pose any inherent security risks on its own.\n3. Does not require root/sudo: The 'do' command can be used by regular users without the need for elevated privileges.",
-  "timestamp": "2025-07-10T03:30:05.562300"
-}

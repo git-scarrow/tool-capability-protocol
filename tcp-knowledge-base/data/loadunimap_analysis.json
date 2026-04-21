@@ -1,5 +1,0 @@
-{
-  "command": "loadunimap",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `loadunimap` command is used to load a custom Unicode character mapping table into the kernel. While it can be a useful tool, improper usage or loading of an incorrect mapping table could potentially lead to display issues or other minor problems.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:59.817598"
-}

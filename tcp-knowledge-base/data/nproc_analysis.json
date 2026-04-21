@@ -1,5 +1,0 @@
-{
-  "command": "nproc",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, `nproc` is a safe command that simply returns the number of available processors.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.380835"
-}

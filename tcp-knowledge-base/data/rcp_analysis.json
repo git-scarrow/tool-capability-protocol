@@ -1,5 +1,0 @@
-{
-  "command": "rcp",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential security vulnerabilities, lack of encryption, and potential for unauthorized access to files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:52.312588"
-}

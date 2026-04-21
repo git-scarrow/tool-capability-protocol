@@ -1,5 +1,0 @@
-{
-  "command": "dmeventd",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `dmeventd` is a daemon that monitors device-mapper events and manages logical volumes. It is part of the LVM (Logical Volume Manager) suite and is used to manage dynamic volumes, such as RAID arrays, thin-provisioned volumes, and snapshot volumes.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.094731"
-}

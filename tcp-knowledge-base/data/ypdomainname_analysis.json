@@ -1,5 +1,0 @@
-{
-  "command": "ypdomainname",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'ypdomainname' command is that it can potentially reveal information about the network domain configuration, which could be useful for an attacker in planning further attacks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:01.469537"
-}

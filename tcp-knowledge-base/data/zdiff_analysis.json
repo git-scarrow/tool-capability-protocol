@@ -1,5 +1,0 @@
-{
-  "command": "zdiff",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with 'zdiff' is that it can be used to compare the contents of compressed files, which could potentially expose sensitive information if the files contain confidential data.\n3. 'zdiff' does not require root or sudo privileges to run.",
-  "timestamp": "2025-07-10T03:30:04.401967"
-}

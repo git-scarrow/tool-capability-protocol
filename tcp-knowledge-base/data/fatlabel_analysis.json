@@ -1,5 +1,0 @@
-{
-  "command": "fatlabel",
-  "analysis": "1. Risk: SAFE\n2. The `fatlabel` command is a low-risk utility that allows you to set or display the volume label of a FAT file system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:31.784723"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "pgrep",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with 'pgrep' is that it can be used to gather information about running processes, which could potentially be used for malicious purposes.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:23.228388"
-}

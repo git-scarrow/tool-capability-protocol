@@ -1,5 +1,0 @@
-{
-  "command": "sudo_logsrvd",
-  "analysis": "1. Risk: SAFE\n2. The `sudo_logsrvd` command is a Unix command that is part of the `sudo` package, which is a widely used utility for running commands with elevated privileges. It is generally considered a safe and low-risk command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:22.831109"
-}

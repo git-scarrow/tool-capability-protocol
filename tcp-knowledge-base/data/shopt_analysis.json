@@ -1,5 +1,0 @@
-{
-  "command": "shopt",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `shopt` command is used to set and unset shell options, which can affect the behavior of the shell. Improper use of `shopt` can lead to unintended consequences, but it is generally a low-risk command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:33.525061"
-}

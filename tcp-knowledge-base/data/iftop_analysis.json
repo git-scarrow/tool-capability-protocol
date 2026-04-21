@@ -1,5 +1,0 @@
-{
-  "command": "iftop",
-  "analysis": "1. Risk level: LOW_RISK\n2. Main security concerns: Iftop is a network monitoring tool that can display information about network traffic, including IP addresses and port numbers. While this information could potentially be used for malicious purposes, Iftop does not provide any functionality for actively exploiting vulnerabilities or modifying network traffic.\n3. Iftop requires root/sudo privileges to run, as it needs access to network interfaces and the ability to capture network traffic.",
-  "timestamp": "2025-07-10T03:46:51.069605"
-}

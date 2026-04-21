@@ -1,5 +1,0 @@
-{
-  "command": "tc",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'tc' is a command-line tool used to configure and manage traffic control settings on a Linux system.\n3. Needs root? Y - The 'tc' command requires root or superuser privileges to execute as it deals with network settings.",
-  "timestamp": "2025-07-10T03:34:00.512364"
-}

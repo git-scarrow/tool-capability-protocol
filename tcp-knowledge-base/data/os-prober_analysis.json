@@ -1,5 +1,0 @@
-{
-  "command": "os-prober",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command can potentially expose information about other operating systems installed on the system, which could be a security concern if the system is shared or the information is sensitive.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:08.959756"
-}

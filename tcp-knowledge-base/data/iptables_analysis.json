@@ -1,5 +1,0 @@
-{
-  "command": "iptables",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Misconfiguration can lead to potential security vulnerabilities and disruption of network services.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.280800"
-}

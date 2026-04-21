@@ -1,5 +1,0 @@
-{
-  "command": "usb_modeswitch_dispatcher",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `usb_modeswitch_dispatcher` command is used to switch the mode of USB devices, which can be useful for connecting certain types of devices. However, it requires root privileges and could potentially be used to interact with unknown or untrusted USB devices, which may pose a security risk.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:49.309757"
-}

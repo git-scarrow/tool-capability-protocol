@@ -1,5 +1,0 @@
-{
-  "command": "debconf",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper configuration or usage of 'debconf' can lead to potential security vulnerabilities, information disclosure, or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:38.021088"
-}

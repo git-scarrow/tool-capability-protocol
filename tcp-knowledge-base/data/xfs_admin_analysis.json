@@ -1,5 +1,0 @@
-{
-  "command": "xfs_admin",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `xfs_admin` command is used to administer XFS file systems, which are commonly used in Linux environments. It allows you to modify file system parameters, but improper usage could potentially lead to data loss or file system corruption.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:31.260353"
-}

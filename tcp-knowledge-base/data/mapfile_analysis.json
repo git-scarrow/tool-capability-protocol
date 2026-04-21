@@ -1,5 +1,0 @@
-{
-  "command": "mapfile",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: None. `mapfile` is a built-in bash command used to read lines from standard input or a file into an array variable.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:53.421603"
-}

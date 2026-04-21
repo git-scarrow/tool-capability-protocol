@@ -1,5 +1,0 @@
-{
-  "command": "ssh",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for unauthorized access, man-in-the-middle attacks, and data leakage if not configured and used properly.\n3. Needs root? N (Can be used by regular users, but some advanced options may require root privileges).",
-  "timestamp": "2025-07-10T03:33:49.996485"
-}

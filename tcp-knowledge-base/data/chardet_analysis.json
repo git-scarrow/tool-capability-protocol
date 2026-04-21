@@ -1,5 +1,0 @@
-{
-  "command": "chardet",
-  "analysis": "1. Risk: SAFE\n2. The 'chardet' command is a tool used to detect the encoding of a text file, which is a common task in file processing and data management. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:45.078933"
-}

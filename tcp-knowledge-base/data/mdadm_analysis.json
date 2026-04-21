@@ -1,5 +1,0 @@
-{
-  "command": "mdadm",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'mdadm' can lead to data loss or system instability, as it is used to manage software RAID arrays.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.870243"
-}

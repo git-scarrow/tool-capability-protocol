@@ -1,5 +1,0 @@
-{
-  "command": "rtcwake",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'rtcwake' command can be used to access and potentially modify the Real-Time Clock (RTC) device, which could lead to system instability or data loss if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.469448"
-}

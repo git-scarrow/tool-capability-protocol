@@ -1,5 +1,0 @@
-{
-  "command": "xfs_estimate",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Incorrect usage of the command could lead to inaccurate estimation of XFS filesystem space requirements, potentially causing issues during filesystem creation or expansion.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:16.734888"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "readprofile",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'readprofile' command allows access to the kernel profiling information, which could potentially be used to gain sensitive information about the system's performance and behavior.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.458789"
-}

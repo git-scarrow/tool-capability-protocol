@@ -1,5 +1,0 @@
-{
-  "command": "times",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'times' command in Unix/Linux is generally safe, as it simply displays the CPU time used by the current process and its child processes.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.363887"
-}

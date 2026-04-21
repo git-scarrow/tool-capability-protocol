@@ -1,5 +1,0 @@
-{
-  "command": "gmake",
-  "analysis": "1. SAFE/LOW_RISK\n2. The main concern with the 'gmake' command is that it can be used to compile and build software, which could potentially include malicious code. However, when used with trusted source code, it is generally considered a safe and low-risk command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:05.707214"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "rescan-scsi-bus.sh",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The script can potentially interact with the SCSI bus, which could lead to unintended consequences if not used properly, such as data loss or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:06.207903"
-}

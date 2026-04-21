@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-scanpackages",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `dpkg-scanpackages` command is used to generate a Packages file from a directory of `.deb` packages. While it doesn't directly pose a security risk, improper usage or malicious packages could potentially lead to system vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:23.376201"
-}

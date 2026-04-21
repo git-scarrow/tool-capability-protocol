@@ -1,5 +1,0 @@
-{
-  "command": "sg_readcap",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_readcap` command can potentially interact with storage devices, which may pose a risk if used improperly or on sensitive systems.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:47.480703"
-}

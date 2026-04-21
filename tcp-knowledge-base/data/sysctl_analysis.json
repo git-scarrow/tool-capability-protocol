@@ -1,5 +1,0 @@
-{
-  "command": "sysctl",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, `sysctl` is a safe command used to view and modify kernel parameters at runtime.\n3. Needs root? Y - `sysctl` requires root privileges to modify kernel parameters.",
-  "timestamp": "2025-07-10T03:32:06.388038"
-}

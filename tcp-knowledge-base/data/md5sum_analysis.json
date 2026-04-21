@@ -1,5 +1,0 @@
-{
-  "command": "md5sum",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The md5sum command calculates and verifies the MD5 checksum of a file, which can be used to detect data corruption or verify file integrity. However, it does not provide any security guarantees against malicious modifications.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:37.982799"
-}

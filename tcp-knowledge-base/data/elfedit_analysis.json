@@ -1,5 +1,0 @@
-{
-  "command": "elfedit",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'elfedit' command can be used to modify the contents of ELF (Executable and Linkable Format) binaries, which can potentially introduce security vulnerabilities if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.023680"
-}

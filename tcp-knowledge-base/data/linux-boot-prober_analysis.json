@@ -1,5 +1,0 @@
-{
-  "command": "linux-boot-prober",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'linux-boot-prober' is used to detect and list all the bootable Linux installations on a system. It does not perform any potentially dangerous actions, but it may reveal sensitive information about the system's boot configuration.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:15.811745"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "filefrag",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `filefrag` command is used to report on the degree of file fragmentation, which can affect file I/O performance. It does not pose significant security risks when used as intended.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:52.717257"
-}

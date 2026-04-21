@@ -1,5 +1,0 @@
-{
-  "command": "pastebinit",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Pastebinit is a command-line tool that uploads text to a pastebin service, which could potentially expose sensitive information if used improperly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:54.881635"
-}

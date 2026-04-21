@@ -1,5 +1,0 @@
-{
-  "command": "groupmod",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'groupmod' can lead to unintended modifications to user group configurations, potentially causing system instability or security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:23.004688"
-}

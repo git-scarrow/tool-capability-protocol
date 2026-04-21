@@ -1,5 +1,0 @@
-{
-  "command": "sg_raw",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sg_raw` allows direct communication with SCSI devices, which can potentially be used to perform low-level operations that could damage the system or data if used incorrectly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:10.103683"
-}

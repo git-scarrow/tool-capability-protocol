@@ -1,5 +1,0 @@
-{
-  "command": "sos-collector",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command collects system information, which could potentially expose sensitive data if not used responsibly.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:31.907152"
-}

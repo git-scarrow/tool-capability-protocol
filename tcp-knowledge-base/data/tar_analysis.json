@@ -1,5 +1,0 @@
-{
-  "command": "tar",
-  "analysis": "1. SAFE/LOW_RISK: The `tar` command is generally considered safe, but its risk level can vary depending on how it is used.\n2. Main concerns: Potential for data loss or unintended file modifications if the command is used improperly or with incorrect options.\n3. Needs root? N: The `tar` command can be executed by regular users, but some operations may require elevated privileges.",
-  "timestamp": "2025-07-10T03:31:35.381425"
-}

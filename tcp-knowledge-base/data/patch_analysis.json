@@ -1,5 +1,0 @@
-{
-  "command": "patch",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper handling of malformed patch files can lead to code execution vulnerabilities, denial of service, or unintended file modifications.\n3. Needs root? Y/N: Depends on the specific use case, but typically Y if modifying system files.",
-  "timestamp": "2025-07-10T03:32:12.937018"
-}

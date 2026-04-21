@@ -1,5 +1,0 @@
-{
-  "command": "finalrd",
-  "analysis": "1. Risk: SAFE\n2. The 'finalrd' command is a standard Unix utility that performs a final read operation on a file or device. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:16.575621"
-}

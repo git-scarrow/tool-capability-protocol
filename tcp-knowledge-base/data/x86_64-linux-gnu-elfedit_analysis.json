@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-elfedit",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `x86_64-linux-gnu-elfedit` command can be used to modify ELF binaries, which can potentially be used for malicious purposes, such as injecting malware or bypassing security measures.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:23.315046"
-}

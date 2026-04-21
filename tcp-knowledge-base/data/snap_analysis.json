@@ -1,5 +1,0 @@
-{
-  "command": "snap",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The 'snap' command is a package management tool used in Ubuntu and other Linux distributions. It generally does not pose significant security risks when used as intended.\n3. Needs root? Y - The 'snap' command requires root privileges to perform certain operations, such as installing or removing packages.",
-  "timestamp": "2025-07-10T03:34:00.196534"
-}

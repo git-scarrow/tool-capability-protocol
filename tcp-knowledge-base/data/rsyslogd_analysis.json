@@ -1,5 +1,0 @@
-{
-  "command": "rsyslogd",
-  "analysis": "1. Risk level: LOW_RISK\n2. Main security concerns: Misconfiguration of rsyslogd can lead to unauthorized access to log files, which may contain sensitive information. Unpatched vulnerabilities in rsyslogd can also pose a security risk.\n3. rsyslogd requires root/sudo privileges to run, as it needs access to system logs and the ability to listen on network ports.",
-  "timestamp": "2025-07-10T03:28:59.905807"
-}

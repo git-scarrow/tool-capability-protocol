@@ -1,5 +1,0 @@
-{
-  "command": "zstdmt",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'zstdmt' command is its ability to compress and decompress data using the Zstandard algorithm, which can potentially be used for legitimate and illegitimate purposes.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:38.315101"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "!",
-  "analysis": "1. Risk: SAFE\n\n2. The main concern with the '!' command is that it allows you to repeat the last command executed in the shell, which could potentially execute a malicious command if the previous command was compromised.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:16.532361"
-}

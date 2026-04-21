@@ -1,18 +1,29 @@
-# Project Mandates: Tool Capability Protocol (TCP)
+# Repository Guidelines
 
-## Core Operational Loop: TCP-CC Proxy
-The absolute heart of this project is the **TCP-CC Proxy**, not the static binary protocol utilities. Any agent working in this repo must prioritize the live gating loop.
+## Project Structure & Module Organization
+The main Python package lives in `tcp/`, split by concern: `core/` for protocol primitives, `proxy/` for command-control proxy logic, `agent/` for agent workflows, `harness/` for benchmarking, and `security/` for sandboxing and approval flows. Root tests live in `tests/` with `unit/`, `integration/`, `reliability/`, `data/`, and `vectors/` subfolders. Supporting docs and demos are under `docs/`, `examples/`, and `docker/`. Two related subprojects, `mcp-server/` and `mcp-registry/`, maintain their own packaging and README files.
 
-- **Primary Process**: `tcp.proxy.cc_proxy` (FastAPI sidecar).
-- **Lifecycle**: Started via `scripts/tcp_proxy_ensure.sh` (Port 8742).
-- **Primary Contract**: `tcp/derivation/request_derivation.py`. This logic derives required capabilities from prompts to gate tool visibility.
-- **Ground Truth**: `artifacts/tcp-data-1/candidate_turns.jsonl` (50 hand-labeled turns).
-- **Current State**: The derivation logic is **KILLED** (Failed validation) with **5.4% precision** in the TCP-VAL-1 audit.
+## Build, Test, and Development Commands
+Use Poetry for the root package:
 
-## Immediate Development Priority
-**Regression-Hardening of Request Derivation.**
-Do not refactor the binary protocol or compression logic until `derive_request` precision meets the **80% pass-line** defined in TCP-DS-2.
+```bash
+poetry install
+poetry run pytest
+poetry run pytest tests/unit -m "not slow"
+poetry run black tcp tests && poetry run isort tcp tests
+poetry run flake8 tcp tests && poetry run mypy tcp
+```
 
-## Critical Paths
-- **Logs**: `~/.tcp-shadow/proxy/decisions.jsonl` (Inspect this to see live gating failures).
-- **Validation**: `python3 tcp/derivation/audit_contract.py --audit-set artifacts/tcp-data-1/audit_set_ground_truth.jsonl`
+`pytest` runs the main suite defined in `pyproject.toml`; CI also collects coverage with `--cov=tcp`. The root `Makefile` is for the Docker security demo (`make build`, `make run`, `make shell`), not the standard library workflow.
+
+## Coding Style & Naming Conventions
+Target Python 3.9+ in the root package. Use 4-space indentation, `snake_case` for modules/functions, `PascalCase` for classes, and `UPPER_SNAKE_CASE` for constants. Format with Black (88 columns) and sort imports with isort using the Black profile. Keep new modules inside the existing domain folders instead of creating one-off top-level scripts.
+
+## Testing Guidelines
+Name tests `test_*.py` or `*_test.py`, and keep them close to the relevant area in `tests/unit` or `tests/integration`. Reuse existing markers such as `unit`, `integration`, `slow`, `security`, and `reliability_99999`. Run focused checks locally before opening a PR, for example `poetry run pytest tests/unit/test_router.py -q`.
+
+## Commit & Pull Request Guidelines
+Recent history follows short imperative subjects, often Conventional Commit style, for example `feat(proxy): ...`, `fix(derivation): ...`, or `style: ...`, sometimes with ticket IDs like `TCP-IMP-18`. Keep commits scoped and descriptive. PRs should summarize behavior changes, list validation commands run, link the relevant issue, and include screenshots only for UI or visualization changes.
+
+## Configuration Notes
+Avoid committing generated caches, virtualenv contents, or large artifacts. Treat `artifacts/`, `tcp-knowledge-base/`, and sandbox directories as potentially bulky or environment-specific unless the change explicitly belongs there.

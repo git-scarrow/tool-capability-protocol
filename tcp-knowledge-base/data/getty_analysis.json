@@ -1,5 +1,0 @@
-{
-  "command": "getty",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, `getty` is a standard Unix command used to manage terminal connections.\n3. Needs root? Y - `getty` typically requires root privileges to manage terminal devices and configurations.",
-  "timestamp": "2025-07-10T03:33:15.920453"
-}

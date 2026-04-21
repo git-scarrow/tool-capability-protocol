@@ -1,5 +1,0 @@
-{
-  "command": "pvs",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `pvs` command is generally safe, as it only displays information about physical volumes used in a Logical Volume Manager (LVM) setup. It does not make any changes to the system.\n3. Needs root? Y - Requires root privileges to access the necessary system information.",
-  "timestamp": "2025-07-10T03:32:53.300042"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "findmnt",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `findmnt` is a low-risk command that displays information about mounted file systems, but it does not have the ability to modify file systems or execute arbitrary commands.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:37.446383"
-}

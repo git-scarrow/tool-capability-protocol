@@ -1,5 +1,0 @@
-{
-  "command": "bzfgrep",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `bzfgrep` is a safe command that searches for a pattern in the output of the `bzfcat` command, which is used to decompress and display the contents of Bzip2 compressed files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.902924"
-}

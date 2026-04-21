@@ -1,5 +1,0 @@
-{
-  "command": "era_restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'era_restore' command is used to restore a system from a backup, which can potentially introduce security vulnerabilities or data loss if the backup is compromised or the restoration process is not properly executed.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:31.660413"
-}

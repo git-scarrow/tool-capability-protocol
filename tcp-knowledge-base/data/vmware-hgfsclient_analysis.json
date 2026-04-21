@@ -1,5 +1,0 @@
-{
-  "command": "vmware-hgfsclient",
-  "analysis": "1. Risk: SAFE\n2. The 'vmware-hgfsclient' command is a VMware utility used to enable file sharing between a VMware virtual machine and the host operating system. It does not pose any significant security risks if used as intended.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:30.104705"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "debconf-show",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `debconf-show` displays the current configuration settings of the Debian configuration management system, which could potentially reveal sensitive information if used improperly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.798384"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "seq",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, 'seq' is a simple command that generates a sequence of numbers.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:40.170170"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "dbus-daemon",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential security vulnerabilities in the D-Bus daemon, which is a critical system component for inter-process communication.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.717941"
-}

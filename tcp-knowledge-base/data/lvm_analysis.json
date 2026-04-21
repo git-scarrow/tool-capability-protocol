@@ -1,5 +1,0 @@
-{
-  "command": "lvm",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns:\n   - Improper use of the 'lvm' command can lead to data loss or system instability.\n   - Potential for privilege escalation if the command is executed without proper permissions.\n3. The 'lvm' command requires root/sudo privileges to execute most of its functionalities, as it interacts with the system's logical volume management.",
-  "timestamp": "2025-07-10T03:30:08.378092"
-}

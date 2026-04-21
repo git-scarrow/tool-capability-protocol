@@ -1,5 +1,0 @@
-{
-  "command": "btrfs-image",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential data loss or corruption if the command is used improperly or on an active filesystem.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:35.111631"
-}

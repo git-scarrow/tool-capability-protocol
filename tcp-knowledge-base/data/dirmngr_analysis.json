@@ -1,5 +1,0 @@
-{
-  "command": "dirmngr",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the `dirmngr` command is its potential to interact with external servers and resources, which could potentially be used for malicious purposes if the command is misused or if the system is compromised.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:33:23.328702"
-}

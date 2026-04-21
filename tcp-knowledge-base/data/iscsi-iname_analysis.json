@@ -1,5 +1,0 @@
-{
-  "command": "iscsi-iname",
-  "analysis": "1. Risk: SAFE\n2. The 'iscsi-iname' command is used to generate an iSCSI Initiator Name (IQN) and is generally considered a safe command with low risk.\n3. Needs root? N\nThe 'iscsi-iname' command does not require root privileges to execute.",
-  "timestamp": "2025-07-10T03:34:09.649216"
-}

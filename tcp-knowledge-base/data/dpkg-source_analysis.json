@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-source",
-  "analysis": "1. SAFE\n2. The main concern with the 'dpkg-source' command is that it is used to extract and manipulate Debian package source code, which could potentially be used for malicious purposes if the source code is compromised.\n3. Y (Needs root privileges)",
-  "timestamp": "2025-07-10T03:32:13.379386"
-}

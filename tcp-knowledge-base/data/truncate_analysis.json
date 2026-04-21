@@ -1,5 +1,0 @@
-{
-  "command": "truncate",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Truncating files can lead to data loss if not used carefully. It can also have unintended consequences on system stability and application functionality.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:47.324217"
-}

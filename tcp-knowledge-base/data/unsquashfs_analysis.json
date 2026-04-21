@@ -1,5 +1,0 @@
-{
-  "command": "unsquashfs",
-  "analysis": "1. SAFE/LOW_RISK\n2. The main concern is that the 'unsquashfs' command can be used to extract and potentially execute untrusted code from a SquashFS filesystem, which could lead to security vulnerabilities if the source is not trusted.\n3. NO",
-  "timestamp": "2025-07-10T03:34:30.177131"
-}

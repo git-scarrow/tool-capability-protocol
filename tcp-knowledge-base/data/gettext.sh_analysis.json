@@ -1,5 +1,0 @@
-{
-  "command": "gettext.sh",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the script might be used to retrieve and display localized text messages, which could be a potential attack vector if the input is not properly sanitized.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:39.046563"
-}

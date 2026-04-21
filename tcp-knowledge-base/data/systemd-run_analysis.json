@@ -1,5 +1,0 @@
-{
-  "command": "systemd-run",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `systemd-run` can execute arbitrary commands with elevated privileges, potentially leading to privilege escalation or system compromise if misused or if the executed command contains vulnerabilities.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:32:46.345972"
-}

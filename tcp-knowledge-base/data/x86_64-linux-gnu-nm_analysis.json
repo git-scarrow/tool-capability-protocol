@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-nm",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'x86_64-linux-gnu-nm' command is that it could be used to gather information about the system's binary files, which could potentially be used by an attacker to identify vulnerabilities or weaknesses.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:06.456670"
-}

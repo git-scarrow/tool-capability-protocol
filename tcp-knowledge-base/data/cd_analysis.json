@@ -1,6 +1,0 @@
-{
-  "command": "cd",
-  "analysis": "The `cd` command in Unix is a built-in command used to change the current working directory.\n\nRisk: SAFE\n\nConcerns: The `cd` command does not pose any significant security risks when used properly. It is a basic and essential command for navigating the file system.\n\nRoot privileges are not required to use the `cd` command, as it can be executed by any user with access to the current directory.",
-  "source": "anthropic",
-  "timestamp": "2025-07-10T03:40:53.754189"
-}

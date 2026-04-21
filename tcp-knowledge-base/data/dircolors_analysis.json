@@ -1,5 +1,0 @@
-{
-  "command": "dircolors",
-  "analysis": "Risk level: LOW_RISK\nMain security concerns: The `dircolors` command is generally safe, but it can be used to configure the color scheme for directory listings, which could potentially be used to hide malicious files or directories.\nRequires root/sudo: No, `dircolors` does not require root or sudo privileges to run.",
-  "timestamp": "2025-07-10T03:23:21.164183"
-}

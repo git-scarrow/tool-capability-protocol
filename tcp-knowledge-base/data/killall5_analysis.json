@@ -1,5 +1,0 @@
-{
-  "command": "killall5",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: 'killall5' can terminate all processes on the system, including critical system services, if used carelessly or by an unauthorized user. This could lead to a system crash or denial of service.\n3. 'killall5' requires root/sudo privileges to execute, as it has the potential to affect the entire system.",
-  "timestamp": "2025-07-10T03:31:13.204801"
-}

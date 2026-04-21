@@ -1,5 +1,0 @@
-{
-  "command": "resize2fs",
-  "analysis": "1. Risk: MEDIUM_RISK\n\n2. Main concerns: Resizing an active file system can result in data loss or corruption if not done correctly. Improper usage or unexpected file system conditions can lead to problems.\n\n3. Needs root? Y\n\nIn under 50 words: The 'resize2fs' command is a medium-risk operation that requires root privileges. It should be used with caution, as resizing an active file system can",
-  "timestamp": "2025-07-10T03:34:30.294446"
-}

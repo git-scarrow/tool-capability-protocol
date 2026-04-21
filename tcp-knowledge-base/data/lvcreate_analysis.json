@@ -1,5 +1,0 @@
-{
-  "command": "lvcreate",
-  "analysis": "1. MEDIUM_RISK\n2. Main concerns: Potential data loss or system instability if the command is misused or executed on an active system without proper planning and precautions.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.365278"
-}

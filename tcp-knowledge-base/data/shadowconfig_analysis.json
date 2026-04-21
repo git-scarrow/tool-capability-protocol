@@ -1,5 +1,0 @@
-{
-  "command": "shadowconfig",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'shadowconfig' command can be used to enable or disable the shadow password feature in Unix-like systems, which can potentially expose sensitive password information if not configured properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.670486"
-}

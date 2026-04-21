@@ -1,5 +1,0 @@
-{
-  "command": "linux32",
-  "analysis": "1. SAFE\n2. The `linux32` command is a utility that allows users to run 32-bit applications on a 64-bit Linux system. It does not pose any inherent security risks, but using it to run untrusted or malicious software could potentially lead to security issues.\n3. N",
-  "timestamp": "2025-07-10T03:32:21.547389"
-}

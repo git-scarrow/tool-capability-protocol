@@ -1,5 +1,0 @@
-{
-  "command": "hostnamectl",
-  "analysis": "1. Risk level: SAFE\n2. The 'hostnamectl' command is generally considered safe, as it simply retrieves and displays information about the system's hostname and related settings. It does not pose any direct security risks.\n3. 'hostnamectl' can be executed without root/sudo privileges, as it does not require elevated permissions to retrieve the system's hostname information.",
-  "timestamp": "2025-07-10T03:25:14.572753"
-}

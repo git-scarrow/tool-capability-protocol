@@ -1,5 +1,0 @@
-{
-  "command": "arpd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `arpd` is a tool used for maintaining the ARP cache, which can potentially be used for network-based attacks if not properly configured or secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:45.287834"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "dumpkeys",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'dumpkeys' command is a utility used to display the current keyboard mapping, which is generally considered a low-risk operation.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:38.946253"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "local",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'local' command is that it is used to define a variable that is only accessible within the current shell or script, which could potentially lead to unintended consequences if not used properly.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:23.391561"
-}

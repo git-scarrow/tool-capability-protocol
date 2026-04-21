@@ -1,5 +1,0 @@
-{
-  "command": "fusermount3",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential privilege escalation, data access/manipulation, and system instability if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.662857"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "byobu-reconnect-sockets",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'byobu-reconnect-sockets' command is that it may temporarily disrupt the user's active sessions, but it is generally a safe operation to reconnect the sockets used by the Byobu terminal multiplexer.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.567281"
-}

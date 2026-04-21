@@ -1,5 +1,0 @@
-{
-  "command": "ntfsmove",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. The main security concern is that 'ntfsmove' can be used to move or copy files on an NTFS file system, which could potentially be used for unauthorized file access or manipulation.\n3. 'ntfsmove' requires root/sudo privileges to execute, as it needs elevated permissions to perform file system operations.",
-  "timestamp": "2025-07-10T03:30:03.672184"
-}

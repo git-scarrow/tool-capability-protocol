@@ -1,5 +1,0 @@
-{
-  "command": "diff3",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential data loss or file corruption if used improperly.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:33:15.942244"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "do-release-upgrade",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command may update the entire operating system, potentially causing compatibility issues, data loss, or system instability if not properly configured or tested.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.604606"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "resizecons",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'resizecons' command is used to change the size of the console screen, which can potentially affect the display of text and other content. However, it does not pose significant security risks.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.857247"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "lzcat",
-  "analysis": "Risk level: SAFE\nMain security concerns: None.\nRequires root/sudo: No.\n\nThe 'lzcat' command is a utility for decompressing files compressed with the LZMA compression algorithm. It is a part of the standard Unix/Linux toolset and does not pose any inherent security risks. 'lzcat' simply extracts the contents of a compressed file, and does not require elevated privileges to run. As long as the compressed file itself is not malicious, the 'lzcat' command can be considered safe to use without any major security concerns.",
-  "timestamp": "2025-07-10T03:25:19.146795"
-}

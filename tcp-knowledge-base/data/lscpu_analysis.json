@@ -1,5 +1,0 @@
-{
-  "command": "lscpu",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'lscpu' command provides information about the CPU architecture and may reveal sensitive information about the system, but it does not directly pose a significant security risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:55.503942"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "vgimportclone",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential data loss or corruption during the volume group import and cloning process, especially if the source and target systems have different configurations or underlying hardware.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:37.597089"
-}

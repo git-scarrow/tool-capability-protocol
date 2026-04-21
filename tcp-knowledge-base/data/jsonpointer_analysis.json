@@ -1,5 +1,0 @@
-{
-  "command": "jsonpointer",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'jsonpointer' command is that it can be used to navigate and access data within a JSON document, which could potentially lead to unauthorized access or data exposure if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:52.622758"
-}

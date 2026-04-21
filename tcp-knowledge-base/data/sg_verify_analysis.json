@@ -1,5 +1,0 @@
-{
-  "command": "sg_verify",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'sg_verify' command is that it can be used to check the validity of SCSI device firmware or configuration, which could potentially expose sensitive information or be used by an attacker to gain unauthorized access to the system.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:34.296368"
-}

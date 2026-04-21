@@ -1,5 +1,0 @@
-{
-  "command": "sg_rbuf",
-  "analysis": "1. Risk: SAFE\n2. The `sg_rbuf` command is a utility that allows you to adjust the read buffer size for SCSI devices, which can be useful for performance optimization. It does not pose significant security risks if used correctly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:30.829912"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "cryptsetup",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'cryptsetup' can lead to data loss or unauthorized access to encrypted volumes.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:37.655372"
-}

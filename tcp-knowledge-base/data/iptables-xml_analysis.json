@@ -1,5 +1,0 @@
-{
-  "command": "iptables-xml",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'iptables-xml' command is a utility that allows users to export and import iptables rules in an XML format. While it can be a useful tool for managing firewall rules, it requires caution as improper configuration can potentially impact network security.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:52.735022"
-}

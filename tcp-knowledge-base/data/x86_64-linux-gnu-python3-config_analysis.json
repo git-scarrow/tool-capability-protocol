@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-python3-config",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command is used to retrieve configuration information for the Python interpreter and related tools. It does not pose significant security risks if used within a trusted environment.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.888271"
-}

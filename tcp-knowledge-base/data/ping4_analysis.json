@@ -1,5 +1,0 @@
-{
-  "command": "ping4",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Ping4 can be used to check network connectivity and identify potential issues, but it could also be used to perform network reconnaissance or denial-of-service attacks if misused.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:47.909605"
-}

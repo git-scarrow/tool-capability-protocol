@@ -1,5 +1,0 @@
-{
-  "command": "scandeps",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'scandeps' is a standard Unix command used to scan a file or directory for dependencies.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.281312"
-}

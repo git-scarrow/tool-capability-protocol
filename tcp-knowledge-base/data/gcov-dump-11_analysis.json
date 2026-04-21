@@ -1,5 +1,0 @@
-{
-  "command": "gcov-dump-11",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the `gcov-dump-11` command is that it may provide information about the code coverage of a program, which could potentially be used by an attacker to identify vulnerabilities or areas of the codebase that are not well-tested.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:35.791883"
-}

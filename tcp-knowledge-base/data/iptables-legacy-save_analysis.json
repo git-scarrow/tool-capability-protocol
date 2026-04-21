@@ -1,5 +1,0 @@
-{
-  "command": "iptables-legacy-save",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. The `iptables-legacy-save` command is a safe and standard utility used to save the current state of the firewall rules in a Linux system.\n3. Needs root? Y - The `iptables-legacy-save` command requires root privileges to execute as it deals with the system's firewall configuration.",
-  "timestamp": "2025-07-10T03:31:39.784739"
-}

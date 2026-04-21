@@ -1,5 +1,0 @@
-{
-  "command": "zramctl",
-  "analysis": "1. SAFE\n2. The main concern is that `zramctl` is a system administration tool used to manage compressed RAM-based block devices, which could potentially impact system performance or stability if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:07.819762"
-}

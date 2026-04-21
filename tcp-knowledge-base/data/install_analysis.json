@@ -1,5 +1,0 @@
-{
-  "command": "install",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'install' command can potentially overwrite existing files, potentially causing unintended consequences or data loss. It also has the ability to set file permissions, which could be a security risk if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:47.931790"
-}

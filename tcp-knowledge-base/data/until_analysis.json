@@ -1,5 +1,0 @@
-{
-  "command": "until",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'until' command can potentially lead to an infinite loop if the condition is never met, potentially causing system instability or resource exhaustion.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:37.356097"
-}

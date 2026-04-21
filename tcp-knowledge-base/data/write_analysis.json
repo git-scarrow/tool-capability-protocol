@@ -1,5 +1,0 @@
-{
-  "command": "write",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'write' command allows users to send messages to other logged-in users, which could potentially be used for unauthorized communication or harassment.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.762573"
-}

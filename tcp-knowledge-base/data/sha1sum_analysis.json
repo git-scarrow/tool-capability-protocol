@@ -1,5 +1,0 @@
-{
-  "command": "sha1sum",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, 'sha1sum' is a standard Unix command used to calculate the SHA-1 cryptographic hash of a file, which is commonly used for data integrity verification.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:53.628063"
-}

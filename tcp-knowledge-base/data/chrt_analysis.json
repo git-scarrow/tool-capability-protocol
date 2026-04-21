@@ -1,5 +1,0 @@
-{
-  "command": "chrt",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of the `chrt` command can affect system performance and stability, especially when dealing with real-time scheduling policies.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:52.824122"
-}

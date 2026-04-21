@@ -1,5 +1,0 @@
-{
-  "command": "mt-gnu",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'mt-gnu' command can be used to control magnetic tape drives, which can potentially be used to manipulate or access sensitive data if not properly configured or used by authorized personnel.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:59.845972"
-}

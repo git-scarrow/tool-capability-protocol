@@ -1,5 +1,0 @@
-{
-  "command": "enable",
-  "analysis": "The Unix command 'enable' is classified as LOW_RISK.\n\nMain security concerns:\n- The 'enable' command is used to enable and disable shell built-in commands, which could potentially be misused to bypass security restrictions.\n\nRequires root/sudo:\n- The 'enable' command does not require root or sudo privileges by default, but its usage may require elevated permissions depending on the specific built-in command being enabled or disabled.",
-  "timestamp": "2025-07-10T03:30:07.171397"
-}

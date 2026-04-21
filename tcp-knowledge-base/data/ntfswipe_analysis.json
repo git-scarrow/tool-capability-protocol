@@ -1,5 +1,0 @@
-{
-  "command": "ntfswipe",
-  "analysis": "1. Risk: HIGH_RISK\n2. The main concern with the 'ntfswipe' command is that it can permanently erase all data on an NTFS-formatted partition, which could lead to data loss if used incorrectly.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:34:08.939603"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "gcc-ranlib",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `gcc-ranlib` command is part of the GNU Compiler Collection (GCC), which is a widely used set of compilers. While it is generally safe, improper usage or malicious input could potentially lead to security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.344488"
-}

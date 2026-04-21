@@ -1,5 +1,0 @@
-{
-  "command": "pbput",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'pbput' command can be used to send data to the system clipboard, which could potentially be a security risk if the data contains sensitive information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.671886"
-}

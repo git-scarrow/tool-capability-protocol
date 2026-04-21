@@ -1,5 +1,0 @@
-{
-  "command": "kbdrate",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'kbdrate' command is that it can be used to change the keyboard repeat rate and delay, which could potentially affect the system's keyboard functionality if not used correctly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:14.442920"
-}

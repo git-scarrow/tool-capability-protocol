@@ -1,5 +1,0 @@
-{
-  "command": "vdir",
-  "analysis": "1. Risk level: SAFE\n2. The `vdir` command is a Unix utility that displays information about files in a directory, similar to the `ls` command. It does not pose any significant security concerns as it does not execute arbitrary code or modify system files.\n3. The `vdir` command does not require root or sudo privileges to run. It can be executed by regular users without any special permissions.",
-  "timestamp": "2025-07-10T03:31:12.299558"
-}

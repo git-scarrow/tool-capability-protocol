@@ -1,5 +1,0 @@
-{
-  "command": "oem-getlogs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'oem-getlogs' command may provide access to sensitive system logs, which could potentially expose confidential information or be used by an attacker to gather intelligence about the system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:10.227479"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-nft-save",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'ip6tables-nft-save' command is that it can potentially expose sensitive network configuration information if the output is not properly secured or handled.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:37.244866"
-}

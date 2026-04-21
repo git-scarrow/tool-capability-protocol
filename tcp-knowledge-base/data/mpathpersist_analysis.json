@@ -1,5 +1,0 @@
-{
-  "command": "mpathpersist",
-  "analysis": "1. MEDIUM_RISK\n2. The `mpathpersist` command can be used to manage persistent reservations on multipath devices, which can have implications for data access and availability if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:16.490346"
-}

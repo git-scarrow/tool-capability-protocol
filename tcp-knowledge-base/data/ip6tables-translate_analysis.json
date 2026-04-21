@@ -1,5 +1,0 @@
-{
-  "command": "ip6tables-translate",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `ip6tables-translate` command can be used to modify the IPv6 firewall rules, which can potentially introduce security vulnerabilities if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.156189"
-}

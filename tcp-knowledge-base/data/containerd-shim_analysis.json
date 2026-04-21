@@ -1,5 +1,0 @@
-{
-  "command": "containerd-shim",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with 'containerd-shim' is its ability to manage and interact with container processes, which could potentially be exploited if the host system is compromised.\n3. 'containerd-shim' typically requires root/sudo privileges to function properly, as it needs to access and manage container resources.",
-  "timestamp": "2025-07-10T03:48:00.241098"
-}

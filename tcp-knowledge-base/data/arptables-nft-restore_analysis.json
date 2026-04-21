@@ -1,5 +1,0 @@
-{
-  "command": "arptables-nft-restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `arptables-nft-restore` command allows modifying the ARP (Address Resolution Protocol) firewall rules, which can potentially impact network connectivity and security if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:55.168853"
-}

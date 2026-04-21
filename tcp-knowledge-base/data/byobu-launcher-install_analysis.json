@@ -1,5 +1,0 @@
-{
-  "command": "byobu-launcher-install",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command is installing a system service, which could potentially introduce vulnerabilities if not properly configured or maintained.\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:33:47.207521"
-}

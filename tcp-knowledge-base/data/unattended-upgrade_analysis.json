@@ -1,5 +1,0 @@
-{
-  "command": "unattended-upgrade",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Automatic software updates can potentially introduce compatibility issues or unintended behavior changes, and there is a risk of security vulnerabilities being introduced if the updates are not thoroughly tested.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:38.103923"
-}

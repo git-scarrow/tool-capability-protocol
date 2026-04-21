@@ -1,5 +1,0 @@
-{
-  "command": "infotocap",
-  "analysis": "1. Risk: SAFE\n2. The 'infotocap' command is a Unix utility that converts terminfo entries to termcap format, which is an older and less commonly used terminal description format. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:44.601272"
-}

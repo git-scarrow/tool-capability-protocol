@@ -1,5 +1,0 @@
-{
-  "command": "top",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'top' is a standard system monitoring tool that displays real-time information about running processes and system resource utilization.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:55.142625"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "busybox",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: BusyBox is a lightweight, single executable that combines many common Unix utilities, which could potentially increase the attack surface if not properly configured or updated.\n3. Needs root? Y (for some commands)",
-  "timestamp": "2025-07-10T03:31:30.782876"
-}

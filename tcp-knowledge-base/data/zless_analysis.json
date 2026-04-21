@@ -1,5 +1,0 @@
-{
-  "command": "zless",
-  "analysis": "1. Risk: SAFE\n2. The main concerns with the 'zless' command are minimal, as it is primarily used for viewing compressed text files in a pager-like interface.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:05.994850"
-}

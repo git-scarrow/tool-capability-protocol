@@ -1,5 +1,0 @@
-{
-  "command": "sg_read",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `sg_read` is a command-line tool used to read data from SCSI devices, which can be used for storage management and diagnostics. Improper usage or malicious intent could potentially lead to data loss or system disruption.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.849902"
-}

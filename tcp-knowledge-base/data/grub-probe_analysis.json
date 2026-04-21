@@ -1,5 +1,0 @@
-{
-  "command": "grub-probe",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `grub-probe` command is used to probe for a certain type of device or filesystem, and it's generally considered safe for regular users. However, it can provide information about the system's bootloader configuration, which could be sensitive.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.846804"
-}

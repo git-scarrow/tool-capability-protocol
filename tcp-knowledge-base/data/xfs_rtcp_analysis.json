@@ -1,5 +1,0 @@
-{
-  "command": "xfs_rtcp",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Incorrectly using `xfs_rtcp` could potentially corrupt the filesystem or cause data loss, especially if the command is executed on an active system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:37.765088"
-}

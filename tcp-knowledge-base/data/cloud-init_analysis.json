@@ -1,5 +1,0 @@
-{
-  "command": "cloud-init",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential security vulnerabilities in the cloud-init configuration or script execution, and unauthorized access to sensitive data or system resources.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.191554"
-}

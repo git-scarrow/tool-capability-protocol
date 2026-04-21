@@ -1,5 +1,0 @@
-{
-  "command": "pkmon",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'pkmon' command can potentially be used to monitor and manipulate processes on the system, which could be a security risk if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:37.423223"
-}

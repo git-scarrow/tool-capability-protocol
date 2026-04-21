@@ -1,5 +1,0 @@
-{
-  "command": "udevadm",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: 'udevadm' is a Linux command-line tool used to manage the device manager, udev, which handles dynamic device management. It is generally safe to use, but improper usage can potentially affect device management and system stability.\n\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.916176"
-}

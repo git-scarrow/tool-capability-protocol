@@ -1,5 +1,0 @@
-{
-  "command": "linux-version",
-  "analysis": "The 'linux-version' command is not a standard Unix command, and it does not exist in the Linux operating system. This command is not a real command, and therefore, it cannot be analyzed for risk, concerns, or the need for root privileges.",
-  "timestamp": "2025-07-10T03:34:52.402704"
-}

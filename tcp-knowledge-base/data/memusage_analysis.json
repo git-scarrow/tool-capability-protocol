@@ -1,5 +1,0 @@
-{
-  "command": "memusage",
-  "analysis": "1. Risk: SAFE\n2. The 'memusage' command is a low-risk utility that provides information about memory usage and allocation. It does not have any inherent security risks.\n3. Needs root? N\nThe 'memusage' command can be executed by regular users without requiring root privileges.",
-  "timestamp": "2025-07-10T03:31:31.503272"
-}

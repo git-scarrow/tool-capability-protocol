@@ -1,5 +1,0 @@
-{
-  "command": "blkzone",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'blkzone' command can provide detailed information about the block zones on a storage device, which could potentially expose sensitive information if misused or in the wrong hands.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:08.905948"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "linux-check-removal",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command may remove packages or files that are essential for the system's functionality, potentially causing instability or system failure.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:36.398204"
-}

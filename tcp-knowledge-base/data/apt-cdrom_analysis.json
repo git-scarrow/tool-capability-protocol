@@ -1,5 +1,0 @@
-{
-  "command": "apt-cdrom",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `apt-cdrom` command is used to add a CD-ROM or other removable media as a package source for the Advanced Package Tool (APT) system. It may introduce potential risks if the media is untrusted or compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:54.139026"
-}

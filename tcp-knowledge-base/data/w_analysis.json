@@ -1,5 +1,0 @@
-{
-  "command": "w",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'w' command is the potential exposure of user information, such as login status and resource usage, which could be used by an attacker to gather intelligence about the system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.483477"
-}

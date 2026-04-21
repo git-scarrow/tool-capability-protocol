@@ -1,5 +1,0 @@
-{
-  "command": "sg_sat_identify",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is to identify the device's SCSI/ATA information, which is generally a benign operation.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.863656"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "python3-pasteurize",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern is that the 'python3-pasteurize' command may execute arbitrary Python code, which could potentially be malicious. However, this command is typically used for code modernization and is not a direct security risk.\n3. The 'python3-pasteurize' command does not require root or sudo privileges to run, as it is a Python script that does not require elevated permissions.",
-  "timestamp": "2025-07-10T03:46:51.270174"
-}

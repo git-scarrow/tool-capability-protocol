@@ -1,5 +1,0 @@
-{
-  "command": "pbputs",
-  "analysis": "1. Risk: SAFE\n2. The 'pbputs' command is a safe Unix command that is typically used to send text to the pasteboard (clipboard) on macOS systems.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.129242"
-}

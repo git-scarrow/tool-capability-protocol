@@ -1,5 +1,0 @@
-{
-  "command": "sginfo",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'sginfo' command is used to display information about SCSI and IDE drives, which can be useful for system administrators. However, it does not directly pose a significant security risk.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:30.478345"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "vgck",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `vgck` command is used to check the integrity of a volume group (VG) on a Linux/Unix system. It is generally a safe operation, but it can reveal potential issues with the VG.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.423002"
-}

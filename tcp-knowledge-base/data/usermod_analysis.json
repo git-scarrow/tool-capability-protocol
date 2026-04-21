@@ -1,5 +1,0 @@
-{
-  "command": "usermod",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of the 'usermod' command can lead to user account modifications, potentially causing access control issues or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.942993"
-}

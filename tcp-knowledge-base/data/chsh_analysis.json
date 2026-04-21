@@ -1,5 +1,0 @@
-{
-  "command": "chsh",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The `chsh` command allows users to change their default login shell. If used by an unauthorized user, it could potentially allow them to escalate privileges or perform unwanted actions.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.416791"
-}

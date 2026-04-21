@@ -1,5 +1,0 @@
-{
-  "command": "vgexport",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improperly used, the 'vgexport' command can lead to data loss or system instability, as it exports the volume group metadata, which is crucial for the proper functioning of the logical volumes.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:47.279116"
-}

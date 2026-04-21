@@ -1,5 +1,0 @@
-{
-  "command": "stdbuf",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'stdbuf' command is that it can be used to modify the buffering behavior of standard input, output, and error streams, which could potentially be used to bypass security measures or enable other attacks if not used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.656532"
-}

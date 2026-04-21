@@ -1,5 +1,0 @@
-{
-  "command": "vigpg",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'vigpg' command is a variant of the 'vim' text editor, specifically designed for managing PGP/GPG keys. While it can be used to interact with sensitive cryptographic data, it does not inherently pose significant risks when used correctly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:36.831975"
-}

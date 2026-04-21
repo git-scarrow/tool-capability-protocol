@@ -1,5 +1,0 @@
-{
-  "command": "bunzip2",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `bunzip2` is a safe and commonly used command for decompressing files that have been compressed using the bzip2 algorithm.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:55.314570"
-}

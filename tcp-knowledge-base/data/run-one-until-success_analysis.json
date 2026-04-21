@@ -1,5 +1,0 @@
-{
-  "command": "run-one-until-success",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for infinite loop if the command never succeeds.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:06.043821"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "continue",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'continue' command is that it is used within control structures (e.g., loops) to skip the current iteration and move on to the next one, which could potentially lead to unintended behavior if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:45.644173"
-}

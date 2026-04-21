@@ -1,5 +1,0 @@
-{
-  "command": "yes",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'yes' command is that it can be used to flood a system with output, potentially causing a denial of service (DoS) attack.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:22.424847"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "getent",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the `getent` command is that it can potentially reveal sensitive information about the system, such as user accounts and network configuration.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:05.835617"
-}

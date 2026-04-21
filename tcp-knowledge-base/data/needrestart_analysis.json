@@ -1,5 +1,0 @@
-{
-  "command": "needrestart",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Identifies running processes that may require a system restart after a software update or kernel upgrade, potentially causing service disruptions.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:44.877800"
-}

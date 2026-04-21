@@ -1,5 +1,0 @@
-{
-  "command": "lto-dump-11",
-  "analysis": "1. Risk: SAFE\n2. The `lto-dump-11` command is a utility for analyzing Link-Time Optimization (LTO) data in ELF object files. It is a low-risk command that does not pose any significant security concerns.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:15.724538"
-}

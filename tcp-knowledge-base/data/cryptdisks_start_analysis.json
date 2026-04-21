@@ -1,5 +1,0 @@
-{
-  "command": "cryptdisks_start",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: This command deals with encryption of disk volumes, which can have security implications if not used properly or if the encryption keys are compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.532922"
-}

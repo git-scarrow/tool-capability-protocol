@@ -1,5 +1,0 @@
-{
-  "command": "networkd-dispatcher",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command is used to dispatch network-related events, such as changes in network interfaces or IP address changes. While it has some potential for abuse, it is generally considered a low-risk utility.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:33.198938"
-}

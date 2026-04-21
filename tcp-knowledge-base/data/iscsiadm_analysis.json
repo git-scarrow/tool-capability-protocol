@@ -1,5 +1,0 @@
-{
-  "command": "iscsiadm",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `iscsiadm` can be used to manage iSCSI (Internet Small Computer System Interface) connections, which could potentially expose sensitive storage-related information or allow unauthorized access to storage resources if not properly configured or secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:02.752349"
-}

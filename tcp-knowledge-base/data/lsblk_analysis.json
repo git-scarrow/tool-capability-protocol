@@ -1,5 +1,0 @@
-{
-  "command": "lsblk",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'lsblk' is a standard Unix command that lists information about block devices, such as partitions and disks, without any inherent risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:53.171036"
-}

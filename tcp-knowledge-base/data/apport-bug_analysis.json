@@ -1,5 +1,0 @@
-{
-  "command": "apport-bug",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'apport-bug' command is used to report system crashes and issues to the Apport bug reporting tool. While it has access to system information, it is primarily a utility tool and does not pose significant security concerns.\n3. The 'apport-bug' command does not require root/sudo privileges to run, as it is designed to be used by regular users to report problems with their systems.",
-  "timestamp": "2025-07-10T03:28:45.798399"
-}

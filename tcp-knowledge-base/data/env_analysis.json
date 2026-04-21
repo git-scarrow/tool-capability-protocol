@@ -1,5 +1,0 @@
-{
-  "command": "env",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential information disclosure, but limited risk when used by authorized users.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:52.648467"
-}

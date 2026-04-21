@@ -1,5 +1,0 @@
-{
-  "command": "ntfscat",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `ntfscat` can be used to extract data from NTFS file systems, which could potentially be used for unauthorized access or data theft if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.474008"
-}

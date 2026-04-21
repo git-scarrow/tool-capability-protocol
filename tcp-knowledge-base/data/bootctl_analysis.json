@@ -1,5 +1,0 @@
-{
-  "command": "bootctl",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'bootctl' is a systemd command used to manage the boot loader.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.928775"
-}

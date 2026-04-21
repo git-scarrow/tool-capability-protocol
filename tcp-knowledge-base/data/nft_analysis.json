@@ -1,5 +1,0 @@
-{
-  "command": "nft",
-  "analysis": "1. Risk: SAFE\n2. The `nft` (nftables) command is a powerful networking tool used to manage firewall rules and packet filtering in Linux systems. It provides a flexible and extensible framework for network traffic control.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:46.892743"
-}

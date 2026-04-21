@@ -1,5 +1,0 @@
-{
-  "command": "byobu-tmux",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None. 'byobu-tmux' is a command that runs the 'tmux' terminal multiplexer, which is a widely used and trusted tool for managing multiple terminal sessions.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.696460"
-}

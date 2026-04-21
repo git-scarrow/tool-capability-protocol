@@ -1,5 +1,0 @@
-{
-  "command": "ebtables-nft",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: ebtables-nft is a command used to manage Ethernet bridge filtering rules, which can potentially be used to manipulate network traffic and introduce security vulnerabilities if not properly configured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:52.552475"
-}

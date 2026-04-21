@@ -1,5 +1,0 @@
-{
-  "command": "ntfs-3g.probe",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command is used to probe NTFS file systems, which could potentially access sensitive data if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:46.148939"
-}

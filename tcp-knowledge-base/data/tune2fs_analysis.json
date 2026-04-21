@@ -1,5 +1,0 @@
-{
-  "command": "tune2fs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Modifying file system parameters can potentially cause data loss or system instability if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:29.464483"
-}

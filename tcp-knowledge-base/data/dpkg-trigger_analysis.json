@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-trigger",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for unintended system changes if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:52.869426"
-}

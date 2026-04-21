@@ -1,5 +1,0 @@
-{
-  "command": "poweroff",
-  "analysis": "1. CRITICAL\n2. The 'poweroff' command shuts down the entire system, potentially causing data loss, system crashes, and service interruptions if used improperly or without proper precautions.\n3. Yes, 'poweroff' requires root privileges to execute.",
-  "timestamp": "2025-07-10T03:33:38.621789"
-}

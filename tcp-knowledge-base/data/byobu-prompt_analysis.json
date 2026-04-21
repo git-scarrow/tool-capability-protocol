@@ -1,5 +1,0 @@
-{
-  "command": "byobu-prompt",
-  "analysis": "The Unix command 'byobu-prompt' is SAFE. It is a command that configures the prompt for the Byobu terminal multiplexer, which is a tool for enhancing the default GNU screen or Tmux session. The command itself does not pose any direct security concerns, as it is primarily used for customizing the user's terminal display. It does not require root or sudo privileges to run, as it is a user-level command. However, as with any terminal customization tool, users should exercise caution to ensure that the modifications do not inadvertently introduce security vulnerabilities.",
-  "timestamp": "2025-07-10T03:31:11.717434"
-}

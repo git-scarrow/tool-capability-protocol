@@ -1,5 +1,0 @@
-{
-  "command": "rnano",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: The 'rnano' command is a safe and low-risk Unix command, as it simply launches the Nano text editor with root privileges.\n\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:53.118403"
-}

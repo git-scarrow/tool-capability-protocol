@@ -1,5 +1,0 @@
-{
-  "command": "unlink",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Unlink can remove critical system files, leading to system instability or failure if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:15.288349"
-}

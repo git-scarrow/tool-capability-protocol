@@ -1,5 +1,0 @@
-{
-  "command": "gettext",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the `gettext` command is that it can be used to retrieve and display text messages from language translation catalogs, which could potentially be used to read sensitive information if the catalogs contain such data.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:31:34.592163"
-}

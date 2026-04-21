@@ -1,5 +1,0 @@
-{
-  "command": "cache_restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `cache_restore` command can potentially overwrite or modify system files, which could lead to system instability or data loss if not used correctly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:13.595218"
-}

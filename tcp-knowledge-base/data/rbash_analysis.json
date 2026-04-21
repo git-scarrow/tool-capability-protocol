@@ -1,5 +1,0 @@
-{
-  "command": "rbash",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: rbash (restricted bash) can limit user access and capabilities, but if misconfigured, it may still allow unauthorized access or escalation of privileges.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:39.637701"
-}

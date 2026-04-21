@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gold",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command is a linker utility used for the x86_64 architecture on Linux systems with the GNU C library (glibc). It is a standard tool in the development process and does not pose significant security risks when used by authorized users.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:48.816473"
-}

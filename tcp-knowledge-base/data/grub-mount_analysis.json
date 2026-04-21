@@ -1,5 +1,0 @@
-{
-  "command": "grub-mount",
-  "analysis": "The Unix command 'grub-mount' is classified as MEDIUM_RISK. The main security concern is that it provides direct access to the file system, which can be exploited by malicious actors to modify system files or gain unauthorized access. Additionally, it requires root/sudo privileges, which increases the potential for misuse or unintended consequences if used improperly. Users should exercise caution when utilizing this command and ensure that it is only used by authorized personnel for legitimate purposes.",
-  "timestamp": "2025-07-10T03:31:15.205438"
-}

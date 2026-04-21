@@ -1,5 +1,0 @@
-{
-  "command": "gpic",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The 'gpic' command is a Unix utility that generates a picture description file for the groff typesetting system. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.766855"
-}

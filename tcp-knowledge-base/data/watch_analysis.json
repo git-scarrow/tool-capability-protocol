@@ -1,5 +1,0 @@
-{
-  "command": "watch",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'watch' command is that it can potentially display sensitive information on the screen, especially if used to monitor system processes or commands that output sensitive data.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.852002"
-}

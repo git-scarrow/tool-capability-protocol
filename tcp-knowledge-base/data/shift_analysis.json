@@ -1,5 +1,0 @@
-{
-  "command": "shift",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'shift' command is that it can modify the arguments passed to a script, which could potentially lead to unintended behavior if not used carefully.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.984677"
-}

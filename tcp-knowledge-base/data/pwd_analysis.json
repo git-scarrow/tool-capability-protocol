@@ -1,5 +1,0 @@
-{
-  "command": "pwd",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'pwd' command is that it may reveal sensitive information about the system's directory structure, which could potentially be used by attackers for further exploration or exploitation.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:06.291410"
-}

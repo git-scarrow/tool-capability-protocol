@@ -1,5 +1,0 @@
-{
-  "command": "containerd",
-  "analysis": "1. Risk level: LOW_RISK\n\n2. The main security concern with 'containerd' is that it runs with elevated privileges and can interact with system resources, potentially exposing the host to vulnerabilities if not properly configured or updated.\n\n3. 'containerd' requires root/sudo privileges to manage container runtime and lifecycle on the host system.",
-  "timestamp": "2025-07-10T03:47:56.094964"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "scp",
-  "analysis": "1. SAFE/LOW_RISK\n2. Main concerns: Potential unauthorized access to sensitive data during file transfer, and the risk of compromising the source or destination system if the SSH keys or credentials are stolen.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:34.764746"
-}

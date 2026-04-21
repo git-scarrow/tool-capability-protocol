@@ -1,5 +1,0 @@
-{
-  "command": "vmware-namespace-cmd",
-  "analysis": "1. Risk: SAFE\n2. The 'vmware-namespace-cmd' command is a VMware-specific utility used to manage namespaces within a virtual machine. It does not pose significant risks when used by authorized personnel within a controlled VMware environment.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.468366"
-}

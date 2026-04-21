@@ -1,5 +1,0 @@
-{
-  "command": "lesskey",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `lesskey` command is used to customize the key bindings of the `less` pager, which can be useful for improving workflow efficiency, but it does not pose significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:35.752254"
-}

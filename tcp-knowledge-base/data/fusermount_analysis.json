@@ -1,5 +1,0 @@
-{
-  "command": "fusermount",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: Improper use of the `fusermount` command can lead to privilege escalation and unauthorized access to the system.\n3. `fusermount` requires root/sudo privileges to mount and unmount FUSE file systems.",
-  "timestamp": "2025-07-10T03:28:57.831810"
-}

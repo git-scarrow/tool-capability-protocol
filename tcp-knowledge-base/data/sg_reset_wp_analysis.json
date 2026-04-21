@@ -1,5 +1,0 @@
-{
-  "command": "sg_reset_wp",
-  "analysis": "1. Risk: SAFE\n2. The `sg_reset_wp` command is used to reset the write-protect status of a SCSI device, which is generally a low-risk operation. However, it should be used with caution to avoid unintended consequences.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.279193"
-}

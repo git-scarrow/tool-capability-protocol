@@ -1,5 +1,0 @@
-{
-  "command": "debconf-communicate",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `debconf-communicate` command can interact with the Debian configuration management system, potentially exposing sensitive information or allowing unauthorized modifications to system settings.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.225697"
-}

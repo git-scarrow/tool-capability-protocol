@@ -1,5 +1,0 @@
-{
-  "command": "userdel",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'userdel' can lead to data loss or system instability, as it removes a user account and its associated files and configurations.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:53.621888"
-}

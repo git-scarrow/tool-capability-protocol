@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-name",
-  "analysis": "1. Risk: SAFE\n2. The `dpkg-name` command is a low-risk utility that helps manage Debian packages by providing information about their names and versions.\n3. Needs root? N\nThe `dpkg-name` command can be run without root privileges, as it does not perform any system-level modifications.",
-  "timestamp": "2025-07-10T03:33:31.211253"
-}

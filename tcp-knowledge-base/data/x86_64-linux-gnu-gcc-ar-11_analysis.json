@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-gcc-ar-11",
-  "analysis": "1. MEDIUM_RISK\n2. The main concerns are that the command could be used to create or modify system libraries, which could potentially introduce security vulnerabilities or system instability if not used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:48.075880"
-}

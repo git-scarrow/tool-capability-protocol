@@ -1,5 +1,0 @@
-{
-  "command": "jsonschema",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, 'jsonschema' is a command-line tool for validating JSON data against a JSON schema, which is a useful functionality for ensuring data integrity.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:45.896051"
-}

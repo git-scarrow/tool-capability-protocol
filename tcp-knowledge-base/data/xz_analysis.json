@@ -1,5 +1,0 @@
-{
-  "command": "xz",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `xz` is a lossless data compression utility that is commonly used to compress and decompress files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:21.667167"
-}

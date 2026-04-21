@@ -1,5 +1,0 @@
-{
-  "command": "faillog",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'faillog' command can reveal sensitive information about failed login attempts, which could be exploited by an attacker to gain unauthorized access or plan targeted attacks.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:47.597105"
-}

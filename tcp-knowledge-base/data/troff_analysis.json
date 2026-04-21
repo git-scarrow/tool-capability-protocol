@@ -1,5 +1,0 @@
-{
-  "command": "troff",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Troff is a text-processing and typesetting system that can be used to format text for printing or display. Its main concerns are related to potential security vulnerabilities in the input or output processing.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:16.483753"
-}

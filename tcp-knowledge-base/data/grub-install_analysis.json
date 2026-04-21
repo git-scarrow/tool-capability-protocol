@@ -1,5 +1,0 @@
-{
-  "command": "grub-install",
-  "analysis": "1. Risk: HIGH_RISK\n2. Main concerns: Grub-install is a critical system tool that modifies the boot loader, which can lead to system failure if not used properly. Incorrect usage can prevent the system from booting.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.610547"
-}

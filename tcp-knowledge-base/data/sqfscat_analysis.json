@@ -1,5 +1,0 @@
-{
-  "command": "sqfscat",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sqfscat` can potentially expose sensitive information or allow unauthorized access to system files if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:53.304426"
-}

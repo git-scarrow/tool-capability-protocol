@@ -1,5 +1,0 @@
-{
-  "command": "ldattach",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `ldattach` can be used to attach a Line Discipline (LD) to a serial device, which could potentially be exploited by an attacker to gain unauthorized access or perform privilege escalation.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:48.047050"
-}

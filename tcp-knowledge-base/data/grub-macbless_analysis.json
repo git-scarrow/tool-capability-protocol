@@ -1,5 +1,0 @@
-{
-  "command": "grub-macbless",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'grub-macbless' command is that it is used to set the boot flags on Apple's EFI-based systems, which could potentially impact the system's bootability if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:29.604263"
-}

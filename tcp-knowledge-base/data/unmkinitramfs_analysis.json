@@ -1,5 +1,0 @@
-{
-  "command": "unmkinitramfs",
-  "analysis": "1. Risk: MEDIUM_RISK\n\n2. Main concerns:\n   - The command can remove the initial RAM filesystem, which is critical for the system's boot process. Improper usage or misconfiguration could lead to boot issues or system instability.\n\n3. Needs root: Y",
-  "timestamp": "2025-07-10T03:31:36.916296"
-}

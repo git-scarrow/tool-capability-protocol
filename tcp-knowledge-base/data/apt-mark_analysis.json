@@ -1,5 +1,0 @@
-{
-  "command": "apt-mark",
-  "analysis": "1. Risk: SAFE/LOW_RISK\n2. The main concern with the `apt-mark` command is that it allows users to manually mark packages as automatically or manually installed, which could potentially lead to changes in package management behavior if used incorrectly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:08.795450"
-}

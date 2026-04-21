@@ -1,5 +1,0 @@
-{
-  "command": "ln",
-  "analysis": "1. Risk: SAFE/LOW_RISK\n2. Main concerns: Potential overwriting of existing files, hard links can create security vulnerabilities if used improperly.\n3. Needs root? N (but may require root privileges to create links in certain directories).",
-  "timestamp": "2025-07-10T03:31:29.911323"
-}

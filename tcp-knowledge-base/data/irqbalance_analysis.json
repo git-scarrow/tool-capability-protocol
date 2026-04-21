@@ -1,5 +1,0 @@
-{
-  "command": "irqbalance",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: The `irqbalance` command is a system utility that helps distribute hardware interrupts across multiple CPU cores, improving system performance and responsiveness. It does not pose any significant security risks when used correctly.\n3. Needs root? Y - `irqbalance` requires root privileges to manage interrupt distribution across the system.",
-  "timestamp": "2025-07-10T03:34:45.178965"
-}

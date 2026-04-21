@@ -1,5 +1,0 @@
-{
-  "command": "plymouth",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Plymouth is a boot splash screen manager, which may have some security implications if not properly configured or maintained.\n3. Needs root? Y (Plymouth requires root privileges to function properly and control the boot process).",
-  "timestamp": "2025-07-10T03:33:08.513609"
-}

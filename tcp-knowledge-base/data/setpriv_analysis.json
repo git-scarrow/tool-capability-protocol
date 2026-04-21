@@ -1,5 +1,0 @@
-{
-  "command": "setpriv",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `setpriv` can potentially escalate privileges and modify the security context of a process, which could lead to security vulnerabilities if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:54.733619"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "gpgtar",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'gpgtar' command combines the functionality of GPG encryption and tar archiving, which could potentially lead to data exposure or system compromise if not used with caution.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:34:51.796186"
-}

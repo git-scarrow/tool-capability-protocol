@@ -1,5 +1,0 @@
-{
-  "command": "eject",
-  "analysis": "1. Risk level: SAFE\n2. The 'eject' command is generally safe and does not pose significant security concerns. It is primarily used to eject removable media such as CDs, DVDs, or USB drives.\n3. The 'eject' command does not require root or sudo privileges on most Unix-like systems, as it is designed to be accessible to regular users. However, in some cases, users may need to have the appropriate permissions to eject certain devices.",
-  "timestamp": "2025-07-10T03:30:06.865857"
-}

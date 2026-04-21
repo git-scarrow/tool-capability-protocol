@@ -1,5 +1,0 @@
-{
-  "command": "snice",
-  "analysis": "The Unix command 'snice' is a security risk, classified as MEDIUM_RISK.\n\n1. Main security concerns:\n   - Allows users to change the scheduling priority of other processes, potentially disrupting system performance or enabling privilege escalation.\n   - Can be used to launch denial-of-service attacks by lowering the priority of critical system processes.\n\n2. Requires root/sudo:\n   - The 'snice' command requires root or sudo privileges to change the priority of processes owned by other users, making it a potential target for privilege escalation attacks.",
-  "timestamp": "2025-07-10T03:23:16.663254"
-}

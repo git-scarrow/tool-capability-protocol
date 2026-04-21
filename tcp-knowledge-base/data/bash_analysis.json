@@ -1,5 +1,0 @@
-{
-  "command": "bash",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'bash' is the default shell on most Unix-based systems and is a widely used and well-documented command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:35.583255"
-}

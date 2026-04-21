@@ -1,5 +1,0 @@
-{
-  "command": "command",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'command' is a built-in Unix command that is used to find and execute other commands on the system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.605481"
-}

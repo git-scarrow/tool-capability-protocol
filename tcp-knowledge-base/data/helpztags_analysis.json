@@ -1,5 +1,0 @@
-{
-  "command": "helpztags",
-  "analysis": "1. Risk: SAFE\n2. The 'helpztags' command is a Unix utility that provides information about the available Zsh tags, which are used to control the behavior of the Zsh shell. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.352183"
-}

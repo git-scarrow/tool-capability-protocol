@@ -1,5 +1,0 @@
-{
-  "command": "nstat",
-  "analysis": "1. Risk level: SAFE\n2. The 'nstat' command is a utility that displays network statistics and is generally considered safe for use. It does not pose any significant security concerns.\n3. The 'nstat' command does not require root or sudo privileges to run, as it does not provide access to sensitive system information or allow for any privileged operations.",
-  "timestamp": "2025-07-10T03:30:08.523380"
-}

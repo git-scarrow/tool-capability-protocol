@@ -1,5 +1,0 @@
-{
-  "command": "remove-shell",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'remove-shell' command can potentially remove a user's shell, which may lead to unexpected behavior or even prevent the user from logging in, depending on the specific implementation and configuration.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:22.646162"
-}

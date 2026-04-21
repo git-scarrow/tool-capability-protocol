@@ -1,5 +1,0 @@
-{
-  "command": "mount.fuse3",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use or configuration of the 'mount.fuse3' command can lead to unauthorized access, data leaks, or system instability, as it deals with mounting file systems.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:00.200002"
-}

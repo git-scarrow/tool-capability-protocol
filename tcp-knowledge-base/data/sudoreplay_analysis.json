@@ -1,5 +1,0 @@
-{
-  "command": "sudoreplay",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for privilege escalation and unauthorized access to sensitive system resources if the tool is misused or configured improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:22.825968"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "wc",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None, 'wc' is a standard Unix command used to count the number of lines, words, and characters in a file.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:22.319111"
-}

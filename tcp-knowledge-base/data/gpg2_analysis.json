@@ -1,5 +1,0 @@
-{
-  "command": "gpg2",
-  "analysis": "1. SAFE/LOW_RISK\n2. Main concerns: Ensuring the integrity and confidentiality of encrypted data, key management, and potential vulnerabilities in the GPG implementation.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:35.407124"
-}

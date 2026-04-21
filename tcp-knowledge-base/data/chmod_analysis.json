@@ -1,5 +1,0 @@
-{
-  "command": "chmod",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'chmod' can lead to unintended file permissions, potentially exposing sensitive data or compromising system security.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:16.029516"
-}

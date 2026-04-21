@@ -1,5 +1,0 @@
-{
-  "command": "mailmail3",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'mailmail3' command is that it could be used for unauthorized email spoofing or distribution of malicious content if misused.\n3. Needs root: N",
-  "timestamp": "2025-07-10T03:33:08.019564"
-}

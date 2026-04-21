@@ -1,5 +1,0 @@
-{
-  "command": "rmmod",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper use of 'rmmod' can lead to system instability, data loss, or even kernel panics if the module is critical to the system's operation.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:09.339528"
-}

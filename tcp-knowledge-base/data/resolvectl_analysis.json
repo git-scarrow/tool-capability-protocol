@@ -1,5 +1,0 @@
-{
-  "command": "resolvectl",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential to modify system's DNS resolution settings, which could impact network connectivity and security.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:45.673073"
-}

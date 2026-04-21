@@ -1,5 +1,0 @@
-{
-  "command": "xdg-user-dirs-update",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: This command updates the user's default directories (e.g., Documents, Pictures) to match the user's preferred locations, which can be a security risk if the user is not careful about the directories they choose.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:47.004741"
-}

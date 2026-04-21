@@ -1,5 +1,0 @@
-{
-  "command": "gio-querymodules",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'gio-querymodules' command is that it is a low-level system tool that interacts with the GIO module system, which could potentially expose some system-level information if used improperly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:47.812251"
-}

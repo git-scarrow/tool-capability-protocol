@@ -1,5 +1,0 @@
-{
-  "command": "sprof",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: sprof is a profiling tool that provides information about the performance of a program. It does not pose any significant security risks when used as intended.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:02.210703"
-}

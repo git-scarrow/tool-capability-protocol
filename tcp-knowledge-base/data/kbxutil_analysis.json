@@ -1,5 +1,0 @@
-{
-  "command": "kbxutil",
-  "analysis": "1. SAFE\n2. The `kbxutil` command is a tool used to manage and manipulate the Keybox file format, which is used to store encryption keys. It is generally a safe command to use, as it does not pose significant security risks.\n3. N",
-  "timestamp": "2025-07-10T03:34:23.398314"
-}

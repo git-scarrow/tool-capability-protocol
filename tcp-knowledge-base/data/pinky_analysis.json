@@ -1,5 +1,0 @@
-{
-  "command": "pinky",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'pinky' command is that it can potentially reveal information about the system users, which could be used for reconnaissance purposes by an attacker.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:56.827360"
-}

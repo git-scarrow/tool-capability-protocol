@@ -1,5 +1,0 @@
-{
-  "command": "ncdu",
-  "analysis": "The Unix command 'ncdu' (Ncurses Disk Usage) is a tool used to analyze disk usage and identify large files and directories. The risk level is LOW_RISK. The main security concern is that 'ncdu' can potentially access sensitive files and directories, but it does not have any inherent vulnerabilities. 'ncdu' does not require root/sudo privileges to run, but it can provide information about the entire file system, including potentially sensitive areas, if executed without appropriate access controls.",
-  "timestamp": "2025-07-10T03:46:52.758496"
-}

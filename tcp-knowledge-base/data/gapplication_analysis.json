@@ -1,5 +1,0 @@
-{
-  "command": "gapplication",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: 'gapplication' is a utility used for managing GAppplication instances, which are part of the GLib library. It is generally a safe command, but improper usage or configuration can lead to potential security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:48.512622"
-}

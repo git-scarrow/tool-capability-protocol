@@ -1,5 +1,0 @@
-{
-  "command": "grep",
-  "analysis": "1. Risk: SAFE/LOW_RISK\n2. Main concerns: Improper use of grep can lead to unintended consequences, such as revealing sensitive information or executing malicious commands.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.777501"
-}

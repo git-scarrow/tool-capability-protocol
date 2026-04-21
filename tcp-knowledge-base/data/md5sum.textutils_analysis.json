@@ -1,5 +1,0 @@
-{
-  "command": "md5sum.textutils",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. The `md5sum` command is a utility for computing and verifying the MD5 checksum of a file, which is a common way to ensure the integrity of downloaded files.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.552725"
-}

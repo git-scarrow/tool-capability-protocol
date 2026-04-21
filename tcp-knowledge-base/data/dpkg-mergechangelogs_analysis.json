@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-mergechangelogs",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `dpkg-mergechangelogs` command is used to merge the contents of two or more Debian package changelogs. It is generally a safe operation, but incorrect usage or merging of changelogs could potentially lead to inconsistencies or loss of information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:23.159806"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ssh-keygen",
-  "analysis": "1. SAFE\n2. The main concern is properly managing and securing the generated SSH keys to prevent unauthorized access.\n3. N (no root privileges required)",
-  "timestamp": "2025-07-10T03:31:38.767502"
-}

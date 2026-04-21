@@ -1,5 +1,0 @@
-{
-  "command": "rsync",
-  "analysis": "1. SAFE/LOW_RISK: rsync is a widely-used, reliable file synchronization tool that minimizes data transfer and preserves file attributes.\n\n2. Main concerns: Unauthorized access to sensitive data, accidental data deletion or overwriting, and potential vulnerabilities in the rsync software.\n\n3. Needs root? N: rsync can be used by regular users, but may require root privileges for certain tasks, such as accessing protected directories or ports",
-  "timestamp": "2025-07-10T03:33:39.163073"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "apport-cli",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: `apport-cli` is a command-line tool used to report software crashes and issues to the Apport bug reporting system. It does not pose significant security risks when used as intended.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:52.030501"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "veritysetup",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'veritysetup' command is used to create and manage Verity block device integrity protection, which helps ensure data integrity. However, improper usage could potentially lead to data loss or system instability.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:35.207407"
-}

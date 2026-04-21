@@ -1,5 +1,0 @@
-{
-  "command": "eatmydata",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: 'eatmydata' is a wrapper that disables file system durability, which can lead to data loss or corruption in the event of a system crash or power failure.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:21.403728"
-}

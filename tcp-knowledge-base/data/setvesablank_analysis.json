@@ -1,5 +1,0 @@
-{
-  "command": "setvesablank",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'setvesablank' command can potentially affect the system's video settings, which could lead to display issues or even render the system unusable if not used with caution.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:05.743532"
-}

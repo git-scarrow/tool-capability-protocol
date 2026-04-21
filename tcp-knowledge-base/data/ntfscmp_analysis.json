@@ -1,5 +1,0 @@
-{
-  "command": "ntfscmp",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'ntfscmp' command is used to compare the contents of two NTFS volumes, which could potentially reveal sensitive information about the file system structure and contents. However, it does not directly modify or manipulate the file system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.200688"
-}

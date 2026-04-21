@@ -1,5 +1,0 @@
-{
-  "command": "kmod",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: kmod is a kernel module management tool, which can be used to load, unload, and list kernel modules. Improper use or configuration can potentially lead to system instability or security vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.188791"
-}

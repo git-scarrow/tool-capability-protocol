@@ -1,5 +1,0 @@
-{
-  "command": "sleep",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'sleep' command is that it can be used to create simple denial-of-service (DoS) attacks if used maliciously, such as by causing a system to become unresponsive for a specified duration.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:30.333159"
-}

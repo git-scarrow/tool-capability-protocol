@@ -1,5 +1,0 @@
-{
-  "command": "iptables-legacy-restore",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `iptables-legacy-restore` can modify the firewall rules, which can potentially impact the system's network security if not used carefully.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:22.853826"
-}

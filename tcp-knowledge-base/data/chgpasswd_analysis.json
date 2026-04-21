@@ -1,5 +1,0 @@
-{
-  "command": "chgpasswd",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'chgpasswd' command can be used to change the passwords of multiple user accounts, which could pose a security risk if misused or if the system is compromised.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.094153"
-}

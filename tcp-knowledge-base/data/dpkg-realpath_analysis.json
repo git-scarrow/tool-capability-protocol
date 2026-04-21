@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-realpath",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `dpkg-realpath` command is used to resolve the real path of a file or directory, which could potentially be used to traverse directories and access sensitive information if not used with caution.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:00.142597"
-}

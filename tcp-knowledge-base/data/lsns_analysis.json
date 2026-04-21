@@ -1,5 +1,0 @@
-{
-  "command": "lsns",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: lsns can reveal sensitive information about running processes and their network connections, which could be valuable for an attacker.\n3. Needs root? Y - lsns requires root privileges to access the full set of network namespaces.",
-  "timestamp": "2025-07-10T03:33:47.642243"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "users",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'users' command does not pose significant security risks, as it simply displays the currently logged-in users on the system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:35.952348"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "xfs_db",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'xfs_db' command is used to examine and modify the internal structures of an XFS file system. Improper usage can lead to data loss or file system corruption, but it is typically used by experienced system administrators for troubleshooting purposes.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:05.980374"
-}

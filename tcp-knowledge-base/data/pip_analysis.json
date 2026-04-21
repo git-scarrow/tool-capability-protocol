@@ -1,5 +1,0 @@
-{
-  "command": "pip",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Potential for installing malicious packages, dependency conflicts, and unintended system modifications.\n3. Needs root? Y (for system-wide installation) or N (for user-specific installation).",
-  "timestamp": "2025-07-10T03:31:33.229994"
-}

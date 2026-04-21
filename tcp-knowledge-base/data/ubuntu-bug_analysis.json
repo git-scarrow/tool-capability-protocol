@@ -1,5 +1,0 @@
-{
-  "command": "ubuntu-bug",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'ubuntu-bug' command is that it may collect and send sensitive system information to Canonical (the company behind Ubuntu), which could potentially be a privacy risk.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:05.800033"
-}

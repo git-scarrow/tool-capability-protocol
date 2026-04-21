@@ -1,5 +1,0 @@
-{
-  "command": "vgreduce",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Reducing the size of a volume group can result in data loss if not done carefully, especially if physical volumes are removed.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:38.643925"
-}

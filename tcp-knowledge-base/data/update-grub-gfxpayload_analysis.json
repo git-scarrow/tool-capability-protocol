@@ -1,5 +1,0 @@
-{
-  "command": "update-grub-gfxpayload",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command can modify the GRUB (Grand Unified Bootloader) configuration, which is critical for the system's boot process. Improper usage or configuration can lead to boot issues or even system failure.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:32.990251"
-}

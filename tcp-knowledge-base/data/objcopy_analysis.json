@@ -1,5 +1,0 @@
-{
-  "command": "objcopy",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `objcopy` command can modify the contents and structure of ELF (Executable and Linkable Format) files, which could potentially introduce security vulnerabilities if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:05.802415"
-}

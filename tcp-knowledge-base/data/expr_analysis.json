@@ -1,5 +1,0 @@
-{
-  "command": "expr",
-  "analysis": "1. SAFE/LOW_RISK: The 'expr' command is generally safe to use in Unix-based systems.\n2. Main concerns: Potential for misuse if the input is not properly validated, leading to unintended consequences.\n3. Needs root? N: The 'expr' command does not require root privileges to execute.",
-  "timestamp": "2025-07-10T03:31:29.772377"
-}

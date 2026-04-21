@@ -1,5 +1,0 @@
-{
-  "command": "numfmt",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `numfmt` command is generally safe and low-risk, as it is used to convert numbers between different formats and units.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:48.128409"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "delv",
-  "analysis": "1. Risk: SAFE\n2. The 'delv' command is a tool used for DNS debugging and troubleshooting, which is generally considered safe for normal usage.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.509207"
-}

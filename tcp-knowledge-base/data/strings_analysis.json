@@ -1,5 +1,0 @@
-{
-  "command": "strings",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: Strings is a utility that prints the printable character sequences in a binary file, which can be useful for investigating the contents of files, but it does not pose significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:08.381418"
-}

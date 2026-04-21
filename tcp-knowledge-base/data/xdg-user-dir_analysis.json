@@ -1,5 +1,0 @@
-{
-  "command": "xdg-user-dir",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: None, the command is used to retrieve the location of user-specific directories like Desktop, Documents, Downloads, etc. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:37.499577"
-}

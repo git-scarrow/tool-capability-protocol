@@ -1,5 +1,0 @@
-{
-  "command": "dpkg-deb",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. `dpkg-deb` is a utility for manipulating Debian package archives (.deb files), which is a common and widely-used task in Linux environments.\n3. Needs root? N, but may require elevated privileges to perform certain operations on system packages.",
-  "timestamp": "2025-07-10T03:33:38.808610"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "ischroot",
-  "analysis": "1. Risk: SAFE\n2. The 'ischroot' command is used to check if the current process is running in a chroot environment. It does not pose any significant risks on its own.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:32.632848"
-}

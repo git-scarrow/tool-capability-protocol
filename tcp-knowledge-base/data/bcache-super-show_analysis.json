@@ -1,5 +1,0 @@
-{
-  "command": "bcache-super-show",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command provides information about the bcache superblock, which is used to manage the caching of block devices. It does not directly modify system files or configurations, but improper usage could potentially impact system performance or data integrity.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:23.236670"
-}

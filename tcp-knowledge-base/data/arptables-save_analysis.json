@@ -1,5 +1,0 @@
-{
-  "command": "arptables-save",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'arptables-save' command is used to save the current ARP (Address Resolution Protocol) firewall rules to a file, which could potentially expose sensitive network information if the file is not properly secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:30.559064"
-}

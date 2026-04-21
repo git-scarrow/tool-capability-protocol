@@ -1,5 +1,0 @@
-{
-  "command": "sudo",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: The 'sudo' command grants elevated privileges, which can be misused by unauthorized individuals to perform malicious actions. Improper configuration or privilege escalation vulnerabilities can lead to system compromise.\n3. The 'sudo' command requires root or administrative privileges to execute.",
-  "timestamp": "2025-07-10T03:28:59.736658"
-}

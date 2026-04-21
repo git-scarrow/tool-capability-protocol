@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-dwp",
-  "analysis": "1. Risk level: LOW_RISK\n2. The 'x86_64-linux-gnu-dwp' command is a utility for creating debug information packages (dwp) for ELF binaries on Linux. While it doesn't pose significant security risks on its own, it can be used in the context of software development and debugging, which may require careful consideration of potential vulnerabilities.\n3. The command does not require root/sudo privileges to run, but its usage may depend on the specific context and the associated software being developed or debugged.",
-  "timestamp": "2025-07-10T03:25:12.502614"
-}

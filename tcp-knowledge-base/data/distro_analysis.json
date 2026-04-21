@@ -1,5 +1,0 @@
-{
-  "command": "distro",
-  "analysis": "1. Risk: SAFE\n2. The 'distro' command is a relatively safe Unix command that provides information about the Linux distribution running on the system. It does not pose any significant security risks.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.331025"
-}

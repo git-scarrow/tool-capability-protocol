@@ -1,5 +1,0 @@
-{
-  "command": "which.debianutils",
-  "analysis": "1. Risk: SAFE\n\n2. The `which.debianutils` command is a simple utility that locates the executable file associated with a given command. It does not pose any significant security risks and is commonly used to determine the location of a program.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.589423"
-}

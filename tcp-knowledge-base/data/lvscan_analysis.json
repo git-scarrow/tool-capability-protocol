@@ -1,5 +1,0 @@
-{
-  "command": "lvscan",
-  "analysis": "1. SAFE\n2. The main concern with the 'lvscan' command is that it can provide information about logical volumes on the system, which could be useful for an attacker trying to gather information about the system's configuration.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:39.920744"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "grub-mkrelpath",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the `grub-mkrelpath` command is that it can be used to generate relative paths, which could potentially be used in a malicious way if the input is not properly sanitized.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:35.551419"
-}

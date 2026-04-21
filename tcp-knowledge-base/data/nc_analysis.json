@@ -1,5 +1,0 @@
-{
-  "command": "nc",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Netcat (nc) can be used for benign or malicious purposes, such as port scanning, remote access, and data transfer. Improper use can lead to unauthorized access or data leakage.\n3. Needs root? Y/N: Depends on the specific use case, but can be run with or without root privileges.",
-  "timestamp": "2025-07-10T03:31:36.245833"
-}

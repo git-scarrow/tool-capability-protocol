@@ -1,5 +1,0 @@
-{
-  "command": "perlivp",
-  "analysis": "1. SAFE: The 'perlivp' command is a tool for checking the integrity of Perl installations, which is generally considered a safe operation.\n\n2. Main concerns: None, as it is a standard Perl utility for verifying the integrity of the Perl installation.\n\n3. Needs root? N: The 'perlivp' command does not require root privileges to execute.",
-  "timestamp": "2025-07-10T03:32:37.568688"
-}

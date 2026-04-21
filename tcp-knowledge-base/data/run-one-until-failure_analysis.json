@@ -1,5 +1,0 @@
-{
-  "command": "run-one-until-failure",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The command can be used to repeatedly execute a command until it fails, which could lead to unintended consequences if the command being executed is potentially harmful or dangerous.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.733549"
-}

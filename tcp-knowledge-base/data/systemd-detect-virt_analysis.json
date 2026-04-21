@@ -1,5 +1,0 @@
-{
-  "command": "systemd-detect-virt",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that it may reveal information about the underlying virtualization technology used in the system, which could potentially be used by an attacker to exploit known vulnerabilities in the virtualization software.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.876468"
-}

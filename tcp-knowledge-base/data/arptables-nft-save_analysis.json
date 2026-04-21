@@ -1,5 +1,0 @@
-{
-  "command": "arptables-nft-save",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with the 'arptables-nft-save' command is that it can be used to view and manipulate the ARP (Address Resolution Protocol) table, which is a critical component of network communication. However, it is generally safe when used by authorized users.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:24.031610"
-}

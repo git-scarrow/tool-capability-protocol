@@ -1,5 +1,0 @@
-{
-  "command": "iptables-nft-save",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command `iptables-nft-save` is used to save the current iptables firewall rules, which could expose information about the system's network configuration if the output is not properly secured.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.280679"
-}

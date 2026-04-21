@@ -1,5 +1,0 @@
-{
-  "command": "iconv",
-  "analysis": "1. Risk: SAFE\n\n2. Main concerns: None. `iconv` is a utility for converting text between different character encodings, which is a common task in system administration and software development.\n\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.975291"
-}

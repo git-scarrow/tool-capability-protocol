@@ -1,5 +1,0 @@
-{
-  "command": "pkcheck",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `pkcheck` allows users to request privileges from the polkit daemon, which can potentially be exploited to escalate privileges if the polkit rules are misconfigured.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:53.369677"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "mkntfs",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'mkntfs' command is used to create an NTFS file system, which is primarily used on Windows systems. Improper usage or errors during the process could lead to data loss or file system corruption, making it a medium-risk command.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:00.181060"
-}

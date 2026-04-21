@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-g++",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'x86_64-linux-gnu-g++' is a compiler that compiles C++ code for the x86_64 architecture running on a Linux system. The risk is low, as it is a standard tool used for software development.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:38.874684"
-}

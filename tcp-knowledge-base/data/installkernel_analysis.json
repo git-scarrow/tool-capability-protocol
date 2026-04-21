@@ -1,5 +1,0 @@
-{
-  "command": "installkernel",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `installkernel` command can update the system's kernel, which is a critical component of the operating system. If not used properly, it can lead to system instability or even failure.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:37.172485"
-}

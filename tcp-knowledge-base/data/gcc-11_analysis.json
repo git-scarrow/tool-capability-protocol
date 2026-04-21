@@ -1,5 +1,0 @@
-{
-  "command": "gcc-11",
-  "analysis": "1. SAFE\n2. The main concern with the 'gcc-11' command is that it is a compiler for the C programming language, which can be used to compile and execute arbitrary code. However, it is a widely-used and well-known tool, and is generally considered safe when used by authorized users.\n3. N",
-  "timestamp": "2025-07-10T03:31:35.803623"
-}

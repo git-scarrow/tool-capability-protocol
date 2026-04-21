@@ -1,5 +1,0 @@
-{
-  "command": "coproc",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Potential for race conditions and interprocess communication issues if not used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:53.508778"
-}

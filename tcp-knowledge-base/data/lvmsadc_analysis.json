@@ -1,5 +1,0 @@
-{
-  "command": "lvmsadc",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern with 'lvmsadc' is that it is a low-level administrative command used to collect data for the Logical Volume Manager (LVM) on Unix-like systems, which may have limited impact if used incorrectly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:16.744784"
-}

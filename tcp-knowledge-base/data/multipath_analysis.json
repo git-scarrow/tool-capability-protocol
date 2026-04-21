@@ -1,5 +1,0 @@
-{
-  "command": "multipath",
-  "analysis": "1. Risk: SAFE\n2. Main concerns: None. 'multipath' is a command used to manage multipath devices, which improves system availability and reliability by providing alternative paths to storage devices.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:38.886382"
-}

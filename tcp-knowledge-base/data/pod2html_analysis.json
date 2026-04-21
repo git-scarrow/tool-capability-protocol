@@ -1,5 +1,0 @@
-{
-  "command": "pod2html",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'pod2html' command is used to convert Perl documentation (POD) files into HTML format. It does not pose significant security risks, but users should be cautious about the input files and ensure they are from trusted sources.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:38.697742"
-}

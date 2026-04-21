@@ -1,5 +1,0 @@
-{
-  "command": "sbverify",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: `sbverify` is a command that verifies the signatures of Secure Boot keys, which can have security implications if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:29.935024"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "unlzma",
-  "analysis": "1. Risk: SAFE\n2. The main concern with the 'unlzma' command is that it can be used to decompress files, which could potentially contain malicious content if the files are untrusted.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:33:59.926406"
-}

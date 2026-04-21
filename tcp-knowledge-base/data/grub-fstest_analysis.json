@@ -1,5 +1,0 @@
-{
-  "command": "grub-fstest",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'grub-fstest' command can potentially access and modify file systems, which could lead to data loss or system instability if used improperly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:34.810117"
-}

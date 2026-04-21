@@ -1,5 +1,0 @@
-{
-  "command": "captoinfo",
-  "analysis": "1. Risk level: LOW_RISK\n2. The main security concern with 'captoinfo' is that it can be used to view and modify the terminal capability database, which could potentially be exploited by an attacker to perform unauthorized actions or gain elevated privileges.\n3. 'captoinfo' does not require root/sudo privileges to run, but it may require specific permissions to access and modify the terminal capability database.",
-  "timestamp": "2025-07-10T03:29:01.800100"
-}

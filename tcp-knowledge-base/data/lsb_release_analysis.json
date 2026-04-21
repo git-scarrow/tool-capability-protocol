@@ -1,5 +1,0 @@
-{
-  "command": "lsb_release",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'lsb_release' command is generally safe and used to display information about the Linux distribution, such as the version and codename. However, it could potentially be used by an attacker to gather information about the target system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:29.767089"
-}

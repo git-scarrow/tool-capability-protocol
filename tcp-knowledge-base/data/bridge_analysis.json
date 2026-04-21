@@ -1,5 +1,0 @@
-{
-  "command": "bridge",
-  "analysis": "1. Risk: SAFE\n2. The `bridge` command is used to create and manage network bridges, which are used to connect different network segments. It has no inherent security risks, but improper configuration could potentially lead to network vulnerabilities.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:44.865284"
-}

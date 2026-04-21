@@ -1,5 +1,0 @@
-{
-  "command": "useradd",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Unauthorized users creation, privilege escalation, and system access.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:45.347109"
-}

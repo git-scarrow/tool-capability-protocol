@@ -1,5 +1,0 @@
-{
-  "command": "e2freefrag",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The command 'e2freefrag' is used to display information about the free space fragmentation on an ext2, ext3, or ext4 file system. It does not directly modify the file system, but the information it provides could be used to make decisions that could potentially impact the file system.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:33:31.338891"
-}

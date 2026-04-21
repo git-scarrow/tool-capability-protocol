@@ -1,5 +1,0 @@
-{
-  "command": "mkfs.ext3",
-  "analysis": "1. Risk: CRITICAL\n2. Main concerns: Irreversible data loss, potential system corruption, and unintended file system formatting.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:00.072285"
-}

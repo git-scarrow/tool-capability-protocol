@@ -1,5 +1,0 @@
-{
-  "command": "sg_xcopy",
-  "analysis": "1. Risk level: MEDIUM_RISK\n2. Main security concerns: The 'sg_xcopy' command is used to copy data between SCSI devices, which could potentially be used to access or manipulate sensitive data if not used with caution.\n3. The 'sg_xcopy' command does not require root/sudo privileges to run, but it can be used to perform operations that may require elevated permissions, depending on the specific use case.",
-  "timestamp": "2025-07-10T03:31:10.861484"
-}

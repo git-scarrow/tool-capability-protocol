@@ -1,5 +1,0 @@
-{
-  "command": "sg_emc_trespass",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The `sg_emc_trespass` command is used to manage the access control for storage devices, which can have significant implications for system security and data integrity if not used properly.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:29.254842"
-}

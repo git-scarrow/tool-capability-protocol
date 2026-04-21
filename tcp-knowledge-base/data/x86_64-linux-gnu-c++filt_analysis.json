@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-c++filt",
-  "analysis": "1. Risk: LOW_RISK\n2. The main concern is that the command may be used to obfuscate or hide the names of C++ symbols, which could potentially be used to conceal malicious code.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:13.003369"
-}

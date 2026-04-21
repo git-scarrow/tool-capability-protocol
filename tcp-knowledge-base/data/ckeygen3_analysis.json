@@ -1,5 +1,0 @@
-{
-  "command": "ckeygen3",
-  "analysis": "1. Risk: SAFE\n2. The 'ckeygen3' command is a utility used to generate cryptographic keys, which is a relatively low-risk operation when used properly.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:54.994853"
-}

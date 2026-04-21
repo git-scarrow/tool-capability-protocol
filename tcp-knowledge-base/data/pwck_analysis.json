@@ -1,5 +1,0 @@
-{
-  "command": "pwck",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: Checking the integrity of the password file, detecting duplicates, and identifying invalid or expired user accounts.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:31:37.310451"
-}

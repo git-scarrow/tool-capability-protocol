@@ -1,5 +1,0 @@
-{
-  "command": "ssh-keyscan",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The `ssh-keyscan` command is used to gather the public SSH keys of a remote host, which can be useful for verifying the identity of the host and preventing man-in-the-middle attacks. However, it could potentially be misused to gather information about a target system.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:29.915579"
-}

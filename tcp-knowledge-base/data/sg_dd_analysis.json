@@ -1,5 +1,0 @@
-{
-  "command": "sg_dd",
-  "analysis": "The Unix command 'sg_dd' is a utility used for low-level data transfer, similar to the 'dd' command. It is generally considered LOW_RISK, as it does not inherently pose significant security concerns. However, it can be used to perform tasks that may require elevated privileges, such as interacting with system devices or partitions. Therefore, the use of 'sg_dd' may require root or sudo access, depending on the specific use case. Users should exercise caution and ensure that the command is used for legitimate purposes and with appropriate permissions to mitigate potential risks.",
-  "timestamp": "2025-07-10T03:25:17.566342"
-}

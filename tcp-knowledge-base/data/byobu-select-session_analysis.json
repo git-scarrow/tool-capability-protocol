@@ -1,5 +1,0 @@
-{
-  "command": "byobu-select-session",
-  "analysis": "1. Risk: LOW_RISK\n2. The 'byobu-select-session' command is used to switch between Byobu sessions, which is a tool for managing and enhancing terminal sessions. It does not perform any potentially dangerous operations, making it a low-risk command.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:32:36.967371"
-}

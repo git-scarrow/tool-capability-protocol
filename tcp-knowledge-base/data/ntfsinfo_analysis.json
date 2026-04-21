@@ -1,5 +1,0 @@
-{
-  "command": "ntfsinfo",
-  "analysis": "1. Risk: LOW_RISK\n2. Main concerns: The 'ntfsinfo' command provides information about NTFS file systems, which can be useful for system administration and troubleshooting. However, improper use or misinterpretation of the output could potentially lead to unintended consequences.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:32:29.791289"
-}

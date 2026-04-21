@@ -1,5 +1,0 @@
-{
-  "command": "x86_64-linux-gnu-strings",
-  "analysis": "1. Risk: SAFE\n2. The main concern is that the command can be used to extract text strings from binary files, which could potentially reveal sensitive information if the files contain such data.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:29.511106"
-}

@@ -1,5 +1,0 @@
-{
-  "command": "switch_root",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: Improper usage can lead to system instability, data loss, or even system failure.\n3. Needs root? Y",
-  "timestamp": "2025-07-10T03:34:16.091231"
-}

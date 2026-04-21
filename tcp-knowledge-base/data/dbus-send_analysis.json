@@ -1,5 +1,0 @@
-{
-  "command": "dbus-send",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: The 'dbus-send' command can be used to communicate with the D-Bus message bus system, which can potentially be exploited by malicious actors to execute arbitrary commands or access sensitive information.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:31:31.714307"
-}

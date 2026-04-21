@@ -1,5 +1,0 @@
-{
-  "command": "xzgrep",
-  "analysis": "1. Risk: MEDIUM_RISK\n2. Main concerns: 'xzgrep' can be used to search for patterns in compressed files, which may contain sensitive information. Improper use or targeting of this command could lead to unintended data exposure.\n3. Needs root? N",
-  "timestamp": "2025-07-10T03:34:37.192651"
-}
