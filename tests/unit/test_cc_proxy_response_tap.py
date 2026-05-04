@@ -1,12 +1,14 @@
-"""Tests for TCP-IMP-14: response-tap helpers in cc_proxy.
+"""Tests for TCP-IMP-14 / TCP-IMP-21: response-tap helpers in cc_proxy.
 
 Covers:
  - SSE first-tool extraction (normal, cross-chunk-boundary, no-tool)
- - Non-streamed JSON extraction
+ - SSE all-tools extraction (multi-tool, ordering, message_stop gating)
+ - Non-streamed JSON extraction (first-tool and all-tools)
  - expected_tool_name derivation
  - first_tool_correct computation
  - decisions.jsonl enrichment (one record per turn)
  - backward compatibility (new fields present with correct types)
+ - tool_call_sequence retention: second and later tool calls are not dropped
  - latency guard (tap overhead is negligible)
 """
 
@@ -17,6 +19,8 @@ import time
 from pathlib import Path
 
 from tcp.proxy.cc_proxy import (
+    _all_tools_from_response_body,
+    _all_tools_from_sse_buf,
     _compute_expected_tool_name,
     _first_tool_from_response_body,
     _first_tool_from_sse_buf,
@@ -119,6 +123,143 @@ class TestFirstToolFromSseBuf:
         good = _sse_content_block_start("real_tool")
         tool, ended = _first_tool_from_sse_buf(malformed + good)
         assert tool == "real_tool"
+
+
+# ── Tests: _all_tools_from_sse_buf ────────────────────────────────────────────
+
+
+class TestAllToolsFromSseBuf:
+    """TCP-IMP-21: all-tools SSE extraction retains second and later tool calls."""
+
+    def test_single_tool(self):
+        buf = _sse_message_start() + _sse_content_block_start("Bash")
+        tools, ended = _all_tools_from_sse_buf(buf)
+        assert [t["tool_name"] for t in tools] == ["Bash"]
+        assert ended is False
+
+    def test_two_tools_both_retained(self):
+        """Second tool call must not be dropped — the core TCP-IMP-21 regression."""
+        buf = (
+            _sse_message_start()
+            + _sse_content_block_start("Read", index=0)
+            + _sse_content_block_start("Write", index=1)
+            + _sse_message_stop()
+        )
+        tools, ended = _all_tools_from_sse_buf(buf)
+        assert [t["tool_name"] for t in tools] == ["Read", "Write"]
+        assert ended is True
+
+    def test_three_tools_in_order(self):
+        buf = (
+            _sse_content_block_start("tool_a", index=0)
+            + _sse_content_block_start("tool_b", index=2)
+            + _sse_content_block_start("tool_c", index=4)
+            + _sse_message_stop()
+        )
+        tools, ended = _all_tools_from_sse_buf(buf)
+        assert [t["tool_name"] for t in tools] == ["tool_a", "tool_b", "tool_c"]
+        assert [t["index"] for t in tools] == [0, 2, 4]
+        assert ended is True
+
+    def test_text_blocks_ignored(self):
+        buf = (
+            _sse_text_block_start(0)
+            + _sse_content_block_start("Bash", index=1)
+            + _sse_text_block_start(2)
+            + _sse_content_block_start("Read", index=3)
+            + _sse_message_stop()
+        )
+        tools, ended = _all_tools_from_sse_buf(buf)
+        assert [t["tool_name"] for t in tools] == ["Bash", "Read"]
+        assert ended is True
+
+    def test_no_tools_text_only(self):
+        buf = _sse_message_start() + _sse_text_block_start(0) + _sse_message_stop()
+        tools, ended = _all_tools_from_sse_buf(buf)
+        assert tools == []
+        assert ended is True
+
+    def test_message_stop_without_tools(self):
+        buf = _sse_message_stop()
+        tools, ended = _all_tools_from_sse_buf(buf)
+        assert tools == []
+        assert ended is True
+
+    def test_empty_buffer(self):
+        tools, ended = _all_tools_from_sse_buf(b"")
+        assert tools == []
+        assert ended is False
+
+    def test_tool_index_preserved(self):
+        buf = _sse_content_block_start("my_tool", index=7)
+        tools, ended = _all_tools_from_sse_buf(buf)
+        assert tools == [{"index": 7, "tool_name": "my_tool"}]
+
+    def test_malformed_json_skipped(self):
+        malformed = b"event: content_block_start\ndata: {not valid json}\n\n"
+        good = _sse_content_block_start("good_tool", index=0)
+        tools, ended = _all_tools_from_sse_buf(malformed + good)
+        assert [t["tool_name"] for t in tools] == ["good_tool"]
+
+    def test_non_utf8_does_not_raise(self):
+        buf = b"\xff\xfe" + _sse_content_block_start("safe_tool")
+        tools, ended = _all_tools_from_sse_buf(buf)
+        assert isinstance(tools, list)
+        assert isinstance(ended, bool)
+
+
+# ── Tests: _all_tools_from_response_body ──────────────────────────────────────
+
+
+class TestAllToolsFromResponseBody:
+    """TCP-IMP-21: all-tools non-streaming extraction retains second and later calls."""
+
+    def test_single_tool(self):
+        body = json.dumps(
+            {"content": [{"type": "tool_use", "name": "Bash", "id": "1", "input": {}}]}
+        ).encode()
+        tools = _all_tools_from_response_body(body)
+        assert tools == [{"index": 0, "tool_name": "Bash"}]
+
+    def test_two_tools_both_retained(self):
+        """Second tool call must not be dropped — non-streaming equivalent of TCP-IMP-21."""
+        body = json.dumps(
+            {
+                "content": [
+                    {"type": "tool_use", "name": "tool_a", "id": "1", "input": {}},
+                    {"type": "tool_use", "name": "tool_b", "id": "2", "input": {}},
+                ]
+            }
+        ).encode()
+        tools = _all_tools_from_response_body(body)
+        assert [t["tool_name"] for t in tools] == ["tool_a", "tool_b"]
+        assert [t["index"] for t in tools] == [0, 1]
+
+    def test_text_blocks_excluded(self):
+        body = json.dumps(
+            {
+                "content": [
+                    {"type": "text", "text": "Thinking..."},
+                    {"type": "tool_use", "name": "Read", "id": "1", "input": {}},
+                    {"type": "text", "text": "Also..."},
+                    {"type": "tool_use", "name": "Write", "id": "2", "input": {}},
+                ]
+            }
+        ).encode()
+        tools = _all_tools_from_response_body(body)
+        assert [t["tool_name"] for t in tools] == ["Read", "Write"]
+        assert [t["index"] for t in tools] == [1, 3]
+
+    def test_no_tools_returns_empty(self):
+        body = json.dumps({"content": [{"type": "text", "text": "hello"}]}).encode()
+        assert _all_tools_from_response_body(body) == []
+
+    def test_empty_content_returns_empty(self):
+        body = json.dumps({"content": []}).encode()
+        assert _all_tools_from_response_body(body) == []
+
+    def test_invalid_json_returns_empty(self):
+        assert _all_tools_from_response_body(b"not json") == []
 
 
 # ── Tests: _first_tool_from_response_body ─────────────────────────────────────
@@ -342,6 +483,32 @@ class TestBackwardCompatibility:
         assert "first_byte_duration_ms" in rec
         assert "total_response_duration_ms" in rec
         assert "retry_count" in rec
+        # TCP-IMP-21: tool_call_sequence must always be present (None when not supplied)
+        assert "tool_call_sequence" in rec
+
+    def test_tool_call_sequence_null_when_not_supplied(self, tmp_path, monkeypatch):
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+        meta = {"survivor_count": 1, "survivor_names_sorted": ["Bash"]}
+        _write_decision_record(time.time(), meta, "Bash")
+        rec = self._read_last_record(log)
+        assert rec["tool_call_sequence"] is None
+
+    def test_tool_call_sequence_multi_tool_retained(self, tmp_path, monkeypatch):
+        """TCP-IMP-21: second and later tool calls must survive the decision record."""
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+        meta = {"survivor_count": 2, "survivor_names_sorted": ["Read", "Write"]}
+        seq = [
+            {"seq": 0, "index": 0, "tool_name": "Read"},
+            {"seq": 1, "index": 1, "tool_name": "Write"},
+        ]
+        _write_decision_record(time.time(), meta, "Read", tool_call_sequence=seq)
+        rec = self._read_last_record(log)
+        assert rec["first_tool_name"] == "Read"
+        assert rec["tool_call_sequence"] == seq
+        # Second tool call is present — it would previously have been lost.
+        assert rec["tool_call_sequence"][1]["tool_name"] == "Write"
 
     def test_record_is_valid_json(self, tmp_path, monkeypatch):
         log = tmp_path / "decisions.jsonl"

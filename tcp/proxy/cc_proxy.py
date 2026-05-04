@@ -820,6 +820,69 @@ def _first_tool_from_sse_buf(buf: bytes) -> tuple[str | None, bool]:
     return None, stream_ended
 
 
+def _all_tools_from_sse_buf(buf: bytes) -> tuple[list[dict[str, Any]], bool]:
+    """Scan an SSE byte buffer for ALL tool_use content blocks.
+
+    Returns ``(tools, stream_ended)`` where:
+      - ``tools`` is an ordered list of ``{"index": int, "tool_name": str}`` dicts
+        (one per tool_use content_block_start event, in observation order)
+      - ``stream_ended`` is True when a ``message_stop`` event was seen
+
+    Handles partial final lines gracefully — incomplete lines are skipped and
+    will be re-presented in the next chunk via the caller's tail-buffer logic.
+    """
+    try:
+        text = buf.decode("utf-8", errors="replace")
+    except Exception:
+        return [], False
+
+    tools: list[dict[str, Any]] = []
+    stream_ended = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("data:"):
+            continue
+        payload = stripped[5:].strip()
+        if not payload or payload == "[DONE]":
+            continue
+        try:
+            data = json.loads(payload)
+        except (json.JSONDecodeError, ValueError):
+            continue
+        event_type = data.get("type")
+        if event_type == "content_block_start":
+            cb = data.get("content_block", {})
+            if isinstance(cb, dict) and cb.get("type") == "tool_use":
+                name = cb.get("name")
+                if isinstance(name, str):
+                    tools.append({"index": data.get("index", 0), "tool_name": name})
+        elif event_type == "message_stop":
+            stream_ended = True
+
+    return tools, stream_ended
+
+
+def _all_tools_from_response_body(body: bytes) -> list[dict[str, Any]]:
+    """Extract all tool_use blocks from a non-streamed Anthropic response.
+
+    Returns an ordered list of ``{"index": int, "tool_name": str}`` dicts
+    where ``index`` is the 0-based position in the response content array.
+    """
+    try:
+        data = json.loads(body)
+    except (json.JSONDecodeError, ValueError):
+        return []
+    if not isinstance(data, dict):
+        return []
+    result: list[dict[str, Any]] = []
+    for idx, block in enumerate(data.get("content", [])):
+        if isinstance(block, dict) and block.get("type") == "tool_use":
+            name = block.get("name")
+            if isinstance(name, str):
+                result.append({"index": idx, "tool_name": name})
+    return result
+
+
 def _write_decision_record(
     req_ts: float,
     meta: dict[str, Any],
@@ -830,6 +893,7 @@ def _write_decision_record(
     first_byte_duration_ms: float | None = None,
     total_response_duration_ms: float | None = None,
     retry_count: int = 0,
+    tool_call_sequence: list[dict[str, Any]] | None = None,
 ) -> None:
     """Write (or rewrite) the enriched decisions.jsonl entry for this turn."""
     expected_tool_name = _compute_expected_tool_name(meta)
@@ -852,6 +916,7 @@ def _write_decision_record(
             "first_byte_duration_ms": first_byte_duration_ms,
             "total_response_duration_ms": total_response_duration_ms,
             "retry_count": retry_count,
+            "tool_call_sequence": tool_call_sequence,
         },
     )
 
@@ -1055,8 +1120,9 @@ async def proxy_post_messages(request: Request) -> Response:
         can_tap = meta is not None and content_enc not in ("gzip", "br", "deflate", "zstd")
         # State shared by body_iter closure.
         # _tap["buf"] holds only the unparsed tail (incomplete last line) so that
-        # _first_tool_from_sse_buf never rescans already-consumed bytes (O(n) total).
-        _tap: dict[str, Any] = {"buf": b"", "done": False}
+        # _all_tools_from_sse_buf never rescans already-consumed bytes (O(n) total).
+        # _tap["tool_sequence"] accumulates all tool calls until message_stop.
+        _tap: dict[str, Any] = {"buf": b"", "done": False, "tool_sequence": []}
         first_byte_at: float | None = None
 
         async def body_iter() -> Any:
@@ -1070,15 +1136,22 @@ async def proxy_post_messages(request: Request) -> Response:
                     yield chunk
                     if can_tap and not _tap["done"]:
                         combined = _tap["buf"] + chunk
-                        tool_name, ended = _first_tool_from_sse_buf(combined)
-                        if tool_name is not None or ended:
-                            # Write the decision record as soon as we know the
-                            # first tool (or that the model called no tool).
+                        new_tools, ended = _all_tools_from_sse_buf(combined)
+                        # Assign seq numbers continuing from previous chunks.
+                        seq_offset = len(_tap["tool_sequence"])
+                        for i, t in enumerate(new_tools):
+                            _tap["tool_sequence"].append(
+                                {"seq": seq_offset + i, "index": t["index"], "tool_name": t["tool_name"]}
+                            )
+                        if ended:
+                            # message_stop seen — write the complete decision record.
                             assert meta is not None
+                            seq = _tap["tool_sequence"]
+                            first_name = seq[0]["tool_name"] if seq else None
                             _write_decision_record(
                                 req_ts,
                                 meta,
-                                tool_name,
+                                first_name,
                                 tap_skipped=False,
                                 preflight_duration_ms=(preflight_done_at - started_at) * 1000.0,
                                 upstream_request_duration_ms=(
@@ -1091,7 +1164,9 @@ async def proxy_post_messages(request: Request) -> Response:
                                     if first_byte_at is not None
                                     else None
                                 ),
+                                total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
                                 retry_count=retry_count,
+                                tool_call_sequence=seq if seq else [],
                             )
                             _tap["done"] = True
                             _tap["buf"] = b""  # release buffer memory
@@ -1103,13 +1178,15 @@ async def proxy_post_messages(request: Request) -> Response:
                             _tap["buf"] = combined[last_nl + 1:] if last_nl >= 0 else combined
             finally:
                 if can_tap and not _tap["done"]:
-                    # Stream ended without a message_stop or tool event
-                    # (e.g. non-200, network error). Write with null tool.
+                    # Stream ended without a message_stop event
+                    # (e.g. non-200, network error). Write with whatever was accumulated.
                     assert meta is not None
+                    seq = _tap["tool_sequence"]
+                    first_name = seq[0]["tool_name"] if seq else None
                     _write_decision_record(
                         req_ts,
                         meta,
-                        None,
+                        first_name,
                         tap_skipped=False,
                         preflight_duration_ms=(preflight_done_at - started_at) * 1000.0,
                         upstream_request_duration_ms=(
@@ -1124,6 +1201,7 @@ async def proxy_post_messages(request: Request) -> Response:
                         ),
                         total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
                         retry_count=retry_count,
+                        tool_call_sequence=seq if seq else None,
                     )
                     _tap["done"] = True
                 elif meta is not None and not can_tap:
@@ -1159,9 +1237,11 @@ async def proxy_post_messages(request: Request) -> Response:
     try:
         content, first_byte_at = await _read_response_with_timing(response)
         hdrs = _buffered_response_headers(response, content)
-        # Non-streaming: extract first tool from the full response body.
-        first_tool = _first_tool_from_response_body(content) if meta is not None else None
+        # Non-streaming: extract all tool calls from the full response body.
         if meta is not None:
+            all_tools = _all_tools_from_response_body(content)
+            seq = [{"seq": i, "index": t["index"], "tool_name": t["tool_name"]} for i, t in enumerate(all_tools)]
+            first_tool: str | None = seq[0]["tool_name"] if seq else None
             _write_decision_record(
                 req_ts,
                 meta,
@@ -1180,6 +1260,7 @@ async def proxy_post_messages(request: Request) -> Response:
                 ),
                 total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
                 retry_count=retry_count,
+                tool_call_sequence=seq,
             )
         return Response(
             content=content,
