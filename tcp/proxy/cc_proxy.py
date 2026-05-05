@@ -50,6 +50,10 @@ from tcp.proxy.pack_manifest import (
     pack_context_from_env,
 )
 from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
+from tcp.proxy.capability_resolution_gate import (
+    resolve_capabilities_for_request,
+    resolution_to_log_record,
+)
 from tcp.proxy.prompt_select import extract_task_prompt
 
 PROXY_STATE_DIR = Path.home() / ".tcp-shadow" / "proxy"
@@ -444,6 +448,10 @@ def _process_tools_array(
                     workspace_rescued.add(name)
             else:  # ACTIVE
                 server_allow_source.setdefault(server, decision.legacy_allow_source)
+                if decision.tpc_rule == TPC_RULE_HEURISTIC_UPGRADE:
+                    explicit_rescued.add(name)
+
+    crg_policy_blocked: frozenset[str] = frozenset()
 
     if mode == "live-strict" and records:
         strict_tsel = ToolSelectionRequest.from_kwargs(
@@ -455,6 +463,7 @@ def _process_tools_array(
             require_auto_approval=tsel.require_auto_approval,
         )
         strict_gate = gate_tools(records, strict_tsel, env)
+        crg_policy_blocked = frozenset(r.tool_name for r in strict_gate.rejected_tools)
         stage2_survivors = {x.tool_name for x in strict_gate.approved_tools} | {
             x.tool_name for x in strict_gate.approval_required_tools
         }
@@ -666,6 +675,31 @@ def _process_tools_array(
             ],
         ),
     }
+
+    # ── Stage 5: Capability Resolution Gate ──────────────────────────────
+    # Resolves semantic capabilities implied by the prompt across all six
+    # surfaces before the model context is finalized.  Adds crg_resolutions
+    # to the decision log; never prunes or reorders the tool list.
+    _crg_connector_servers: frozenset[str] = frozenset(
+        s for pack in _PACK_MANIFEST.packs for s in pack.servers
+    )
+    _crg_resolutions = resolve_capabilities_for_request(
+        prompt=prompt or "",
+        visible_tools=frozenset(materialized_schema_tools),
+        deferred_tools=frozenset(deferred_schema_tools),
+        latent_tools=server_filtered,
+        connector_servers=_crg_connector_servers,
+        policy_blocked_tools=crg_policy_blocked,
+        mode=mode,
+    )
+    if _crg_resolutions:
+        meta["crg_resolution_count"] = len(_crg_resolutions)
+        meta["crg_resolutions"] = [resolution_to_log_record(r) for r in _crg_resolutions]
+        # True when any resolved capability is not immediately callable.
+        # A false-denial risk exists if the model cannot see the matched tools.
+        meta["crg_false_denial_risk"] = any(
+            r.status not in ("callable_now",) for r in _crg_resolutions
+        )
 
     # ── Empty-set guardrail ──────────────────────────────────────────────
     if mode in ("live", "live-strict") and len(tools) > 0 and len(live_tools) == 0:
