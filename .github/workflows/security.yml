@@ -41,7 +41,7 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       # Only analyze on push events to main repository
-      if: github.event_name == 'push' && github.repository == 'samscarrow/tool-capability-protocol'
+      if: github.event_name == 'push' && github.repository == 'git-scarrow/tool-capability-protocol'
       with:
         category: "/language:${{matrix.language}}"
 
@@ -53,7 +53,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
     
@@ -84,20 +84,22 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: GitLeaks scan (licensed action)
-      if: ${{ secrets.GITLEAKS_LICENSE != '' }}
+      if: ${{ env.GITLEAKS_LICENSE != '' }}
       uses: gitleaks/gitleaks-action@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
     - name: GitLeaks scan (OSS fallback)
-      if: ${{ secrets.GITLEAKS_LICENSE == '' }}
+      if: ${{ env.GITLEAKS_LICENSE == '' }}
       run: |
         docker run --rm \
           -v "$PWD:/repo" \
@@ -112,7 +114,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
     
@@ -196,7 +198,7 @@ jobs:
     - name: Upload Trivy scan results
       uses: github/codeql-action/upload-sarif@v3
       # Only upload SARIF on push events to main repository
-      if: github.event_name == 'push' && github.repository == 'samscarrow/tool-capability-protocol'
+      if: github.event_name == 'push' && github.repository == 'git-scarrow/tool-capability-protocol'
       continue-on-error: true
       with:
         sarif_file: 'trivy-results.sarif'
@@ -218,7 +220,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.11"
     
