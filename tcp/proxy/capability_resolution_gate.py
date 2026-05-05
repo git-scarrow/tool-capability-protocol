@@ -21,20 +21,66 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import os
 import re
+import secrets
 import time
 from dataclasses import dataclass, field
 from typing import Any, Literal, Mapping, Sequence
+
+_logger = logging.getLogger(__name__)
 
 # ── Signing ────────────────────────────────────────────────────────────────────
 # Deterministic HMAC-SHA256 over resolution fields.  Prevents the model from
 # authoring its own unavailable status — the enforcement layer verifies the
 # signature before accepting any capability denial.
+#
+# Key sourcing precedence:
+#   1. TCP_CRG_RESOLVER_SECRET env var (production deployment).
+#   2. Ephemeral per-process secret generated at import time, when the env var
+#      is unset (dev/test).  This kills the "known literal in source" attack —
+#      forging a signature now requires reading process memory, not a file.
+#   3. With TCP_CRG_REQUIRE_KEY=1 set, an unset env var raises on import.
+#      Production deployments should set this flag to fail closed on misconfig.
 
-_CRG_RESOLVER_SECRET: str = os.environ.get(
-    "TCP_CRG_RESOLVER_SECRET", "crg-resolver-default-v1"
-)
+def _load_resolver_secret() -> str:
+    env_key = os.environ.get("TCP_CRG_RESOLVER_SECRET")
+    if env_key:
+        return env_key
+    if os.environ.get("TCP_CRG_REQUIRE_KEY") == "1":
+        raise RuntimeError(
+            "TCP_CRG_RESOLVER_SECRET is unset and TCP_CRG_REQUIRE_KEY=1; "
+            "refusing to start without a configured resolver key."
+        )
+    ephemeral = secrets.token_hex(32)
+    _logger.warning(
+        "TCP_CRG_RESOLVER_SECRET unset; using ephemeral per-process key. "
+        "Forged signatures from outside this process cannot validate, but "
+        "production deployments should set TCP_CRG_RESOLVER_SECRET explicitly."
+    )
+    return ephemeral
+
+
+_CRG_RESOLVER_SECRET: str = _load_resolver_secret()
+
+
+def _canonicalize_surface_results(
+    surface_results: Sequence["SurfaceResult"],
+) -> list[dict[str, Any]]:
+    """Deterministic dict form of surface results for inclusion in the HMAC."""
+    return sorted(
+        (
+            {
+                "surface": sr.surface,
+                "matched": sr.matched,
+                "tools": sorted(sr.tools),
+                "stale": sr.stale,
+            }
+            for sr in surface_results
+        ),
+        key=lambda d: d["surface"],
+    )
 
 
 def _compute_signature(
@@ -43,6 +89,8 @@ def _compute_signature(
     requested_capability: str,
     status: str,
     matched_tools: tuple[str, ...],
+    checked_surfaces: tuple[str, ...] = (),
+    surface_results: Sequence["SurfaceResult"] = (),
 ) -> str:
     payload = json.dumps(
         {
@@ -50,6 +98,8 @@ def _compute_signature(
             "requested_capability": requested_capability,
             "status": status,
             "matched_tools": sorted(matched_tools),
+            "checked_surfaces": sorted(checked_surfaces),
+            "surface_results": _canonicalize_surface_results(surface_results),
         },
         sort_keys=True,
     )
@@ -434,11 +484,14 @@ def resolve_capability(
 
     matched_tools = tuple(sorted(all_matched))
     resolver_id = "crg:v1"
+    surface_results_tuple = tuple(surface_map[s] for s in _REQUIRED_SIX_SURFACES)
     sig = _compute_signature(
         resolver_id=resolver_id,
         requested_capability=capability,
         status=status,
         matched_tools=matched_tools,
+        checked_surfaces=_REQUIRED_SIX_SURFACES,
+        surface_results=surface_results_tuple,
     )
 
     return CapabilityResolution(
@@ -446,7 +499,7 @@ def resolve_capability(
         status=status,
         matched_tools=matched_tools,
         checked_surfaces=_REQUIRED_SIX_SURFACES,
-        surface_results=tuple(surface_map[s] for s in _REQUIRED_SIX_SURFACES),
+        surface_results=surface_results_tuple,
         confidence=confidence,
         reason=reason,
         resolver_id=resolver_id,

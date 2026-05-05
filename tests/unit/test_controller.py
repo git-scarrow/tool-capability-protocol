@@ -293,6 +293,34 @@ def test_heuristic_does_not_trigger_with_unrelated_prompt() -> None:
     assert d.state == STATE_SUPPRESSED
 
 
+def test_heuristic_upgrades_deferred_to_active_on_name_mention() -> None:
+    """A workspace_allow DEFERRED server upgrades to ACTIVE when the prompt names it.
+
+    Regression for the claude-projects case: the workspace-critical pack was DEFERRED
+    and a prompt of "using the claude-projects mcp ..." failed to materialise the
+    server's tools because the heuristic only handled SUPPRESSED → DEFERRED.
+    """
+    tpc = _controller(
+        _WORKSPACE_ALLOW_PACK,
+        context=_ctx(workspace_allowed_servers=frozenset(["bay-view-graph"])),
+    )
+    d = tpc.server_state(
+        "bay-view-graph", prompt="using the bay-view-graph mcp, list pages"
+    )
+    assert d.state == STATE_ACTIVE
+    assert d.tpc_rule == TPC_RULE_HEURISTIC_UPGRADE
+
+
+def test_heuristic_deferred_unchanged_without_mention() -> None:
+    tpc = _controller(
+        _WORKSPACE_ALLOW_PACK,
+        context=_ctx(workspace_allowed_servers=frozenset(["bay-view-graph"])),
+    )
+    d = tpc.server_state("bay-view-graph", prompt="just refactor the parser")
+    assert d.state == STATE_DEFERRED
+    assert d.tpc_rule == TPC_RULE_MANIFEST_FLOOR
+
+
 # ── Monotonicity invariant ────────────────────────────────────────────────────
 
 

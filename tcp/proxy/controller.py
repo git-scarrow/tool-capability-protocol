@@ -242,9 +242,10 @@ class ToolPackController:
             legacy_allow_source = ""
 
         # ── Step 4: Heuristic (prompt rescue, monotonicity enforced) ─────────
-        # Only SUPPRESSED → DEFERRED; ACTIVE/DEFERRED are never downgraded.
-        if state == STATE_SUPPRESSED and _prompt_mentions_server_name(prompt, server):
-            state = STATE_DEFERRED
+        # Upgrade-only: SUPPRESSED → DEFERRED, DEFERRED → ACTIVE.
+        # ACTIVE is never downgraded.
+        if state != STATE_ACTIVE and _prompt_mentions_server_name(prompt, server):
+            state = STATE_DEFERRED if state == STATE_SUPPRESSED else STATE_ACTIVE
             tpc_rule = TPC_RULE_HEURISTIC_UPGRADE
             legacy_allow_source = "explicit_request"
 

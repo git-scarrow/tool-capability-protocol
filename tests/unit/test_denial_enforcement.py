@@ -2,7 +2,10 @@
 
 Covers:
   - absence_language detection and extraction
-  - enforce_denial_gate: allowed/violation logic
+  - enforce_denial_gate / may_emit_capability_denial: allowed/violation logic
+  - contains_capability_denial, resolution_allows_denial
+  - rewrite-action names per status
+  - violation_kind="invalid_resolution" for incomplete surfaces
   - signature verification: valid, tampered, unsigned
   - the review's canonical conformance test
 """
@@ -26,8 +29,11 @@ from tcp.proxy.capability_resolution_gate import (
 from tcp.proxy.denial_enforcement import (
     DenialGateDecision,
     _resolution_signature_valid,
+    contains_capability_denial,
     denial_violation_record,
     enforce_denial_gate,
+    may_emit_capability_denial,
+    resolution_allows_denial,
 )
 
 _NOTION_TOOL = "mcp__notion-agents__query_database"
@@ -305,3 +311,197 @@ class TestSignatureVerification:
         decision = enforce_denial_gate("I don't have access to Notion.", [tampered])
         assert decision.allowed is False
         assert decision.violation_kind == "denial_violation"
+
+
+# ── Phase-2 canonical API: may_emit_capability_denial ────────────────────────
+
+
+def _make_policy_blocked_resolution():
+    """Return a policy_blocked resolution for notion.search."""
+    ctx = CRGContext(
+        visible_tools=frozenset(),
+        deferred_tools=frozenset(),
+        latent_tools=frozenset(),
+        connector_servers=frozenset(),
+        policy_blocked_tools=frozenset({_NOTION_TOOL}),
+        mode="live-strict",
+    )
+    r = resolve_capability("notion.search", ctx)
+    assert r.status == "policy_blocked"
+    return r
+
+
+class TestMayEmitCapabilityDenial:
+    """Spec-required tests for may_emit_capability_denial (CRG Phase 2)."""
+
+    def test_no_absence_language_allowed(self):
+        """1. No absence-language → allowed."""
+        decision = may_emit_capability_denial(
+            "Here are your Notion results.", [_make_resolution()]
+        )
+        assert decision.allowed is True
+        assert decision.violation_kind is None
+
+    def test_absence_no_resolutions_rejected(self):
+        """2. Absence-language + no resolutions → rejected."""
+        decision = may_emit_capability_denial("I don't have access to Notion.", [])
+        assert decision.allowed is False
+        assert decision.violation_kind == "denial_violation"
+
+    def test_schema_deferred_rewrite_action(self):
+        """3. schema_deferred → rejected with rewrite_action='surface_schema_deferred_tool'."""
+        ctx = CRGContext(
+            visible_tools=frozenset(),
+            deferred_tools=frozenset(),
+            latent_tools=frozenset({_NOTION_TOOL}),
+            connector_servers=frozenset(),
+            policy_blocked_tools=frozenset(),
+            mode="live",
+        )
+        r = resolve_capability("notion.search", ctx)
+        assert r.status == "schema_deferred"
+        decision = may_emit_capability_denial("I don't have access to Notion.", [r])
+        assert decision.allowed is False
+        assert decision.rewrite_action == "surface_schema_deferred_tool"
+
+    def test_callable_now_rewrite_action(self):
+        """4. callable_now → rejected with rewrite_action='use_callable_tool'."""
+        ctx = CRGContext(
+            visible_tools=frozenset({_NOTION_TOOL}),
+            deferred_tools=frozenset(),
+            latent_tools=frozenset(),
+            connector_servers=frozenset(),
+            policy_blocked_tools=frozenset(),
+            mode="live",
+        )
+        r = resolve_capability("notion.search", ctx)
+        assert r.status == "callable_now"
+        decision = may_emit_capability_denial("I cannot access Notion.", [r])
+        assert decision.allowed is False
+        assert decision.rewrite_action == "use_callable_tool"
+
+    def test_approval_required_rewrite_action(self):
+        """5. approval_required → rejected with rewrite_action='ask_for_approval'."""
+        from dataclasses import replace
+
+        ctx = CRGContext(
+            visible_tools=frozenset(),
+            deferred_tools=frozenset(),
+            latent_tools=frozenset(),
+            connector_servers=frozenset(),
+            policy_blocked_tools=frozenset(),
+            mode="live",
+        )
+        r = resolve_capability("notion.search", ctx)
+        r = replace(r, status="approval_required")
+        decision = may_emit_capability_denial("I don't have access to Notion.", [r])
+        assert decision.allowed is False
+        assert decision.rewrite_action == "ask_for_approval"
+
+    def test_policy_blocked_rewrite_action(self):
+        """6. policy_blocked → rejected with rewrite_action='explain_policy_block'."""
+        r = _make_policy_blocked_resolution()
+        decision = may_emit_capability_denial("I don't have access to Notion.", [r])
+        assert decision.allowed is False
+        assert decision.rewrite_action == "explain_policy_block"
+
+    def test_unavailable_all_six_surfaces_allowed(self):
+        """7. unavailable + all six surfaces + valid sig → allowed."""
+        r = _make_unavailable_resolution(sign=True)
+        decision = may_emit_capability_denial("I don't have access to Notion.", [r])
+        assert decision.allowed is True
+
+    def test_unavailable_missing_surface_invalid_resolution(self):
+        """8. unavailable + missing a surface → invalid_resolution."""
+        from dataclasses import replace
+
+        r = _make_unavailable_resolution(sign=True)
+        incomplete = tuple(s for s in r.checked_surfaces if s != "latent")
+        r_bad = replace(r, checked_surfaces=incomplete)
+        decision = may_emit_capability_denial("I don't have access to Notion.", [r_bad])
+        assert decision.allowed is False
+        assert decision.violation_kind == "invalid_resolution"
+
+    def test_multiple_resolutions_one_valid_unavailable_allowed(self):
+        """9. Multiple resolutions, one valid unavailable → allowed."""
+        r_deferred = _make_resolution()
+        r_unavail = _make_unavailable_resolution(sign=True)
+        decision = may_emit_capability_denial(
+            "I don't have access to Notion.", [r_deferred, r_unavail]
+        )
+        assert decision.allowed is True
+
+    def test_case_insensitive_cant(self):
+        """10. "can't" triggers absence-language detection."""
+        assert may_emit_capability_denial("I can't access Notion.", []).allowed is False
+
+    def test_case_insensitive_cannot(self):
+        """10. "cannot" triggers absence-language detection."""
+        assert may_emit_capability_denial("I cannot access Notion.", []).allowed is False
+
+    def test_case_insensitive_dont(self):
+        """10. "don't" triggers absence-language detection."""
+        assert (
+            may_emit_capability_denial("I don't have access to Notion.", []).allowed
+            is False
+        )
+
+    def test_case_insensitive_do_not(self):
+        """10. "do not" triggers absence-language detection."""
+        assert (
+            may_emit_capability_denial("I do not have access to Notion.", []).allowed
+            is False
+        )
+
+
+class TestContainsCapabilityDenial:
+    """contains_capability_denial wraps absence-language detection."""
+
+    def test_absence_phrase_detected(self):
+        assert contains_capability_denial("I don't have access to Notion.") is True
+
+    def test_clean_text_not_detected(self):
+        assert contains_capability_denial("I can search Notion for you.") is False
+
+    def test_cannot_reach_detected(self):
+        assert contains_capability_denial("I cannot reach your email.") is True
+
+    def test_no_tool_available_detected(self):
+        assert contains_capability_denial("No tool is available for Notion.") is True
+
+
+class TestResolutionAllowsDenial:
+    """resolution_allows_denial: only signed unavailable with all six surfaces passes."""
+
+    def test_valid_unavailable_allows(self):
+        r = _make_unavailable_resolution(sign=True)
+        assert resolution_allows_denial(r) is True
+
+    def test_unsigned_unavailable_denies(self):
+        r = _make_unavailable_resolution(sign=False)
+        assert resolution_allows_denial(r) is False
+
+    def test_schema_deferred_denies(self):
+        r = _make_resolution()
+        assert resolution_allows_denial(r) is False
+
+    def test_callable_now_denies(self):
+        ctx = CRGContext(
+            visible_tools=frozenset({_NOTION_TOOL}),
+            deferred_tools=frozenset(),
+            latent_tools=frozenset(),
+            connector_servers=frozenset(),
+            policy_blocked_tools=frozenset(),
+            mode="live",
+        )
+        r = resolve_capability("notion.search", ctx)
+        assert r.status == "callable_now"
+        assert resolution_allows_denial(r) is False
+
+    def test_unavailable_missing_surface_denies(self):
+        from dataclasses import replace
+
+        r = _make_unavailable_resolution(sign=True)
+        incomplete = tuple(s for s in r.checked_surfaces if s != "latent")
+        r_bad = replace(r, checked_surfaces=incomplete)
+        assert resolution_allows_denial(r_bad) is False

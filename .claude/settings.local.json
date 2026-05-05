@@ -73,7 +73,16 @@
       "Bash(/home/sam/projects/tool-capability-protocol/scripts/tcp_shadow_prompt.py)",
       "Bash(/home/sam/projects/tool-capability-protocol/scripts/tcp_shadow_tool.py)",
       "Bash(.venv/bin/python:*)",
-      "Read(//home/sam/.local/share/claude/versions/**)"
+      "Read(//home/sam/.local/share/claude/versions/**)",
+      "Bash(.venv/bin/pytest *)",
+      "Bash(pip show *)",
+      "Bash(/home/sam/.local/share/uv/tools/ccproxy-api/bin/python *)",
+      "mcp__chatsearch__chatsearch_find",
+      "Bash(./scripts/tcp_proxy_container.sh rebuild *)",
+      "mcp__claude-projects__claude_list_projects",
+      "Read(//home/sam/projects/writing/pontius/**)",
+      "Read(//home/sam/**)",
+      "Bash(/home/sam/projects/notion-forge/cli/.venv/bin/python /home/sam/projects/notion-forge/cli/claude_cli.py --help)"
     ],
     "deny": []
   },
