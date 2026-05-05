@@ -261,31 +261,34 @@ jobs:
             const fs = require('fs');
             const report = fs.readFileSync('session-report.md', 'utf8');
             
+            const issueBody = [
+              '## Session Coordination Alert',
+              '',
+              'Multiple active Claude sessions detected with protocol conflicts requiring immediate attention.',
+              '',
+              '### Details',
+              '- **Active Sessions:** ${{ steps.sessions.outputs.session_count }}',
+              '- **Protocol Conflicts:** Yes',
+              '- **Researcher Context:** ${{ steps.researcher.outputs.researcher }}',
+              '',
+              '### Coordination Report',
+              report,
+              '',
+              '### Immediate Actions Required',
+              '1. Coordinate with active researchers before proceeding',
+              '2. Review protocol changes for compatibility',
+              '3. Use `./claude-consortium-session sync` to align states',
+              '4. Document decisions with `/consortium-compact`',
+              '',
+              '### Auto-Resolution',
+              'This issue will auto-close when session activity returns to normal levels.'
+            ].join('\n');
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: `🚨 High Activity Session Coordination Required - ${{ steps.researcher.outputs.researcher }}`,
-              body: `## Session Coordination Alert
-              
-Multiple active Claude sessions detected with protocol conflicts requiring immediate attention.
-
-### Details
-- **Active Sessions:** ${{ steps.sessions.outputs.session_count }}
-- **Protocol Conflicts:** Yes
-- **Researcher Context:** ${{ steps.researcher.outputs.researcher }}
-
-### Coordination Report
-${report}
-
-### Immediate Actions Required
-1. Coordinate with active researchers before proceeding
-2. Review protocol changes for compatibility
-3. Use \`./claude-consortium-session sync\` to align states
-4. Document decisions with \`/consortium-compact\`
-
-### Auto-Resolution
-This issue will auto-close when session activity returns to normal levels.
-              `,
+              body: issueBody,
               labels: ['session-coordination', 'high-priority', 'auto-generated']
             });
             
