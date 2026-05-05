@@ -18,10 +18,46 @@ Status precedence:
 
 from __future__ import annotations
 
+import hashlib
+import hmac
+import json
+import os
 import re
 import time
 from dataclasses import dataclass, field
 from typing import Any, Literal, Mapping, Sequence
+
+# ── Signing ────────────────────────────────────────────────────────────────────
+# Deterministic HMAC-SHA256 over resolution fields.  Prevents the model from
+# authoring its own unavailable status — the enforcement layer verifies the
+# signature before accepting any capability denial.
+
+_CRG_RESOLVER_SECRET: str = os.environ.get(
+    "TCP_CRG_RESOLVER_SECRET", "crg-resolver-default-v1"
+)
+
+
+def _compute_signature(
+    *,
+    resolver_id: str,
+    requested_capability: str,
+    status: str,
+    matched_tools: tuple[str, ...],
+) -> str:
+    payload = json.dumps(
+        {
+            "resolver_id": resolver_id,
+            "requested_capability": requested_capability,
+            "status": status,
+            "matched_tools": sorted(matched_tools),
+        },
+        sort_keys=True,
+    )
+    return hmac.new(
+        _CRG_RESOLVER_SECRET.encode(),
+        payload.encode(),
+        hashlib.sha256,
+    ).hexdigest()[:32]
 
 
 # ── Semantic capability → MCP server families ──────────────────────────────────
@@ -116,6 +152,9 @@ class CapabilityResolution:
     """Resolver output for one requested capability.
 
     The model may read status.  Only the resolver authors status.
+    The signature field is an HMAC over (resolver_id, capability, status,
+    matched_tools) — the enforcement layer verifies it before accepting
+    any unavailable claim as a valid negative proof.
     """
     requested_capability: str
     status: CapabilityStatus
@@ -125,6 +164,7 @@ class CapabilityResolution:
     confidence: float
     reason: str
     resolver_id: str = "crg:v1"
+    signature: str = ""  # set by resolve_capability(); empty means unsigned
 
 
 @dataclass(frozen=True)
@@ -383,14 +423,25 @@ def resolve_capability(
     for sr in surface_map.values():
         all_matched.update(sr.tools)
 
+    matched_tools = tuple(sorted(all_matched))
+    resolver_id = "crg:v1"
+    sig = _compute_signature(
+        resolver_id=resolver_id,
+        requested_capability=capability,
+        status=status,
+        matched_tools=matched_tools,
+    )
+
     return CapabilityResolution(
         requested_capability=capability,
         status=status,
-        matched_tools=tuple(sorted(all_matched)),
+        matched_tools=matched_tools,
         checked_surfaces=_REQUIRED_SIX_SURFACES,
         surface_results=tuple(surface_map[s] for s in _REQUIRED_SIX_SURFACES),
         confidence=confidence,
         reason=reason,
+        resolver_id=resolver_id,
+        signature=sig,
     )
 
 
@@ -453,4 +504,5 @@ def resolution_to_log_record(resolution: CapabilityResolution) -> dict[str, Any]
         "confidence": resolution.confidence,
         "reason": resolution.reason,
         "resolver_id": resolution.resolver_id,
+        "signature": resolution.signature,
     }

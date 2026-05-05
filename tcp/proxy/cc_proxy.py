@@ -50,9 +50,19 @@ from tcp.proxy.pack_manifest import (
     pack_context_from_env,
 )
 from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
+from tcp.proxy.absence_language import (
+    contains_absence_language,
+    extract_text_from_response_body,
+    extract_text_from_sse_buf,
+)
 from tcp.proxy.capability_resolution_gate import (
+    CapabilityResolution,
     resolve_capabilities_for_request,
     resolution_to_log_record,
+)
+from tcp.proxy.denial_enforcement import (
+    denial_violation_record,
+    enforce_denial_gate,
 )
 from tcp.proxy.prompt_select import extract_task_prompt
 
@@ -917,6 +927,64 @@ def _all_tools_from_response_body(body: bytes) -> list[dict[str, Any]]:
     return result
 
 
+def _check_denial_enforcement(
+    response_text: str,
+    meta: dict[str, Any],
+) -> None:
+    """Run the denial gate against response text and append violations to meta.
+
+    Reads crg_resolutions from meta (populated by Stage 5), runs
+    enforce_denial_gate, and appends a denial_violation record when the
+    model emitted absence-language without a valid signed unavailable resolution.
+    """
+    if not response_text or not contains_absence_language(response_text):
+        return
+    crg_records = meta.get("crg_resolutions", [])
+    # Reconstruct lightweight resolution stubs sufficient for enforcement.
+    # Full CapabilityResolution objects are not stored in meta — we use the
+    # logged records to check status and signature.
+    resolutions: list[CapabilityResolution] = []
+    for rec in crg_records:
+        # Import inline to avoid circular dependency at module init.
+        from tcp.proxy.capability_resolution_gate import (
+            CapabilityResolution,
+            SurfaceResult,
+            _REQUIRED_SIX_SURFACES,
+        )
+        surface_results = tuple(
+            SurfaceResult(
+                surface=sr["surface"],
+                matched=sr["matched"],
+                tools=tuple(sr.get("tools", [])),
+                timestamp=sr.get("timestamp", ""),
+                reason=sr.get("reason", ""),
+                stale=sr.get("stale", False),
+            )
+            for sr in rec.get("surface_results", [])
+        )
+        resolutions.append(
+            CapabilityResolution(
+                requested_capability=rec.get("requested_capability", ""),
+                status=rec.get("status", "unavailable"),
+                matched_tools=tuple(rec.get("matched_tools", [])),
+                checked_surfaces=tuple(rec.get("checked_surfaces", _REQUIRED_SIX_SURFACES)),
+                surface_results=surface_results,
+                confidence=rec.get("confidence", 0.0),
+                reason=rec.get("reason", ""),
+                resolver_id=rec.get("resolver_id", "crg:v1"),
+                signature=rec.get("signature", ""),
+            )
+        )
+    decision = enforce_denial_gate(response_text, resolutions)
+    if not decision.allowed:
+        cap = resolutions[0].requested_capability if resolutions else None
+        violation = denial_violation_record(decision, response_text, cap)
+        existing = meta.get("denial_violations", [])
+        existing.append(violation)
+        meta["denial_violations"] = existing
+        meta["denial_violation_count"] = len(existing)
+
+
 def _write_decision_record(
     req_ts: float,
     meta: dict[str, Any],
@@ -1156,7 +1224,7 @@ async def proxy_post_messages(request: Request) -> Response:
         # _tap["buf"] holds only the unparsed tail (incomplete last line) so that
         # _all_tools_from_sse_buf never rescans already-consumed bytes (O(n) total).
         # _tap["tool_sequence"] accumulates all tool calls until message_stop.
-        _tap: dict[str, Any] = {"buf": b"", "done": False, "tool_sequence": []}
+        _tap: dict[str, Any] = {"buf": b"", "done": False, "tool_sequence": [], "text_buf": b""}
         first_byte_at: float | None = None
 
         async def body_iter() -> Any:
@@ -1170,6 +1238,7 @@ async def proxy_post_messages(request: Request) -> Response:
                     yield chunk
                     if can_tap and not _tap["done"]:
                         combined = _tap["buf"] + chunk
+                        _tap["text_buf"] = _tap["text_buf"] + chunk
                         new_tools, ended = _all_tools_from_sse_buf(combined)
                         # Assign seq numbers continuing from previous chunks.
                         seq_offset = len(_tap["tool_sequence"])
@@ -1178,8 +1247,10 @@ async def proxy_post_messages(request: Request) -> Response:
                                 {"seq": seq_offset + i, "index": t["index"], "tool_name": t["tool_name"]}
                             )
                         if ended:
-                            # message_stop seen — write the complete decision record.
+                            # message_stop seen — run denial enforcement then write decision.
                             assert meta is not None
+                            response_text = extract_text_from_sse_buf(_tap["text_buf"])
+                            _check_denial_enforcement(response_text, meta)
                             seq = _tap["tool_sequence"]
                             first_name = seq[0]["tool_name"] if seq else None
                             _write_decision_record(
@@ -1271,8 +1342,10 @@ async def proxy_post_messages(request: Request) -> Response:
     try:
         content, first_byte_at = await _read_response_with_timing(response)
         hdrs = _buffered_response_headers(response, content)
-        # Non-streaming: extract all tool calls from the full response body.
+        # Non-streaming: extract all tool calls and run denial enforcement.
         if meta is not None:
+            response_text = extract_text_from_response_body(content)
+            _check_denial_enforcement(response_text, meta)
             all_tools = _all_tools_from_response_body(content)
             seq = [{"seq": i, "index": t["index"], "tool_name": t["tool_name"]} for i, t in enumerate(all_tools)]
             first_tool: str | None = seq[0]["tool_name"] if seq else None
