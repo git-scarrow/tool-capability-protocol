@@ -1,4 +1,4 @@
-"""Proxy RuntimeEnvironment defaults must not reject common Claude Code tools."""
+"""Proxy RuntimeEnvironment defaults and import smoke tests."""
 
 from __future__ import annotations
 
@@ -8,6 +8,17 @@ from tcp.core.descriptors import CapabilityFlags
 from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.models import ToolRecord, ToolSelectionRequest
 from tcp.proxy.cc_proxy import _runtime_from_env
+
+
+def test_cc_proxy_module_imports_cleanly() -> None:
+    """cc_proxy must import without error; catches missing names in the import block."""
+    import importlib
+    import tcp.proxy.cc_proxy as mod
+    assert mod is not None
+    # Spot-check symbols that have historically broken the import.
+    assert callable(mod.may_emit_capability_denial if hasattr(mod, "may_emit_capability_denial") else mod._check_denial_enforcement)
+    assert callable(mod._compute_expected_tool_name)
+    assert callable(mod._write_decision_record)
 
 
 def test_proxy_runtime_defaults_network_and_files_on(

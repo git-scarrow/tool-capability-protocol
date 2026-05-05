@@ -790,3 +790,66 @@ class TestDenialEnforcementIntegration:
         assert isinstance(rec["denial_violation"], bool)
         assert "denial_resolution_statuses" in rec
         assert isinstance(rec["denial_resolution_statuses"], list)
+
+    def test_schema_deferred_absence_writes_violation_true_to_jsonl(
+        self, tmp_path, monkeypatch
+    ):
+        """Streaming path: schema_deferred + absence-language → denial_violation=True in JSONL."""
+        from tcp.proxy.cc_proxy import _check_denial_enforcement
+
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+
+        crg_records = self._make_crg_records("schema_deferred")
+        meta: dict = {
+            "survivor_count": 0,
+            "survivor_names_sorted": [],
+            "crg_resolutions": crg_records,
+        }
+        _check_denial_enforcement("I don't have access to Notion.", meta)
+        _write_decision_record(time.time(), meta, None)
+
+        rec = json.loads(log.read_text(encoding="utf-8").strip())
+        assert rec["denial_violation"] is True
+        assert rec["denial_rewrite_action"] == "surface_schema_deferred_tool"
+        assert rec["denial_matched_phrase"] is not None
+
+    def test_unavailable_absence_writes_violation_false_to_jsonl(
+        self, tmp_path, monkeypatch
+    ):
+        """Non-streaming path: valid unavailable + absence-language → denial_violation=False in JSONL."""
+        from tcp.proxy.cc_proxy import _check_denial_enforcement
+
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+
+        crg_records = self._make_crg_records("unavailable")
+        meta: dict = {
+            "survivor_count": 0,
+            "survivor_names_sorted": [],
+            "crg_resolutions": crg_records,
+        }
+        _check_denial_enforcement("No tool is available for Notion.", meta)
+        _write_decision_record(time.time(), meta, None)
+
+        rec = json.loads(log.read_text(encoding="utf-8").strip())
+        assert rec["denial_violation"] is False
+        assert rec["denial_rewrite_action"] is None
+        assert rec["denial_violation_reason"] is None
+
+    def test_no_absence_language_denial_fields_absent_from_jsonl(
+        self, tmp_path, monkeypatch
+    ):
+        """Tool-use response with no absence-language → denial flat fields not written."""
+        from tcp.proxy.cc_proxy import _check_denial_enforcement
+
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+
+        meta: dict = {"survivor_count": 1, "survivor_names_sorted": ["Bash"], "crg_resolutions": []}
+        _check_denial_enforcement("", meta)
+        _write_decision_record(time.time(), meta, "Bash")
+
+        rec = json.loads(log.read_text(encoding="utf-8").strip())
+        # _check_denial_enforcement only writes denial_* when absence-language is found.
+        assert "denial_violation" not in rec
