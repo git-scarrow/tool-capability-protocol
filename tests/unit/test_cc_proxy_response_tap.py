@@ -19,6 +19,7 @@ import time
 from pathlib import Path
 
 from tcp.proxy.cc_proxy import (
+    _ExpectedToolDerivation,
     _all_tools_from_response_body,
     _all_tools_from_sse_buf,
     _compute_expected_tool_name,
@@ -307,66 +308,91 @@ class TestFirstToolFromResponseBody:
 
 
 class TestComputeExpectedToolName:
-    def test_single_survivor(self):
+    """TCP-IMP-22: expected_tool_name is emitted only with defensible evidence."""
+
+    def test_single_survivor_emits_name(self):
         meta = {"survivor_count": 1, "survivor_names_sorted": ["mcp__git__status"]}
-        assert _compute_expected_tool_name(meta) == "mcp__git__status"
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name == "mcp__git__status"
+        assert d.derivation_source == "single_survivor"
+        assert d.abstain_reason is None
+        assert d.candidate_set_size == 1
 
-    # TCP-IMP-16: loosen threshold to k=3 — 2 survivors now emits first survivor
-    def test_two_survivors_returns_first_survivor(self):
+    def test_single_survivor_returns_derivation_type(self):
+        meta = {"survivor_count": 1, "survivor_names_sorted": ["Bash"]}
+        assert isinstance(_compute_expected_tool_name(meta), _ExpectedToolDerivation)
+
+    # TCP-IMP-22: k=2 and k=3 count fallbacks removed — ambiguous, not defensible.
+    def test_two_survivors_abstains(self):
         meta = {"survivor_count": 2, "survivor_names_sorted": ["tool_a", "tool_b"]}
-        assert _compute_expected_tool_name(meta) == "tool_a"
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name is None
+        assert d.abstain_reason == "ambiguous_2_survivors"
+        assert d.candidate_set_size == 2
 
-    def test_three_survivors_returns_first_survivor(self):
+    def test_three_survivors_abstains(self):
         meta = {"survivor_count": 3, "survivor_names_sorted": ["alpha", "beta", "gamma"]}
-        assert _compute_expected_tool_name(meta) == "alpha"
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name is None
+        assert d.abstain_reason == "ambiguous_3_survivors"
 
-    def test_four_survivors_returns_none(self):
+    def test_four_survivors_abstains(self):
         meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
-        assert _compute_expected_tool_name(meta) is None
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name is None
+        assert d.abstain_reason == "ambiguous_4_survivors"
 
-    def test_zero_survivors_returns_none(self):
+    def test_zero_survivors_abstains_no_survivors(self):
         meta = {"survivor_count": 0, "survivor_names_sorted": []}
-        assert _compute_expected_tool_name(meta) is None
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name is None
+        assert d.abstain_reason == "no_survivors"
 
-    def test_none_meta_returns_none(self):
-        assert _compute_expected_tool_name(None) is None
+    def test_none_meta_abstains_no_meta(self):
+        d = _compute_expected_tool_name(None)
+        assert d.expected_tool_name is None
+        assert d.abstain_reason == "no_meta"
 
-    def test_missing_fields_returns_none(self):
-        assert _compute_expected_tool_name({}) is None
+    def test_missing_fields_abstains_no_survivors(self):
+        d = _compute_expected_tool_name({})
+        assert d.expected_tool_name is None
+        assert d.abstain_reason == "no_survivors"
 
-    def test_survivor_count_mismatch_with_list(self):
-        # count says 1 but list is empty → return None (defensive)
+    def test_survivor_count_mismatch_abstains(self):
+        # count says 1 but list is empty → defensive abstain
         meta = {"survivor_count": 1, "survivor_names_sorted": []}
-        assert _compute_expected_tool_name(meta) is None
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name is None
+        assert d.abstain_reason == "count_list_mismatch"
 
-    def test_count_mismatch_above_k_returns_none(self):
-        # count says 2 but list has 4 entries → trust count, return None
-        meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
-        assert _compute_expected_tool_name(meta) is None
-
-    # TCP-IMP-17: top_survivor_by_similarity overrides count-based logic
-    def test_top_survivor_by_similarity_used_when_present(self):
-        """With 174 survivors, expected_tool_name comes from similarity ranking."""
+    # TCP-IMP-22: similarity field is DIAGNOSTIC ONLY — must not drive derivation.
+    def test_similarity_field_does_not_emit_expected_tool(self):
+        """174 survivors + similarity hint → still abstains (no defensible evidence)."""
         meta = {
             "survivor_count": 174,
             "survivor_names_sorted": ["Bash", "Read", "Write"],
             "top_survivor_by_similarity": "Bash",
         }
-        assert _compute_expected_tool_name(meta) == "Bash"
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name is None
+        assert "ambiguous" in (d.abstain_reason or "")
 
-    def test_top_survivor_by_similarity_overrides_count_k(self):
-        """similarity field takes precedence over k=3 alphabetical pick."""
+    def test_similarity_field_with_two_survivors_still_abstains(self):
+        """Similarity hint with ambiguous gate → abstains, not emits."""
         meta = {
             "survivor_count": 2,
             "survivor_names_sorted": ["alpha", "zeta"],
             "top_survivor_by_similarity": "zeta",
         }
-        assert _compute_expected_tool_name(meta) == "zeta"
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name is None
+        assert d.abstain_reason == "ambiguous_2_survivors"
 
-    def test_falls_back_to_count_logic_when_similarity_absent(self):
-        """No top_survivor_by_similarity → fall back to k=3 count logic."""
+    def test_no_similarity_field_two_survivors_abstains(self):
+        """No similarity field, k=2: abstains (alphabetical pick is not evidence)."""
         meta = {"survivor_count": 2, "survivor_names_sorted": ["tool_a", "tool_b"]}
-        assert _compute_expected_tool_name(meta) == "tool_a"
+        d = _compute_expected_tool_name(meta)
+        assert d.expected_tool_name is None
 
 
 # ── Tests: _top_survivor_by_prompt_similarity ─────────────────────────────────
@@ -448,7 +474,7 @@ class TestFirstToolCorrect:
         assert rec["first_tool_correct"] is None
 
     def test_none_when_expected_is_null(self, tmp_path, monkeypatch):
-        # TCP-IMP-16: threshold is k=3; survivor_count > 3 means no expectation.
+        # TCP-IMP-22: ambiguous gate (count >= 2) abstains → expected_tool_name is None.
         log = tmp_path / "decisions.jsonl"
         monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
         meta = {"survivor_count": 4, "survivor_names_sorted": ["a", "b", "c", "d"]}
@@ -456,6 +482,7 @@ class TestFirstToolCorrect:
         rec = self._read_last_record(log)
         assert rec["first_tool_correct"] is None
         assert rec["expected_tool_name"] is None
+        assert rec["expected_tool_abstain_reason"] == "ambiguous_4_survivors"
 
 
 # ── Tests: backward compatibility ─────────────────────────────────────────────
@@ -485,6 +512,10 @@ class TestBackwardCompatibility:
         assert "retry_count" in rec
         # TCP-IMP-21: tool_call_sequence must always be present (None when not supplied)
         assert "tool_call_sequence" in rec
+        # TCP-IMP-22: derivation diagnostic fields
+        assert "expected_tool_derivation_source" in rec
+        assert "expected_tool_candidate_set_size" in rec
+        assert "expected_tool_abstain_reason" in rec
 
     def test_tool_call_sequence_null_when_not_supplied(self, tmp_path, monkeypatch):
         log = tmp_path / "decisions.jsonl"
@@ -529,6 +560,48 @@ class TestBackwardCompatibility:
         assert isinstance(rec["ts"], float)
         assert abs(rec["ts"] - ts) < 1.0
 
+    def test_single_survivor_derivation_fields_in_record(self, tmp_path, monkeypatch):
+        """TCP-IMP-22: single-survivor turns write derivation_source and no abstain."""
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+        meta = {"survivor_count": 1, "survivor_names_sorted": ["Read"]}
+        _write_decision_record(time.time(), meta, "Read")
+        rec = self._read_last_record(log)
+        assert rec["expected_tool_name"] == "Read"
+        assert rec["expected_tool_derivation_source"] == "single_survivor"
+        assert rec["expected_tool_candidate_set_size"] == 1
+        assert rec["expected_tool_abstain_reason"] is None
+        assert rec["first_tool_correct"] is True
+
+    def test_abstained_turn_writes_reason_to_record(self, tmp_path, monkeypatch):
+        """TCP-IMP-22: ambiguous turns write abstain_reason, no expected_tool_name."""
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+        meta = {"survivor_count": 5, "survivor_names_sorted": ["a", "b", "c", "d", "e"]}
+        _write_decision_record(time.time(), meta, "a")
+        rec = self._read_last_record(log)
+        assert rec["expected_tool_name"] is None
+        assert rec["expected_tool_abstain_reason"] == "ambiguous_5_survivors"
+        assert rec["expected_tool_derivation_source"] is None
+        assert rec["first_tool_correct"] is None
+
+    def test_similarity_field_preserved_as_diagnostic(self, tmp_path, monkeypatch):
+        """TCP-IMP-22: top_survivor_by_similarity is preserved in record but not used."""
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+        meta = {
+            "survivor_count": 10,
+            "survivor_names_sorted": ["Bash", "Read"],
+            "top_survivor_by_similarity": "Bash",
+        }
+        _write_decision_record(time.time(), meta, "Bash")
+        rec = self._read_last_record(log)
+        # Similarity hint present in record (diagnostic field preserved)
+        assert rec.get("top_survivor_by_similarity") == "Bash"
+        # But expected_tool_name was NOT emitted from it
+        assert rec["expected_tool_name"] is None
+        assert "ambiguous" in rec["expected_tool_abstain_reason"]
+
 
 # ── Tests: latency guard ───────────────────────────────────────────────────────
 
@@ -572,3 +645,119 @@ class TestResponseTapLatency:
             _first_tool_from_response_body(body)
         elapsed_ms = (time.perf_counter() - start) * 1000 / N
         assert elapsed_ms < 1.0, f"Response parse took {elapsed_ms:.3f} ms per call"
+
+
+# ── Tests: denial enforcement integration ─────────────────────────────────────
+
+
+class TestDenialEnforcementIntegration:
+    """Phase 2A: _check_denial_enforcement wired into the proxy response tap.
+
+    Tests verify the flat denial_* fields written to the decisions.jsonl row.
+    """
+
+    def _make_crg_records(self, status: str) -> list[dict]:
+        """Build a crg_resolutions list with one resolution of the given status."""
+        from dataclasses import replace
+
+        from tcp.proxy.capability_resolution_gate import (
+            CRGContext,
+            resolve_capability,
+            resolution_to_log_record,
+        )
+
+        _NOTION_TOOL = "mcp__notion-agents__query_database"
+        if status == "schema_deferred":
+            ctx = CRGContext(
+                visible_tools=frozenset(),
+                deferred_tools=frozenset(),
+                latent_tools=frozenset({_NOTION_TOOL}),
+                connector_servers=frozenset(),
+                policy_blocked_tools=frozenset(),
+                mode="live",
+            )
+        elif status == "unavailable":
+            ctx = CRGContext(
+                visible_tools=frozenset(),
+                deferred_tools=frozenset(),
+                latent_tools=frozenset(),
+                connector_servers=frozenset(),
+                policy_blocked_tools=frozenset(),
+                mode="live",
+            )
+        else:
+            raise ValueError(f"unsupported status for helper: {status}")
+
+        r = resolve_capability("notion.search", ctx)
+        assert r.status == status
+        return [resolution_to_log_record(r)]
+
+    def test_streaming_schema_deferred_triggers_violation(self):
+        """1. Streaming: absence-language + schema_deferred → denial_violation=True."""
+        from tcp.proxy.cc_proxy import _check_denial_enforcement
+
+        meta: dict = {"crg_resolutions": self._make_crg_records("schema_deferred")}
+        _check_denial_enforcement("I don't have access to Notion.", meta)
+
+        assert meta["denial_violation"] is True
+        assert meta["denial_rewrite_action"] == "surface_schema_deferred_tool"
+        assert meta["denial_matched_phrase"] is not None
+        assert meta["denial_violation_reason"] is not None
+
+    def test_non_streaming_unavailable_all_surfaces_no_violation(self):
+        """2. Non-streaming: absence-language + valid unavailable → denial_violation=False."""
+        from tcp.proxy.cc_proxy import _check_denial_enforcement
+
+        meta: dict = {"crg_resolutions": self._make_crg_records("unavailable")}
+        _check_denial_enforcement("No tool is available for Notion.", meta)
+
+        assert meta["denial_violation"] is False
+        assert meta["denial_violation_reason"] is None
+        assert meta["denial_rewrite_action"] is None
+
+    def test_tool_use_response_no_absence_no_flat_fields(self):
+        """3. Tool-use response with no absence-language → no denial_violation field set."""
+        from tcp.proxy.cc_proxy import _check_denial_enforcement
+
+        meta: dict = {"crg_resolutions": []}
+        # Pass text with no absence-language (empty text also qualifies).
+        _check_denial_enforcement("", meta)
+
+        assert "denial_violation" not in meta
+
+    def test_backward_compat_fields_preserved(self, tmp_path, monkeypatch):
+        """4. Existing decision-record fields remain intact after denial gate runs."""
+        import time
+
+        from tcp.proxy.cc_proxy import _check_denial_enforcement
+
+        log = tmp_path / "decisions.jsonl"
+        monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
+
+        crg_records = self._make_crg_records("schema_deferred")
+        meta: dict = {
+            "survivor_count": 1,
+            "survivor_names_sorted": ["Bash"],
+            "crg_resolutions": crg_records,
+            "crg_resolution_count": 1,
+            "crg_false_denial_risk": True,
+        }
+        # Simulate denial enforcement as the streaming tap would.
+        _check_denial_enforcement("I don't have access to Notion.", meta)
+        seq = [{"seq": 0, "index": 0, "tool_name": "Bash"}]
+        _write_decision_record(time.time(), meta, "Bash", tool_call_sequence=seq)
+
+        rec = json.loads(log.read_text(encoding="utf-8").strip())
+
+        # Existing fields still present.
+        assert rec["first_tool_name"] == "Bash"
+        assert rec["tool_call_sequence"] == seq
+        assert "crg_resolutions" in rec
+        assert "crg_resolution_count" in rec
+        assert "crg_false_denial_risk" in rec
+
+        # New flat denial fields also present.
+        assert "denial_violation" in rec
+        assert isinstance(rec["denial_violation"], bool)
+        assert "denial_resolution_statuses" in rec
+        assert isinstance(rec["denial_resolution_statuses"], list)

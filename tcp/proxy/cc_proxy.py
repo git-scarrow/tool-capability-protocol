@@ -9,6 +9,7 @@ Claude Code in live mode.
 from __future__ import annotations
 
 import argparse
+import dataclasses
 import difflib
 import hashlib
 import json
@@ -63,6 +64,7 @@ from tcp.proxy.capability_resolution_gate import (
 from tcp.proxy.denial_enforcement import (
     denial_violation_record,
     enforce_denial_gate,
+    may_emit_capability_denial,
 )
 from tcp.proxy.prompt_select import extract_task_prompt
 
@@ -754,7 +756,17 @@ def _append_jsonl(path: Path, record: Mapping[str, Any]) -> None:
 # ── Response tap helpers ───────────────────────────────────────────────────────
 
 
-_EXPECTED_TOOL_MAX_SURVIVORS: int = 3  # TCP-IMP-16: count-based fallback threshold
+@dataclasses.dataclass(frozen=True)
+class _ExpectedToolDerivation:
+    """Evidence-gated derivation result for expected_tool_name.
+
+    TCP-IMP-22: expected_tool_name is only emitted when supported by defensible
+    evidence. All other cases abstain and set expected_tool_abstain_reason.
+    """
+    expected_tool_name: str | None
+    derivation_source: str | None   # "single_survivor" | None
+    candidate_set_size: int         # survivor_count at derivation time
+    abstain_reason: str | None      # why expected_tool_name is None
 
 
 def _top_survivor_by_prompt_similarity(
@@ -767,8 +779,9 @@ def _top_survivor_by_prompt_similarity(
     ``name + description`` text, returning the argmax.  Returns None when
     prompt is empty/None or tools list is empty.
 
-    TCP-IMP-17: produces expected_tool_name on every turn with a non-empty
-    prompt, regardless of survivor_count.
+    DIAGNOSTIC ONLY (TCP-IMP-22): this field is stored in decisions.jsonl
+    under ``top_survivor_by_similarity`` for analysis but must not drive
+    expected_tool_name derivation.  See _compute_expected_tool_derivation.
     """
     if not prompt or not tools:
         return None
@@ -788,26 +801,64 @@ def _top_survivor_by_prompt_similarity(
     return best_name
 
 
-def _compute_expected_tool_name(meta: dict[str, Any] | None) -> str | None:
-    """Derive expected first tool from request-side survivor metadata.
+def _compute_expected_tool_name(meta: dict[str, Any] | None) -> _ExpectedToolDerivation:
+    """Derive expected first tool with evidence gating (TCP-IMP-22).
 
-    Priority (TCP-IMP-17):
-      1. top_survivor_by_similarity  → prompt-ranked expectation (all survivor counts)
-      2. count-based fallback (k=3)  → first sorted survivor when count ≤ k
-      3. None                        → no expectation derivable
+    Emits expected_tool_name ONLY when supported by defensible evidence:
+      - single_survivor: exactly one tool survived the gate (unambiguous).
+
+    All other cases abstain with an explicit reason.  The prompt-similarity
+    field (top_survivor_by_similarity) is preserved in the decision record as a
+    diagnostic but is NOT used to derive expected_tool_name.
+
+    Interpreting decisions.jsonl rows produced by this function:
+      - expected_tool_name is non-null → single-survivor evidence; row is
+        scoreable for first_tool_correct precision.
+      - expected_tool_abstain_reason is non-null → abstained; exclude from
+        precision/recall aggregation (the row has no ground-truth signal).
+      - Rows produced before TCP-IMP-22 lack expected_tool_abstain_reason;
+        treat their expected_tool_name as potentially noise-labeled.
     """
-    if not meta:
-        return None
-    # TCP-IMP-17: similarity ranking covers the high-survivor-count majority
-    top_by_sim = meta.get("top_survivor_by_similarity")
-    if top_by_sim is not None:
-        return top_by_sim if isinstance(top_by_sim, str) else None
-    # TCP-IMP-16: count-based fallback for tight shortlists
+    if meta is None:
+        return _ExpectedToolDerivation(
+            expected_tool_name=None,
+            derivation_source=None,
+            candidate_set_size=0,
+            abstain_reason="no_meta",
+        )
+
     count = meta.get("survivor_count", 0)
     survivors = meta.get("survivor_names_sorted", [])
-    if 1 <= count <= _EXPECTED_TOOL_MAX_SURVIVORS and len(survivors) >= 1:
-        return survivors[0]
-    return None
+
+    # Single unambiguous survivor: the model has no choice; this is defensible.
+    if count == 1 and len(survivors) == 1:
+        return _ExpectedToolDerivation(
+            expected_tool_name=survivors[0],
+            derivation_source="single_survivor",
+            candidate_set_size=1,
+            abstain_reason=None,
+        )
+
+    # Defensive: count says 1 but list is empty or mismatched.
+    if count == 1 and len(survivors) != 1:
+        return _ExpectedToolDerivation(
+            expected_tool_name=None,
+            derivation_source=None,
+            candidate_set_size=count,
+            abstain_reason="count_list_mismatch",
+        )
+
+    if count == 0:
+        reason = "no_survivors"
+    else:
+        reason = f"ambiguous_{count}_survivors"
+
+    return _ExpectedToolDerivation(
+        expected_tool_name=None,
+        derivation_source=None,
+        candidate_set_size=count,
+        abstain_reason=reason,
+    )
 
 
 def _first_tool_from_response_body(body: bytes) -> str | None:
@@ -931,26 +982,33 @@ def _check_denial_enforcement(
     response_text: str,
     meta: dict[str, Any],
 ) -> None:
-    """Run the denial gate against response text and append violations to meta.
+    """Run the denial gate against response text and stamp flat denial fields on meta.
 
     Reads crg_resolutions from meta (populated by Stage 5), runs
-    enforce_denial_gate, and appends a denial_violation record when the
-    model emitted absence-language without a valid signed unavailable resolution.
+    may_emit_capability_denial, and:
+      - Always sets flat denial_* fields on meta when absence-language is found.
+      - Appends a denial_violation record to meta["denial_violations"] when the
+        gate rejects (backward-compat list preserved alongside the flat fields).
+
+    Decision-record flat fields added:
+      denial_violation: bool
+      denial_violation_reason: str | null
+      denial_rewrite_action: str | null
+      denial_matched_phrase: str | null
+      denial_resolution_statuses: list[str]
     """
     if not response_text or not contains_absence_language(response_text):
         return
     crg_records = meta.get("crg_resolutions", [])
-    # Reconstruct lightweight resolution stubs sufficient for enforcement.
+    # Reconstruct lightweight resolution stubs from logged records.
     # Full CapabilityResolution objects are not stored in meta — we use the
-    # logged records to check status and signature.
+    # serialised records to check status, surfaces, and signature.
+    from tcp.proxy.capability_resolution_gate import (
+        SurfaceResult,
+        _REQUIRED_SIX_SURFACES as _SIX,
+    )
     resolutions: list[CapabilityResolution] = []
     for rec in crg_records:
-        # Import inline to avoid circular dependency at module init.
-        from tcp.proxy.capability_resolution_gate import (
-            CapabilityResolution,
-            SurfaceResult,
-            _REQUIRED_SIX_SURFACES,
-        )
         surface_results = tuple(
             SurfaceResult(
                 surface=sr["surface"],
@@ -967,7 +1025,7 @@ def _check_denial_enforcement(
                 requested_capability=rec.get("requested_capability", ""),
                 status=rec.get("status", "unavailable"),
                 matched_tools=tuple(rec.get("matched_tools", [])),
-                checked_surfaces=tuple(rec.get("checked_surfaces", _REQUIRED_SIX_SURFACES)),
+                checked_surfaces=tuple(rec.get("checked_surfaces", _SIX)),
                 surface_results=surface_results,
                 confidence=rec.get("confidence", 0.0),
                 reason=rec.get("reason", ""),
@@ -975,7 +1033,16 @@ def _check_denial_enforcement(
                 signature=rec.get("signature", ""),
             )
         )
-    decision = enforce_denial_gate(response_text, resolutions)
+
+    decision = may_emit_capability_denial(response_text, resolutions)
+
+    # Flat denial fields on the decisions.jsonl row (Phase 2A).
+    meta["denial_violation"] = not decision.allowed
+    meta["denial_violation_reason"] = decision.reason if not decision.allowed else None
+    meta["denial_rewrite_action"] = decision.rewrite_action
+    meta["denial_matched_phrase"] = decision.matched_absence_phrase
+    meta["denial_resolution_statuses"] = [r.status for r in resolutions]
+
     if not decision.allowed:
         cap = resolutions[0].requested_capability if resolutions else None
         violation = denial_violation_record(decision, response_text, cap)
@@ -996,9 +1063,11 @@ def _write_decision_record(
     total_response_duration_ms: float | None = None,
     retry_count: int = 0,
     tool_call_sequence: list[dict[str, Any]] | None = None,
+    stream_aborted: bool = False,
 ) -> None:
     """Write (or rewrite) the enriched decisions.jsonl entry for this turn."""
-    expected_tool_name = _compute_expected_tool_name(meta)
+    derivation = _compute_expected_tool_name(meta)
+    expected_tool_name = derivation.expected_tool_name
     first_tool_correct: bool | None = None
     if first_tool_name is not None and expected_tool_name is not None:
         first_tool_correct = first_tool_name == expected_tool_name
@@ -1011,8 +1080,12 @@ def _write_decision_record(
             **meta,
             "first_tool_name": first_tool_name,
             "expected_tool_name": expected_tool_name,
+            "expected_tool_derivation_source": derivation.derivation_source,
+            "expected_tool_candidate_set_size": derivation.candidate_set_size,
+            "expected_tool_abstain_reason": derivation.abstain_reason,
             "first_tool_correct": first_tool_correct,
             "tap_skipped": tap_skipped,
+            "stream_aborted": stream_aborted,
             "preflight_duration_ms": preflight_duration_ms,
             "upstream_request_duration_ms": upstream_request_duration_ms,
             "first_byte_duration_ms": first_byte_duration_ms,
@@ -1284,8 +1357,12 @@ async def proxy_post_messages(request: Request) -> Response:
             finally:
                 if can_tap and not _tap["done"]:
                     # Stream ended without a message_stop event
-                    # (e.g. non-200, network error). Write with whatever was accumulated.
+                    # (e.g. non-200, network error, client disconnect).
+                    # Run denial enforcement on whatever text was accumulated
+                    # before terminating, then write the decision record.
                     assert meta is not None
+                    response_text = extract_text_from_sse_buf(_tap["text_buf"])
+                    _check_denial_enforcement(response_text, meta)
                     seq = _tap["tool_sequence"]
                     first_name = seq[0]["tool_name"] if seq else None
                     _write_decision_record(
@@ -1307,6 +1384,7 @@ async def proxy_post_messages(request: Request) -> Response:
                         total_response_duration_ms=(time.perf_counter() - started_at) * 1000.0,
                         retry_count=retry_count,
                         tool_call_sequence=seq if seq else None,
+                        stream_aborted=True,
                     )
                     _tap["done"] = True
                 elif meta is not None and not can_tap:
