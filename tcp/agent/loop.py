@@ -181,46 +181,102 @@ async def run_agent_loop(
 
     except anthropic.AuthenticationError as exc:
         return _make_error_metrics(
-            exc, ErrorKind.API_AUTH, task_name, tools, turns,
-            first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called, expected_tool,
-            pack_promotion_triggered, schema_load_on_demand,
+            exc,
+            ErrorKind.API_AUTH,
+            task_name,
+            tools,
+            turns,
+            first_token_latency_ms,
+            total_start,
+            total_input_tokens,
+            total_output_tokens,
+            tools_called,
+            expected_tool,
+            pack_promotion_triggered,
+            schema_load_on_demand,
         )
     except anthropic.RateLimitError as exc:
         return _make_error_metrics(
-            exc, ErrorKind.API_RATE_LIMIT, task_name, tools, turns,
-            first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called, expected_tool,
-            pack_promotion_triggered, schema_load_on_demand,
+            exc,
+            ErrorKind.API_RATE_LIMIT,
+            task_name,
+            tools,
+            turns,
+            first_token_latency_ms,
+            total_start,
+            total_input_tokens,
+            total_output_tokens,
+            tools_called,
+            expected_tool,
+            pack_promotion_triggered,
+            schema_load_on_demand,
         )
     except anthropic.BadRequestError as exc:
         return _make_error_metrics(
-            exc, ErrorKind.API_BAD_REQUEST, task_name, tools, turns,
-            first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called, expected_tool,
-            pack_promotion_triggered, schema_load_on_demand,
+            exc,
+            ErrorKind.API_BAD_REQUEST,
+            task_name,
+            tools,
+            turns,
+            first_token_latency_ms,
+            total_start,
+            total_input_tokens,
+            total_output_tokens,
+            tools_called,
+            expected_tool,
+            pack_promotion_triggered,
+            schema_load_on_demand,
         )
     except anthropic.APIStatusError as exc:
-        kind = ErrorKind.API_OVERLOADED if exc.status_code == 529 else ErrorKind.API_OTHER
+        kind = (
+            ErrorKind.API_OVERLOADED if exc.status_code == 529 else ErrorKind.API_OTHER
+        )
         return _make_error_metrics(
-            exc, kind, task_name, tools, turns,
-            first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called, expected_tool,
-            pack_promotion_triggered, schema_load_on_demand,
+            exc,
+            kind,
+            task_name,
+            tools,
+            turns,
+            first_token_latency_ms,
+            total_start,
+            total_input_tokens,
+            total_output_tokens,
+            tools_called,
+            expected_tool,
+            pack_promotion_triggered,
+            schema_load_on_demand,
         )
     except (TypeError, KeyError, AttributeError, ValueError) as exc:
         return _make_error_metrics(
-            exc, ErrorKind.DATA_BUG, task_name, tools, turns,
-            first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called, expected_tool,
-            pack_promotion_triggered, schema_load_on_demand,
+            exc,
+            ErrorKind.DATA_BUG,
+            task_name,
+            tools,
+            turns,
+            first_token_latency_ms,
+            total_start,
+            total_input_tokens,
+            total_output_tokens,
+            tools_called,
+            expected_tool,
+            pack_promotion_triggered,
+            schema_load_on_demand,
         )
     except Exception as exc:
         return _make_error_metrics(
-            exc, ErrorKind.PROGRAM_BUG, task_name, tools, turns,
-            first_token_latency_ms, total_start, total_input_tokens,
-            total_output_tokens, tools_called, expected_tool,
-            pack_promotion_triggered, schema_load_on_demand,
+            exc,
+            ErrorKind.PROGRAM_BUG,
+            task_name,
+            tools,
+            turns,
+            first_token_latency_ms,
+            total_start,
+            total_input_tokens,
+            total_output_tokens,
+            tools_called,
+            expected_tool,
+            pack_promotion_triggered,
+            schema_load_on_demand,
         )
 
     total_end = time.perf_counter_ns()

@@ -32,7 +32,9 @@ class BenchmarkTask:
     request: ToolSelectionRequest
     expected_tool_names: frozenset[str] = field(default_factory=frozenset)
     expected_approved_tool_names: frozenset[str] = field(default_factory=frozenset)
-    expected_approval_required_tool_names: frozenset[str] = field(default_factory=frozenset)
+    expected_approval_required_tool_names: frozenset[str] = field(
+        default_factory=frozenset
+    )
     expected_rejected_tool_names: frozenset[str] = field(default_factory=frozenset)
 
 
@@ -71,7 +73,9 @@ class BenchmarkComparison:
     @property
     def gating_latency_delta_ms(self) -> float:
         """Return latency reduction from schema-heavy to TCP projection."""
-        return self.schema_heavy.gating_latency_ms - self.tcp_projection.gating_latency_ms
+        return (
+            self.schema_heavy.gating_latency_ms - self.tcp_projection.gating_latency_ms
+        )
 
 
 @dataclass(frozen=True)
@@ -89,7 +93,9 @@ def benchmark_exposure_paths(
 ) -> list[BenchmarkComparison]:
     """Benchmark the schema-heavy, TCP projection, and TCP bitmask exposure paths."""
     comparisons: list[BenchmarkComparison] = []
-    normalized_records = [normalize_capability_descriptor(descriptor) for descriptor in descriptors]
+    normalized_records = [
+        normalize_capability_descriptor(descriptor) for descriptor in descriptors
+    ]
 
     for task in tasks:
         schema_metrics = _benchmark_schema_heavy(descriptors, task, environment)
@@ -107,7 +113,9 @@ def benchmark_exposure_paths(
     return comparisons
 
 
-def summarize_comparisons(comparisons: Sequence[BenchmarkComparison]) -> dict[str, float | int]:
+def summarize_comparisons(
+    comparisons: Sequence[BenchmarkComparison],
+) -> dict[str, float | int]:
     """Summarize results across benchmark tasks."""
     if not comparisons:
         return {
@@ -144,8 +152,12 @@ def summarize_comparisons(comparisons: Sequence[BenchmarkComparison]) -> dict[st
         "bitmask_tasks_satisfied": sum(
             1 for item in bitmask_items if item.tcp_bitmask.task_satisfied  # type: ignore[union-attr]
         ),
-        "tcp_false_allows": sum(item.tcp_projection.false_allow_count for item in comparisons),
-        "schema_false_allows": sum(item.schema_heavy.false_allow_count for item in comparisons),
+        "tcp_false_allows": sum(
+            item.tcp_projection.false_allow_count for item in comparisons
+        ),
+        "schema_false_allows": sum(
+            item.schema_heavy.false_allow_count for item in comparisons
+        ),
         "bitmask_false_allows": sum(
             item.tcp_bitmask.false_allow_count for item in bitmask_items  # type: ignore[union-attr]
         ),
@@ -171,14 +183,18 @@ def benchmark_exposure_suite(
     """Run repeated exposure comparisons and return an aggregate summary."""
     all_comparisons: list[BenchmarkComparison] = []
     for _ in range(repetitions):
-        all_comparisons.extend(benchmark_exposure_paths(descriptors, tasks, environment))
+        all_comparisons.extend(
+            benchmark_exposure_paths(descriptors, tasks, environment)
+        )
     return BenchmarkSuiteResult(
         comparisons=tuple(all_comparisons),
         summary=summarize_comparisons(all_comparisons),
     )
 
 
-def build_mt2_fixture_set() -> tuple[list[CapabilityDescriptor], list[BenchmarkTask], RuntimeEnvironment]:
+def build_mt2_fixture_set() -> (
+    tuple[list[CapabilityDescriptor], list[BenchmarkTask], RuntimeEnvironment]
+):
     """Build the broader fixture set used by TCP-MT-2."""
     descriptors = [
         _make_descriptor(
@@ -239,7 +255,9 @@ def build_mt2_fixture_set() -> tuple[list[CapabilityDescriptor], list[BenchmarkT
                 require_auto_approval=False,
             ),
             expected_tool_names=frozenset({"priv-admin"}),
-            expected_approved_tool_names=frozenset({"fast-json", "slow-json", "stream-json", "priv-admin"}),
+            expected_approved_tool_names=frozenset(
+                {"fast-json", "slow-json", "stream-json", "priv-admin"}
+            ),
             expected_rejected_tool_names=frozenset({"file-convert", "net-fetch"}),
         ),
         BenchmarkTask(
@@ -277,7 +295,9 @@ def build_mt2_fixture_set() -> tuple[list[CapabilityDescriptor], list[BenchmarkT
                 require_auto_approval=True,
             ),
             expected_tool_names=frozenset({"fast-json"}),
-            expected_approved_tool_names=frozenset({"fast-json", "slow-json", "stream-json"}),
+            expected_approved_tool_names=frozenset(
+                {"fast-json", "slow-json", "stream-json"}
+            ),
             expected_approval_required_tool_names=frozenset({"priv-admin"}),
             expected_rejected_tool_names=frozenset({"file-convert", "net-fetch"}),
         ),
@@ -367,7 +387,9 @@ def _benchmark_tcp_projection(
     """Benchmark the TCP path with normalization already off the hot path."""
     start = time.perf_counter()
     gate_result = gate_tools(records, task.request, environment)
-    projected = json.dumps(project_tools(gate_result.approved_tools), separators=(",", ":"))
+    projected = json.dumps(
+        project_tools(gate_result.approved_tools), separators=(",", ":")
+    )
     gating_latency_ms = (time.perf_counter() - start) * 1000
 
     selection_start = time.perf_counter()
@@ -491,18 +513,22 @@ def _environment_to_deny_mask(environment: RuntimeEnvironment) -> EnvironmentMas
 
 def _passes_request_filters(tool: ToolRecord, request: ToolSelectionRequest) -> bool:
     """Check non-bitmask request filters (commands, formats, modes)."""
-    if request.required_commands and not request.required_commands.issubset(tool.commands):
+    if request.required_commands and not request.required_commands.issubset(
+        tool.commands
+    ):
         return False
     if request.required_input_formats and not request.required_input_formats.issubset(
         tool.input_formats
     ):
         return False
-    if request.required_output_formats and not request.required_output_formats.issubset(
-        tool.output_formats
+    if (
+        request.required_output_formats
+        and not request.required_output_formats.issubset(tool.output_formats)
     ):
         return False
-    if request.required_processing_modes and not request.required_processing_modes.issubset(
-        tool.processing_modes
+    if (
+        request.required_processing_modes
+        and not request.required_processing_modes.issubset(tool.processing_modes)
     ):
         return False
     return True
@@ -529,23 +555,27 @@ def _gate_schema_heavy_item(
         return "rejected"
 
     output_formats = _schema_format_names(item.get("output_formats", []))
-    if request.required_output_formats and not request.required_output_formats.issubset(
-        output_formats
+    if (
+        request.required_output_formats
+        and not request.required_output_formats.issubset(output_formats)
     ):
         return "rejected"
 
     processing_modes = {
         _processing_mode_name(mode) for mode in item.get("processing_modes", [])
     }
-    if request.required_processing_modes and not request.required_processing_modes.issubset(
-        processing_modes
+    if (
+        request.required_processing_modes
+        and not request.required_processing_modes.issubset(processing_modes)
     ):
         return "rejected"
 
     capability_flags = item.get("capability_flags", 0)
-    if request.required_capability_flags and (
-        capability_flags & request.required_capability_flags
-    ) != request.required_capability_flags:
+    if (
+        request.required_capability_flags
+        and (capability_flags & request.required_capability_flags)
+        != request.required_capability_flags
+    ):
         return "rejected"
 
     if environment.file_access_enabled is False and _has_file_input(item):
@@ -580,7 +610,9 @@ def _select_schema_heavy_tool(
 
     return min(
         approved_list,
-        key=lambda item: item.get("performance", {}).get("avg_processing_time_ms", 1000),
+        key=lambda item: item.get("performance", {}).get(
+            "avg_processing_time_ms", 1000
+        ),
     )
 
 
@@ -606,7 +638,8 @@ def _processing_mode_name(mode: int | str) -> str:
 
 def _has_file_input(item: dict) -> bool:
     return any(
-        format_item.get("type") == FormatType.BINARY.value for format_item in item.get("input_formats", [])
+        format_item.get("type") == FormatType.BINARY.value
+        for format_item in item.get("input_formats", [])
     )
 
 
@@ -622,7 +655,9 @@ def _schema_requires_approval(item: dict) -> bool:
     return False
 
 
-def _task_satisfied(selected_name: str | None, expected_tool_names: frozenset[str]) -> bool:
+def _task_satisfied(
+    selected_name: str | None, expected_tool_names: frozenset[str]
+) -> bool:
     if not expected_tool_names:
         return selected_name is not None
     return selected_name in expected_tool_names
@@ -685,10 +720,16 @@ def _make_descriptor(
         version="1.0",
         commands=[CommandDescriptor(name=command)],
         input_formats=[
-            FormatDescriptor(name=input_format, type=format_type_map.get(input_format, FormatType.TEXT))
+            FormatDescriptor(
+                name=input_format,
+                type=format_type_map.get(input_format, FormatType.TEXT),
+            )
         ],
         output_formats=[
-            FormatDescriptor(name=output_format, type=format_type_map.get(output_format, FormatType.TEXT))
+            FormatDescriptor(
+                name=output_format,
+                type=format_type_map.get(output_format, FormatType.TEXT),
+            )
         ],
         processing_modes=[processing_mode],
         dependencies=list(dependencies),
@@ -739,7 +780,8 @@ def _schema_snapshot(descriptor: CapabilityDescriptor) -> dict[str, object]:
         ],
         "processing_modes": [int(mode) for mode in descriptor.processing_modes],
         "dependencies": list(descriptor.dependencies),
-        "capability_flags": descriptor.capability_flags or descriptor.get_capability_flags(),
+        "capability_flags": descriptor.capability_flags
+        or descriptor.get_capability_flags(),
         "performance": {
             "avg_processing_time_ms": descriptor.performance.avg_processing_time_ms,
             "memory_usage_mb": descriptor.performance.memory_usage_mb,

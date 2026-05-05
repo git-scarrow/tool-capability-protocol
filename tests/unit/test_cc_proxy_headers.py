@@ -89,11 +89,14 @@ def test_buffered_response_headers_strip_encoding_and_fix_length() -> None:
 
 def test_catch_all_proxy_route_accepts_post() -> None:
     app = build_app()
-    catch_all = next(route for route in app.routes if getattr(route, "path", None) == "/{path:path}")
+    catch_all = next(
+        route for route in app.routes if getattr(route, "path", None) == "/{path:path}"
+    )
     assert "POST" in catch_all.methods
 
 
 # ── TCP-IMP-15: Accept-Encoding override ──────────────────────────────────────
+
 
 def test_proxy_sends_exactly_one_accept_encoding_identity() -> None:
     """proxy_post_messages must send exactly Accept-Encoding: identity upstream,
@@ -102,12 +105,21 @@ def test_proxy_sends_exactly_one_accept_encoding_identity() -> None:
 
     def handler(req: httpx.Request) -> httpx.Response:
         captured.append(req)
-        body = json.dumps({"id": "msg_1", "type": "message", "role": "assistant",
-                           "content": [], "model": "claude-3-5-sonnet-20241022",
-                           "stop_reason": "end_turn", "stop_sequence": None,
-                           "usage": {"input_tokens": 1, "output_tokens": 1}})
-        return httpx.Response(200, content=body.encode(),
-                              headers={"content-type": "application/json"})
+        body = json.dumps(
+            {
+                "id": "msg_1",
+                "type": "message",
+                "role": "assistant",
+                "content": [],
+                "model": "claude-3-5-sonnet-20241022",
+                "stop_reason": "end_turn",
+                "stop_sequence": None,
+                "usage": {"input_tokens": 1, "output_tokens": 1},
+            }
+        )
+        return httpx.Response(
+            200, content=body.encode(), headers={"content-type": "application/json"}
+        )
 
     transport = httpx.MockTransport(handler)
     _real_AsyncClient = httpx.AsyncClient
@@ -119,26 +131,34 @@ def test_proxy_sends_exactly_one_accept_encoding_identity() -> None:
     with patch("tcp.proxy.cc_proxy.httpx.AsyncClient", _patched_client):
         with patch("tcp.proxy.cc_proxy._read_mode", return_value="shadow"):
             app = build_app()
-            payload = json.dumps({"model": "claude-3-5-sonnet-20241022",
-                                  "max_tokens": 10, "messages": [{"role": "user", "content": "hi"}]})
+            payload = json.dumps(
+                {
+                    "model": "claude-3-5-sonnet-20241022",
+                    "max_tokens": 10,
+                    "messages": [{"role": "user", "content": "hi"}],
+                }
+            )
             with TestClient(app) as client:
                 client.post(
                     "/v1/messages",
                     content=payload,
-                    headers={"content-type": "application/json",
-                             "x-api-key": "sk-test",
-                             "accept-encoding": "gzip, br"},
+                    headers={
+                        "content-type": "application/json",
+                        "x-api-key": "sk-test",
+                        "accept-encoding": "gzip, br",
+                    },
                 )
 
     assert len(captured) == 1, "expected exactly one upstream request"
     req = captured[0]
     ae_values = [v for k, v in req.headers.items() if k.lower() == "accept-encoding"]
-    assert ae_values == ["identity"], (
-        f"expected exactly ['identity'] but got {ae_values}"
-    )
+    assert ae_values == [
+        "identity"
+    ], f"expected exactly ['identity'] but got {ae_values}"
 
 
 # ── TCP-IMP-15: tap_skipped field presence ────────────────────────────────────
+
 
 def _make_meta() -> dict:
     return {
@@ -204,14 +224,20 @@ def test_build_upstream_client_timeout_and_limits() -> None:
         assert client.timeout == UPSTREAM_TIMEOUT
         pool = client._transport._pool
         assert pool._max_connections == UPSTREAM_LIMITS.max_connections
-        assert pool._max_keepalive_connections == UPSTREAM_LIMITS.max_keepalive_connections
+        assert (
+            pool._max_keepalive_connections == UPSTREAM_LIMITS.max_keepalive_connections
+        )
         assert pool._keepalive_expiry == UPSTREAM_LIMITS.keepalive_expiry
     finally:
         asyncio.run(client.aclose())
 
 
 def test_build_app_owns_shared_upstream_client_lifecycle() -> None:
-    upstream = httpx.AsyncClient(transport=httpx.MockTransport(lambda req: httpx.Response(200, json={"ok": True})))
+    upstream = httpx.AsyncClient(
+        transport=httpx.MockTransport(
+            lambda req: httpx.Response(200, json={"ok": True})
+        )
+    )
     with patch("tcp.proxy.cc_proxy._build_upstream_client", return_value=upstream):
         app = build_app()
         with TestClient(app) as client:
@@ -264,7 +290,9 @@ def test_messages_telemetry_fields_are_populated(tmp_path) -> None:
             "id": "msg_1",
             "type": "message",
             "role": "assistant",
-            "content": [{"type": "tool_use", "id": "toolu_1", "name": "Bash", "input": {}}],
+            "content": [
+                {"type": "tool_use", "id": "toolu_1", "name": "Bash", "input": {}}
+            ],
             "model": "claude-3-5-sonnet-20241022",
             "stop_reason": "end_turn",
             "stop_sequence": None,
@@ -290,14 +318,23 @@ def test_messages_telemetry_fields_are_populated(tmp_path) -> None:
                         "model": "claude-3-5-sonnet-20241022",
                         "max_tokens": 10,
                         "messages": [{"role": "user", "content": "run bash"}],
-                        "tools": [{"name": "Bash", "description": "shell", "input_schema": {"type": "object"}}],
+                        "tools": [
+                            {
+                                "name": "Bash",
+                                "description": "shell",
+                                "input_schema": {"type": "object"},
+                            }
+                        ],
                     }
                 )
                 with TestClient(app) as client:
                     response = client.post(
                         "/v1/messages",
                         content=payload,
-                        headers={"content-type": "application/json", "x-api-key": "sk-test"},
+                        headers={
+                            "content-type": "application/json",
+                            "x-api-key": "sk-test",
+                        },
                     )
     assert response.status_code == 200
     record = json.loads(log_path.read_text())

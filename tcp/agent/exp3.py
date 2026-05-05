@@ -34,10 +34,10 @@ from tcp.agent.mock_executors import get_mock_executor
 from tcp.agent.tasks import AgentTask
 from tcp.core.descriptors import CapabilityFlags
 
-
 # ---------------------------------------------------------------------------
 # Task set
 # ---------------------------------------------------------------------------
+
 
 def build_exp3_tasks() -> list[AgentTask]:
     """12 EXP-3 tasks: 6 targeting Claude Code built-ins + 6 MCP tasks.
@@ -211,6 +211,7 @@ def build_exp3_tasks() -> list[AgentTask]:
 # Description truncation helpers
 # ---------------------------------------------------------------------------
 
+
 def _brief_description(full: str) -> str:
     """Return first paragraph of a tool description (before first blank line).
 
@@ -232,9 +233,11 @@ def _minimal_description(name: str) -> str:
 # Schema arm builders
 # ---------------------------------------------------------------------------
 
+
 def build_arm_a_schemas() -> list[dict]:
     """Arm A: full realistic corpus, ungated (119 tools, rich descriptions)."""
     from tcp.harness.realistic_schemas import build_realistic_corpus
+
     return build_realistic_corpus()
 
 
@@ -272,11 +275,13 @@ def _build_mcp_survivors(
                 result.append(tool_record_to_anthropic_schema(record_map[name]))
         elif mode == "brief":
             s = schema_by_name[name]
-            result.append({
-                "name": s["name"],
-                "description": _brief_description(s["description"]),
-                "input_schema": s["input_schema"],
-            })
+            result.append(
+                {
+                    "name": s["name"],
+                    "description": _brief_description(s["description"]),
+                    "input_schema": s["input_schema"],
+                }
+            )
         else:  # "rich" — use corpus description as-is
             result.append(schema_by_name[name])
     return result
@@ -370,6 +375,7 @@ def build_per_task_arm_schemas(
 # Results data model
 # ---------------------------------------------------------------------------
 
+
 @dataclass(frozen=True)
 class FourArmTrial:
     """One trial of the 4-arm ablation for a single task."""
@@ -457,6 +463,7 @@ class Exp3Report:
 # ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
+
 
 def _metrics_to_dict(m: LoopMetrics) -> dict:
     return {

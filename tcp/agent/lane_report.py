@@ -70,9 +70,15 @@ def build_lane_report(
     nm_n = len(nm)
     total = len(metrics)
 
-    det_correct = sum(1 for m in det if m.selected_tool_correct) / det_n if det_n else 0.0
-    amb_correct = sum(1 for m in amb if m.selected_tool_correct) / amb_n if amb_n else 0.0
-    amb_any = sum(1 for m in amb if m.expected_tool_any_position) / amb_n if amb_n else 0.0
+    det_correct = (
+        sum(1 for m in det if m.selected_tool_correct) / det_n if det_n else 0.0
+    )
+    amb_correct = (
+        sum(1 for m in amb if m.selected_tool_correct) / amb_n if amb_n else 0.0
+    )
+    amb_any = (
+        sum(1 for m in amb if m.expected_tool_any_position) / amb_n if amb_n else 0.0
+    )
     nm_correct = sum(1 for m in nm if m.selected_tool_correct) / nm_n if nm_n else 0.0
 
     det_latency = sum(m.total_response_time_ms for m in det) / det_n if det_n else 0.0

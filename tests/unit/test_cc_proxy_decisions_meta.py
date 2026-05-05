@@ -12,7 +12,10 @@ def test_decisions_meta_includes_full_tool_count_and_survivor_count() -> None:
     ]
     body = {
         "messages": [
-            {"role": "user", "content": [{"type": "text", "text": "show me the README"}]}
+            {
+                "role": "user",
+                "content": [{"type": "text", "text": "show me the README"}],
+            }
         ],
     }
     _, meta = _process_tools_array(tools, body, "shadow")
@@ -33,7 +36,10 @@ def test_decisions_meta_includes_replay_freshness_fields() -> None:
     ]
     body = {
         "messages": [
-            {"role": "user", "content": [{"type": "text", "text": "read the config file"}]}
+            {
+                "role": "user",
+                "content": [{"type": "text", "text": "read the config file"}],
+            }
         ],
     }
     _, meta = _process_tools_array(tools, body, "live")

@@ -70,9 +70,23 @@ def test_apply_rating_marks_first_rater_progress() -> None:
 
 def test_matching_second_rater_marks_row_calibrated() -> None:
     rows = [_make_row()]
-    apply_rating(rows, session_id="session-a", turn_id=1, rater="rater1", flags=4, formats=["text"])
+    apply_rating(
+        rows,
+        session_id="session-a",
+        turn_id=1,
+        rater="rater1",
+        flags=4,
+        formats=["text"],
+    )
 
-    row = apply_rating(rows, session_id="session-a", turn_id=1, rater="rater2", flags=4, formats=["text"])
+    row = apply_rating(
+        rows,
+        session_id="session-a",
+        turn_id=1,
+        rater="rater2",
+        flags=4,
+        formats=["text"],
+    )
 
     assert row["label_status"] == "calibrated"
     assert row["adjudication_required"] is False
@@ -80,7 +94,14 @@ def test_matching_second_rater_marks_row_calibrated() -> None:
 
 def test_mismatched_second_rater_requires_adjudication() -> None:
     rows = [_make_row()]
-    apply_rating(rows, session_id="session-a", turn_id=1, rater="rater1", flags=4, formats=["text"])
+    apply_rating(
+        rows,
+        session_id="session-a",
+        turn_id=1,
+        rater="rater1",
+        flags=4,
+        formats=["text"],
+    )
 
     row = apply_rating(
         rows,
@@ -98,8 +119,18 @@ def test_mismatched_second_rater_requires_adjudication() -> None:
 
 def test_sync_rows_by_key_copies_labeling_fields() -> None:
     source = [_make_row(session_id="session-a", turn_id=1)]
-    target = [_make_row(session_id="session-a", turn_id=1), _make_row(session_id="session-b", turn_id=2)]
-    apply_rating(source, session_id="session-a", turn_id=1, rater="rater1", flags=1, formats=["text"])
+    target = [
+        _make_row(session_id="session-a", turn_id=1),
+        _make_row(session_id="session-b", turn_id=2),
+    ]
+    apply_rating(
+        source,
+        session_id="session-a",
+        turn_id=1,
+        rater="rater1",
+        flags=1,
+        formats=["text"],
+    )
 
     synced = sync_rows_by_key(source, target)
 
@@ -110,11 +141,42 @@ def test_sync_rows_by_key_copies_labeling_fields() -> None:
 
 
 def test_compute_calibration_summary_reports_counts_and_kappa() -> None:
-    rows = [_make_row(session_id="session-a", turn_id=1), _make_row(session_id="session-b", turn_id=2)]
-    apply_rating(rows, session_id="session-a", turn_id=1, rater="rater1", flags=1, formats=["text"])
-    apply_rating(rows, session_id="session-a", turn_id=1, rater="rater2", flags=1, formats=["text"])
-    apply_rating(rows, session_id="session-b", turn_id=2, rater="rater1", flags=4, formats=["text"])
-    apply_rating(rows, session_id="session-b", turn_id=2, rater="rater2", flags=8196, formats=["text"])
+    rows = [
+        _make_row(session_id="session-a", turn_id=1),
+        _make_row(session_id="session-b", turn_id=2),
+    ]
+    apply_rating(
+        rows,
+        session_id="session-a",
+        turn_id=1,
+        rater="rater1",
+        flags=1,
+        formats=["text"],
+    )
+    apply_rating(
+        rows,
+        session_id="session-a",
+        turn_id=1,
+        rater="rater2",
+        flags=1,
+        formats=["text"],
+    )
+    apply_rating(
+        rows,
+        session_id="session-b",
+        turn_id=2,
+        rater="rater1",
+        flags=4,
+        formats=["text"],
+    )
+    apply_rating(
+        rows,
+        session_id="session-b",
+        turn_id=2,
+        rater="rater2",
+        flags=8196,
+        formats=["text"],
+    )
 
     summary = compute_calibration_summary(rows)
 

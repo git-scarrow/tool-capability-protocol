@@ -12,7 +12,6 @@ import pytest
 
 from tcp.proxy.pack_manifest import STATE_DEFERRED, inspect_pack_state
 
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -24,19 +23,30 @@ def test_inspect_pack_state_reports_workspace_allow_reason() -> None:
         use_cache=False,
     )
     workspace_critical = next(
-        decision for decision in inspection.pack_decisions if decision.pack_id == "workspace-critical"
+        decision
+        for decision in inspection.pack_decisions
+        if decision.pack_id == "workspace-critical"
     )
     assert workspace_critical.state == STATE_DEFERRED
     assert "workspace_allow" in workspace_critical.reasons
 
 
-def test_doctor_cli_json_reports_manifest_profile_and_reasons(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_doctor_cli_json_reports_manifest_profile_and_reasons(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.delenv("TCP_PROXY_PACK_MANIFEST", raising=False)
     monkeypatch.setenv("TCP_PROXY_CWD", "/home/sam/projects/tool-capability-protocol")
     monkeypatch.setenv("TCP_PROXY_PROFILE", "bay-view")
     monkeypatch.setenv("TCP_PROXY_WORKSPACE_MCP_SERVERS", "bay-view-graph")
     result = subprocess.run(
-        [sys.executable, "-m", "tcp.proxy.cc_proxy", "--doctor", "--doctor-format", "json"],
+        [
+            sys.executable,
+            "-m",
+            "tcp.proxy.cc_proxy",
+            "--doctor",
+            "--doctor-format",
+            "json",
+        ],
         cwd=REPO_ROOT,
         capture_output=True,
         text=True,

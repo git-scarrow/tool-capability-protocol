@@ -47,8 +47,12 @@ class TestBuildLaneReport:
 
     def test_ambiguous_lane(self):
         metrics = [
-            _make_metrics(confidence="ambiguous", bypassed=False, correct=True, survivor_count=3),
-            _make_metrics(confidence="ambiguous", bypassed=False, correct=False, survivor_count=3),
+            _make_metrics(
+                confidence="ambiguous", bypassed=False, correct=True, survivor_count=3
+            ),
+            _make_metrics(
+                confidence="ambiguous", bypassed=False, correct=False, survivor_count=3
+            ),
         ]
         report = build_lane_report(metrics)
         assert report.ambiguous_count == 2
@@ -56,7 +60,9 @@ class TestBuildLaneReport:
 
     def test_no_match_lane(self):
         metrics = [
-            _make_metrics(confidence="no_match", bypassed=False, correct=True, survivor_count=0),
+            _make_metrics(
+                confidence="no_match", bypassed=False, correct=True, survivor_count=0
+            ),
         ]
         report = build_lane_report(metrics)
         assert report.no_match_count == 1
@@ -72,8 +78,12 @@ class TestBuildLaneReport:
 
     def test_ambiguous_llm_lift(self):
         metrics = [
-            _make_metrics(confidence="ambiguous", bypassed=False, correct=True, survivor_count=3),
-            _make_metrics(confidence="ambiguous", bypassed=False, correct=True, survivor_count=3),
+            _make_metrics(
+                confidence="ambiguous", bypassed=False, correct=True, survivor_count=3
+            ),
+            _make_metrics(
+                confidence="ambiguous", bypassed=False, correct=True, survivor_count=3
+            ),
         ]
         report = build_lane_report(metrics, select_best_correct_rate=0.5)
         assert report.ambiguous_llm_lift == pytest.approx(0.5)

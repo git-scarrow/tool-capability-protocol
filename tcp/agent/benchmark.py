@@ -33,7 +33,10 @@ class PairedTrial:
     @property
     def latency_delta_ms(self) -> float:
         """Positive means unfiltered was slower (filtered wins)."""
-        return self.unfiltered.total_response_time_ms - self.filtered.total_response_time_ms
+        return (
+            self.unfiltered.total_response_time_ms
+            - self.filtered.total_response_time_ms
+        )
 
     @property
     def token_delta(self) -> int:
@@ -295,9 +298,14 @@ async def run_smoke_test(
     trial = report.trials[0]
     issues: list[str] = []
 
-    for arm_name, metrics in [("unfiltered", trial.unfiltered), ("filtered", trial.filtered)]:
+    for arm_name, metrics in [
+        ("unfiltered", trial.unfiltered),
+        ("filtered", trial.filtered),
+    ]:
         if metrics.error is not None:
-            issues.append(f"{arm_name}: error={metrics.error} (kind={metrics.error_kind})")
+            issues.append(
+                f"{arm_name}: error={metrics.error} (kind={metrics.error_kind})"
+            )
         if metrics.turns == 0:
             issues.append(f"{arm_name}: zero turns")
         if metrics.input_tokens == 0:
@@ -337,7 +345,9 @@ class MatrixReport:
             s = c.report.summary
             n = s["trial_count"]
             if n == 0:
-                lines.append(f"{c.model:<25} {c.environment:<10} {c.cache:<6} {'(empty)':>7}")
+                lines.append(
+                    f"{c.model:<25} {c.environment:<10} {c.cache:<6} {'(empty)':>7}"
+                )
                 continue
             lines.append(
                 f"{c.model:<25} {c.environment:<10} {c.cache:<6} "
@@ -378,8 +388,10 @@ async def run_matrix_benchmark(
             filtered = build_filtered_schemas(tasks, corpus_schemas, network=network)
 
             for cache_label in ("cold", "warm"):
-                print(f"\n  [{model}] [{env}] [{cache_label}] "
-                      f"— {len(tasks)} tasks x {repetitions} reps...")
+                print(
+                    f"\n  [{model}] [{env}] [{cache_label}] "
+                    f"— {len(tasks)} tasks x {repetitions} reps..."
+                )
 
                 report = await run_paired_benchmark(
                     tasks=tasks,
@@ -460,8 +472,12 @@ class AblationReport:
                 f"{u_tok:>7} {f_tok:>7} {pt_tok:>7}"
             )
             totals["u_c"] += sum(1 for t in trials if t.ungated.selected_tool_correct)
-            totals["f_c"] += sum(1 for t in trials if t.fixed_filter.selected_tool_correct)
-            totals["pt_c"] += sum(1 for t in trials if t.per_task_filter.selected_tool_correct)
+            totals["f_c"] += sum(
+                1 for t in trials if t.fixed_filter.selected_tool_correct
+            )
+            totals["pt_c"] += sum(
+                1 for t in trials if t.per_task_filter.selected_tool_correct
+            )
             totals["n"] += n
 
         lines.append("-" * 85)
@@ -522,7 +538,9 @@ async def run_adversarial_ablation(
 
     # Build the two filtered arms
     tasks_for_fixed = [at.agent_task for at in adv_tasks]
-    fixed_filtered = build_filtered_schemas(tasks_for_fixed, corpus_schemas, network=False)
+    fixed_filtered = build_filtered_schemas(
+        tasks_for_fixed, corpus_schemas, network=False
+    )
     per_task_filtered = build_per_task_filtered_schemas(adv_tasks, corpus_schemas)
 
     # Log filter sizes
@@ -624,16 +642,20 @@ async def run_layered_benchmark(
         for tool in at.synthetic_tools:
             records.append(tool)
             description = tool.rich_metadata.get(
-                "description", tool.tool_name,
+                "description",
+                tool.tool_name,
             )
             input_schema = tool.rich_metadata.get(
-                "input_schema", {"type": "object", "properties": {}},
+                "input_schema",
+                {"type": "object", "properties": {}},
             )
-            corpus_schemas.append({
-                "name": tool.tool_name,
-                "description": description,
-                "input_schema": input_schema,
-            })
+            corpus_schemas.append(
+                {
+                    "name": tool.tool_name,
+                    "description": description,
+                    "input_schema": input_schema,
+                }
+            )
 
     schema_by_name = {s["name"]: s for s in corpus_schemas}
     all_names = frozenset(r.tool_name for r in records)
@@ -668,11 +690,15 @@ async def run_layered_benchmark(
         gate_result = gate_tools(gate_records, request, env)
         _seen: set[str] = set()
         survivor_names: list[str] = []
-        for _t in list(gate_result.approved_tools) + list(gate_result.approval_required_tools):
+        for _t in list(gate_result.approved_tools) + list(
+            gate_result.approval_required_tools
+        ):
             if _t.tool_name not in _seen:
                 _seen.add(_t.tool_name)
                 survivor_names.append(_t.tool_name)
-        filtered_schemas = [schema_by_name[n] for n in survivor_names if n in schema_by_name]
+        filtered_schemas = [
+            schema_by_name[n] for n in survivor_names if n in schema_by_name
+        ]
 
         survivor_count = len(survivor_names)
         if survivor_count == 0:

@@ -107,7 +107,6 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 ),
             ),
         ),
-
         # --- Task 2: Fetch remote data ---
         AmbiguousTask(
             agent_task=AgentTask(
@@ -153,7 +152,6 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 ),
             ),
         ),
-
         # --- Task 3: Transform JSON ---
         AmbiguousTask(
             agent_task=AgentTask(
@@ -199,7 +197,6 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 ),
             ),
         ),
-
         # --- Task 4: Write config file ---
         AmbiguousTask(
             agent_task=AgentTask(
@@ -262,7 +259,6 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 ),
             ),
         ),
-
         # --- Task 5: Check service status ---
         AmbiguousTask(
             agent_task=AgentTask(
@@ -303,7 +299,6 @@ def build_ambiguous_tasks() -> list[AmbiguousTask]:
                 ),
             ),
         ),
-
         # --- Task 6: Diff two files ---
         AmbiguousTask(
             agent_task=AgentTask(

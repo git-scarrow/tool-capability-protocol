@@ -83,7 +83,10 @@ def _gate_single_tool(
     request: ToolSelectionRequest,
     environment: RuntimeEnvironment,
 ) -> tuple[GatingDecision, str]:
-    if environment.installed_tools and tool.tool_name not in environment.installed_tools:
+    if (
+        environment.installed_tools
+        and tool.tool_name not in environment.installed_tools
+    ):
         return GatingDecision.REJECTED, "tool not installed"
 
     if tool.permission_level not in environment.permitted_permission_levels:
@@ -107,7 +110,9 @@ def _gate_single_tool(
     ):
         return GatingDecision.REJECTED, "stdin disabled"
 
-    if request.required_commands and not request.required_commands.issubset(tool.commands):
+    if request.required_commands and not request.required_commands.issubset(
+        tool.commands
+    ):
         return GatingDecision.REJECTED, "required commands unavailable"
 
     if request.required_input_formats and not request.required_input_formats.issubset(
@@ -115,19 +120,23 @@ def _gate_single_tool(
     ):
         return GatingDecision.REJECTED, "required input formats unavailable"
 
-    if request.required_output_formats and not request.required_output_formats.issubset(
-        tool.output_formats
+    if (
+        request.required_output_formats
+        and not request.required_output_formats.issubset(tool.output_formats)
     ):
         return GatingDecision.REJECTED, "required output formats unavailable"
 
-    if request.required_processing_modes and not request.required_processing_modes.issubset(
-        tool.processing_modes
+    if (
+        request.required_processing_modes
+        and not request.required_processing_modes.issubset(tool.processing_modes)
     ):
         return GatingDecision.REJECTED, "required processing modes unavailable"
 
-    if request.required_capability_flags and (
-        tool.capability_flags & request.required_capability_flags
-    ) != request.required_capability_flags:
+    if (
+        request.required_capability_flags
+        and (tool.capability_flags & request.required_capability_flags)
+        != request.required_capability_flags
+    ):
         return GatingDecision.REJECTED, "required capability flags unavailable"
 
     if tool.risk_level in {"critical", "high_risk", "approval_required", "unknown"}:

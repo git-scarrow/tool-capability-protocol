@@ -65,9 +65,9 @@ class HumanApprovalInterface:
 
         analysis = {
             "binary_exists": Path(binary_path).exists() if binary_path else False,
-            "is_system_tool": binary_path.startswith(("/bin/", "/usr/bin/"))
-            if binary_path
-            else False,
+            "is_system_tool": (
+                binary_path.startswith(("/bin/", "/usr/bin/")) if binary_path else False
+            ),
             "has_network_capability": False,  # Would analyze TCP descriptor
             "has_file_write_capability": False,  # Would analyze TCP descriptor
             "requires_elevated_privileges": False,
@@ -186,9 +186,9 @@ class HumanApprovalInterface:
 
             analysis = {
                 "magic_signature": magic.hex(),
-                "version": f"{version // 100}.{version % 100}"
-                if version > 0
-                else "unknown",
+                "version": (
+                    f"{version // 100}.{version % 100}" if version > 0 else "unknown"
+                ),
                 "capability_flags": f"0x{cap_flags:08x}",
                 "active_capabilities": [],
             }
@@ -280,7 +280,9 @@ class HumanApprovalInterface:
             risk_level = request["risk_level"]
 
             risk_emoji = (
-                "🟢" if risk_level == "LOW" else "🟡" if risk_level == "MEDIUM" else "🔴"
+                "🟢"
+                if risk_level == "LOW"
+                else "🟡" if risk_level == "MEDIUM" else "🔴"
             )
 
             print(f"{i}. {tool_name} {risk_emoji} {risk_level} RISK")

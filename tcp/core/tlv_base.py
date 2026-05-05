@@ -1,4 +1,5 @@
 """Base classes for TLV encoders/decoders."""
+
 from __future__ import annotations
 
 from abc import ABC, abstractmethod

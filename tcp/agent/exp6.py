@@ -30,10 +30,10 @@ from tcp.agent.loop import LoopMetrics, run_agent_loop
 from tcp.agent.mock_executors import get_mock_executor
 from tcp.harness.models import ToolRecord
 
-
 # ---------------------------------------------------------------------------
 # Ordering helpers
 # ---------------------------------------------------------------------------
+
 
 def reorder_tools(
     tools: list[ToolRecord],
@@ -107,9 +107,9 @@ class PrimacyBiasTrial:
 
     task_name: str
     expected_tool: str
-    metrics_first: LoopMetrics   # correct tool at index 0
+    metrics_first: LoopMetrics  # correct tool at index 0
     metrics_middle: LoopMetrics  # correct tool at middle
-    metrics_last: LoopMetrics    # correct tool at last
+    metrics_last: LoopMetrics  # correct tool at last
 
 
 @dataclass
@@ -165,7 +165,11 @@ class Exp6Report:
 
         # Aggregates
         rows.append(sep)
-        for pos, label in [("correct-first", "FIRST"), ("correct-middle", "MID"), ("correct-last", "LAST")]:
+        for pos, label in [
+            ("correct-first", "FIRST"),
+            ("correct-middle", "MID"),
+            ("correct-last", "LAST"),
+        ]:
             ms = self._all_metrics(pos)
             n = len(ms)
             if n == 0:
@@ -210,7 +214,8 @@ class Exp6Report:
         misses = [m for m in ambiguous if not m.selected_tool_correct]
         mean_retry_latency_ms = (
             sum(m.retry_latency_penalty_ms for m in misses) / len(misses)
-            if misses else 0.0
+            if misses
+            else 0.0
         )
 
         # Miss rate by description_similarity_max quartile
@@ -237,22 +242,23 @@ class Exp6Report:
             miss_by_q[q].append(not m.selected_tool_correct)
 
         miss_rate_by_quartile = {
-            f"q{i+1}": (
-                sum(v) / len(v) if v else None
-            )
-            for i, v in miss_by_q.items()
+            f"q{i+1}": (sum(v) / len(v) if v else None) for i, v in miss_by_q.items()
         }
 
         # Pack promotion / schema load (always False in harness — caveat documented)
         promotion_turns = [m for m in ambiguous if m.pack_promotion_triggered]
         schema_turns = [m for m in ambiguous if m.schema_load_on_demand]
         miss_rate_pack_promotion = (
-            sum(1 for m in promotion_turns if not m.selected_tool_correct) / len(promotion_turns)
-            if promotion_turns else None
+            sum(1 for m in promotion_turns if not m.selected_tool_correct)
+            / len(promotion_turns)
+            if promotion_turns
+            else None
         )
         miss_rate_schema_load = (
-            sum(1 for m in schema_turns if not m.selected_tool_correct) / len(schema_turns)
-            if schema_turns else None
+            sum(1 for m in schema_turns if not m.selected_tool_correct)
+            / len(schema_turns)
+            if schema_turns
+            else None
         )
 
         # Latency attribution: mean total_response_time for hits vs misses
@@ -262,7 +268,9 @@ class Exp6Report:
                 sum(m.total_response_time_ms for m in hits) / len(hits) if hits else 0.0
             ),
             "mean_total_ms_on_miss": (
-                sum(m.total_response_time_ms for m in misses) / len(misses) if misses else 0.0
+                sum(m.total_response_time_ms for m in misses) / len(misses)
+                if misses
+                else 0.0
             ),
             "mean_retry_penalty_ms_on_miss": mean_retry_latency_ms,
         }
@@ -309,16 +317,24 @@ class Exp6Report:
             "correct_first": {
                 "first_tool_correctness": self._correctness(first_ms, "first_tool"),
                 "any_position_correctness": self._correctness(first_ms, "any_position"),
-                "mean_input_tokens": sum(m.input_tokens for m in first_ms) / max(1, len(first_ms)),
-                "mean_latency_ms": sum(m.total_response_time_ms for m in first_ms) / max(1, len(first_ms)),
-                "error_rate": sum(1 for m in first_ms if m.error) / max(1, len(first_ms)),
+                "mean_input_tokens": sum(m.input_tokens for m in first_ms)
+                / max(1, len(first_ms)),
+                "mean_latency_ms": sum(m.total_response_time_ms for m in first_ms)
+                / max(1, len(first_ms)),
+                "error_rate": sum(1 for m in first_ms if m.error)
+                / max(1, len(first_ms)),
             },
             "correct_not_first": {
                 "first_tool_correctness": self._correctness(not_first_ms, "first_tool"),
-                "any_position_correctness": self._correctness(not_first_ms, "any_position"),
-                "mean_input_tokens": sum(m.input_tokens for m in not_first_ms) / max(1, len(not_first_ms)),
-                "mean_latency_ms": sum(m.total_response_time_ms for m in not_first_ms) / max(1, len(not_first_ms)),
-                "error_rate": sum(1 for m in not_first_ms if m.error) / max(1, len(not_first_ms)),
+                "any_position_correctness": self._correctness(
+                    not_first_ms, "any_position"
+                ),
+                "mean_input_tokens": sum(m.input_tokens for m in not_first_ms)
+                / max(1, len(not_first_ms)),
+                "mean_latency_ms": sum(m.total_response_time_ms for m in not_first_ms)
+                / max(1, len(not_first_ms)),
+                "error_rate": sum(1 for m in not_first_ms if m.error)
+                / max(1, len(not_first_ms)),
             },
             "delta_first_tool_correctness": (
                 self._correctness(first_ms, "first_tool")
@@ -332,7 +348,8 @@ class Exp6Report:
                 abs(
                     self._correctness(first_ms, "any_position")
                     - self._correctness(not_first_ms, "any_position")
-                ) < 0.01
+                )
+                < 0.01
             ),
         }
 
@@ -341,7 +358,7 @@ class Exp6Report:
 # TCP-MT-12 reopen gate
 # ---------------------------------------------------------------------------
 
-REOPEN_GATE_MISS_RATE_THRESHOLD = 0.15   # 15% ambiguous-lane first-tool miss rate
+REOPEN_GATE_MISS_RATE_THRESHOLD = 0.15  # 15% ambiguous-lane first-tool miss rate
 REOPEN_GATE_LATENCY_THRESHOLD_MS = 500.0  # 500ms mean retry latency penalty
 
 
@@ -388,7 +405,9 @@ def check_reopen_gate(report: "Exp6Report") -> dict:
             reasons.append(
                 f"retry penalty {mean_retry_ms:.0f}ms ≤ {REOPEN_GATE_LATENCY_THRESHOLD_MS:.0f}ms"
             )
-        recommendation = f"Gate did not fire ({'; '.join(reasons)}). No successor needed."
+        recommendation = (
+            f"Gate did not fire ({'; '.join(reasons)}). No successor needed."
+        )
 
     return {
         "gate_fired": gate_fired,
@@ -411,6 +430,7 @@ def check_reopen_gate(report: "Exp6Report") -> dict:
 # ---------------------------------------------------------------------------
 # Serialization helpers
 # ---------------------------------------------------------------------------
+
 
 def _metrics_to_dict(m: LoopMetrics) -> dict:
     return {
@@ -467,6 +487,7 @@ def _save_incremental(
 # Runner
 # ---------------------------------------------------------------------------
 
+
 async def run_exp6(
     *,
     model: str = "claude-sonnet-4-6",
@@ -505,12 +526,10 @@ async def run_exp6(
         tools_list = list(task.synthetic_tools)
 
         ordered_tools = {
-            pos: reorder_tools(tools_list, expected, pos)
-            for pos in POSITIONS
+            pos: reorder_tools(tools_list, expected, pos) for pos in POSITIONS
         }
         schema_sets = {
-            pos: ambiguous_task_to_schemas(ordered_tools[pos])
-            for pos in POSITIONS
+            pos: ambiguous_task_to_schemas(ordered_tools[pos]) for pos in POSITIONS
         }
 
         print(

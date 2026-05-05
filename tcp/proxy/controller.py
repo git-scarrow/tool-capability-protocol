@@ -53,7 +53,9 @@ class ControllerDecision:
     state: PackState
     tpc_rule: str
     reasons: tuple[str, ...]
-    legacy_allow_source: str  # backward-compat value for decisions.jsonl server_allow_source
+    legacy_allow_source: (
+        str  # backward-compat value for decisions.jsonl server_allow_source
+    )
 
 
 @dataclass(frozen=True)
@@ -184,10 +186,13 @@ class ToolPackController:
         if pack_decision is not None:
             manifest_state = pack_decision.state
             manifest_reasons = pack_decision.reasons
-            has_visibility_floor = any(
-                r.startswith(("workspace:", "profile:", "env:"))
-                for r in manifest_reasons
-            ) or "workspace_allow" in manifest_reasons
+            has_visibility_floor = (
+                any(
+                    r.startswith(("workspace:", "profile:", "env:"))
+                    for r in manifest_reasons
+                )
+                or "workspace_allow" in manifest_reasons
+            )
         elif server in self._allowed_servers:
             manifest_state = STATE_ACTIVE
             manifest_reasons = ("hard_allow",)

@@ -4,7 +4,7 @@ Complete Security-First TCP System Demonstration
 
 This demonstrates the full integration of all TCP security components:
 1. Man page enrichment extracts security intelligence
-2. Enhanced TCP encoder embeds security flags in 24-byte descriptors  
+2. Enhanced TCP encoder embeds security flags in 24-byte descriptors
 3. Transparent risk assessor provides audit trails
 4. Secure sandbox enforces human control
 5. Naive agents understand security risks from binary alone
@@ -142,12 +142,16 @@ class CompleteTCPSecurityDemo:
                         binary_path=f"/usr/bin/{command}",  # Simulated path
                         tcp_descriptor=binary_data,
                         requested_permission=permission,
-                        allowed_args=["--help", "-h"]
-                        if permission == SandboxPermission.READ_ONLY
-                        else None,
-                        forbidden_args=["-f", "--force", "-r", "-R"]
-                        if audit.destructive_score > 0.5
-                        else None,
+                        allowed_args=(
+                            ["--help", "-h"]
+                            if permission == SandboxPermission.READ_ONLY
+                            else None
+                        ),
+                        forbidden_args=(
+                            ["-f", "--force", "-r", "-R"]
+                            if audit.destructive_score > 0.5
+                            else None
+                        ),
                     )
 
                     if approved:
@@ -449,12 +453,16 @@ class CompleteTCPSecurityDemo:
                     "version": desc.version,
                     "operation_flags": f"0x{desc.operation_flags:08x}",
                     "security_flags": f"0x{desc.security_flags:08x}",
-                    "security_level": desc.security_level.value
-                    if hasattr(desc.security_level, "value")
-                    else str(desc.security_level),
-                    "privilege_requirements": desc.privilege_requirements.value
-                    if hasattr(desc.privilege_requirements, "value")
-                    else str(desc.privilege_requirements),
+                    "security_level": (
+                        desc.security_level.value
+                        if hasattr(desc.security_level, "value")
+                        else str(desc.security_level)
+                    ),
+                    "privilege_requirements": (
+                        desc.privilege_requirements.value
+                        if hasattr(desc.privilege_requirements, "value")
+                        else str(desc.privilege_requirements)
+                    ),
                     "binary_hex": binary_data.hex(),
                     "binary_size": len(binary_data),
                 }

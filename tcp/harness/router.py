@@ -67,11 +67,13 @@ def route_tool(
             if tool.tool_name in environment.installed_tools:
                 candidates.append(tool)
             else:
-                audit.append(AuditEntry(
-                    tool_name=tool.tool_name,
-                    decision=GatingDecision.REJECTED,
-                    reason="tool not installed",
-                ))
+                audit.append(
+                    AuditEntry(
+                        tool_name=tool.tool_name,
+                        decision=GatingDecision.REJECTED,
+                        reason="tool not installed",
+                    )
+                )
     else:
         candidates = list(tools)
 
@@ -85,12 +87,17 @@ def route_tool(
     )
 
     for tool in bitmask_result.rejected:
-        audit.append(AuditEntry(
-            tool_name=tool.tool_name,
-            decision=GatingDecision.REJECTED,
-            reason="bitmask: denied capability or missing required capability",
-            details={"capability_flags": tool.capability_flags, "deny_mask": bitmask_result.deny_mask},
-        ))
+        audit.append(
+            AuditEntry(
+                tool_name=tool.tool_name,
+                decision=GatingDecision.REJECTED,
+                reason="bitmask: denied capability or missing required capability",
+                details={
+                    "capability_flags": tool.capability_flags,
+                    "deny_mask": bitmask_result.deny_mask,
+                },
+            )
+        )
 
     # --- Stage 3: non-bitmask request filters on survivors ---
     approved: list[ToolRecord] = []
@@ -100,43 +107,53 @@ def route_tool(
     for tool in bitmask_result.approved:
         if _passes_request_filters(tool, request):
             approved.append(tool)
-            audit.append(AuditEntry(
-                tool_name=tool.tool_name,
-                decision=GatingDecision.APPROVED,
-                reason="passed bitmask and request filters",
-            ))
+            audit.append(
+                AuditEntry(
+                    tool_name=tool.tool_name,
+                    decision=GatingDecision.APPROVED,
+                    reason="passed bitmask and request filters",
+                )
+            )
         else:
             rejected.append(tool)
-            audit.append(AuditEntry(
-                tool_name=tool.tool_name,
-                decision=GatingDecision.REJECTED,
-                reason="failed request filters (commands/formats/modes)",
-            ))
+            audit.append(
+                AuditEntry(
+                    tool_name=tool.tool_name,
+                    decision=GatingDecision.REJECTED,
+                    reason="failed request filters (commands/formats/modes)",
+                )
+            )
 
     for tool in bitmask_result.approval_required:
         if _passes_request_filters(tool, request):
             if request.require_auto_approval:
                 approval_required.append(tool)
-                audit.append(AuditEntry(
-                    tool_name=tool.tool_name,
-                    decision=GatingDecision.APPROVAL_REQUIRED,
-                    reason="bitmask: approval-gated capability",
-                    details={"approval_mask": bitmask_result.approval_mask},
-                ))
+                audit.append(
+                    AuditEntry(
+                        tool_name=tool.tool_name,
+                        decision=GatingDecision.APPROVAL_REQUIRED,
+                        reason="bitmask: approval-gated capability",
+                        details={"approval_mask": bitmask_result.approval_mask},
+                    )
+                )
             else:
                 approved.append(tool)
-                audit.append(AuditEntry(
-                    tool_name=tool.tool_name,
-                    decision=GatingDecision.APPROVED,
-                    reason="approval-gated but auto_approval not required",
-                ))
+                audit.append(
+                    AuditEntry(
+                        tool_name=tool.tool_name,
+                        decision=GatingDecision.APPROVED,
+                        reason="approval-gated but auto_approval not required",
+                    )
+                )
         else:
             rejected.append(tool)
-            audit.append(AuditEntry(
-                tool_name=tool.tool_name,
-                decision=GatingDecision.REJECTED,
-                reason="failed request filters (commands/formats/modes)",
-            ))
+            audit.append(
+                AuditEntry(
+                    tool_name=tool.tool_name,
+                    decision=GatingDecision.REJECTED,
+                    reason="failed request filters (commands/formats/modes)",
+                )
+            )
 
     # --- Stage 4: selection ---
     selected = _select_best(approved, request.preferred_criteria)
@@ -191,18 +208,22 @@ def _environment_to_deny_mask(environment: RuntimeEnvironment) -> EnvironmentMas
 
 def _passes_request_filters(tool: ToolRecord, request: ToolSelectionRequest) -> bool:
     """Check non-bitmask request filters (commands, formats, modes)."""
-    if request.required_commands and not request.required_commands.issubset(tool.commands):
+    if request.required_commands and not request.required_commands.issubset(
+        tool.commands
+    ):
         return False
     if request.required_input_formats and not request.required_input_formats.issubset(
         tool.input_formats
     ):
         return False
-    if request.required_output_formats and not request.required_output_formats.issubset(
-        tool.output_formats
+    if (
+        request.required_output_formats
+        and not request.required_output_formats.issubset(tool.output_formats)
     ):
         return False
-    if request.required_processing_modes and not request.required_processing_modes.issubset(
-        tool.processing_modes
+    if (
+        request.required_processing_modes
+        and not request.required_processing_modes.issubset(tool.processing_modes)
     ):
         return False
     return True

@@ -96,7 +96,9 @@ def main() -> None:
     elif args.run:
         if not _cmd_preflight():
             sys.exit(1)
-        asyncio.run(_cmd_run(args.reps, args.model, args.output, realistic=args.realistic))
+        asyncio.run(
+            _cmd_run(args.reps, args.model, args.output, realistic=args.realistic)
+        )
     elif args.matrix:
         if not _cmd_preflight():
             sys.exit(1)
@@ -158,7 +160,9 @@ async def _cmd_smoke(model: str, *, realistic: bool = False) -> None:
         sys.exit(1)
 
 
-async def _cmd_run(reps: int, model: str, output: Path | None, *, realistic: bool = False) -> None:
+async def _cmd_run(
+    reps: int, model: str, output: Path | None, *, realistic: bool = False
+) -> None:
     """Run the full benchmark."""
     from tcp.agent.benchmark import build_filtered_schemas, run_paired_benchmark
     from tcp.agent.tasks import build_agent_tasks
@@ -167,10 +171,12 @@ async def _cmd_run(reps: int, model: str, output: Path | None, *, realistic: boo
 
     if realistic:
         from tcp.harness.realistic_schemas import build_realistic_corpus
+
         corpus_schemas = build_realistic_corpus()
     else:
         from tcp.harness.corpus import build_mcp_corpus
         from tcp.harness.schema_bridge import corpus_to_anthropic_schemas
+
         entries = build_mcp_corpus()
         corpus_schemas = corpus_to_anthropic_schemas(entries)
 
@@ -178,7 +184,9 @@ async def _cmd_run(reps: int, model: str, output: Path | None, *, realistic: boo
 
     label = "realistic" if realistic else "minimal"
     total_calls = len(tasks) * reps * 2
-    print(f"\n--- Full benchmark ({label}): {len(tasks)} tasks x {reps} reps x 2 arms = {total_calls} API calls ---")
+    print(
+        f"\n--- Full benchmark ({label}): {len(tasks)} tasks x {reps} reps x 2 arms = {total_calls} API calls ---"
+    )
     print(f"A-arm corpus: {len(corpus_schemas)} tools")
     if output:
         print(f"Results will be saved incrementally to {output}")
@@ -271,9 +279,15 @@ async def _cmd_ablation(reps: int, model: str, output: Path | None) -> None:
     # Check for errors
     errors = []
     for t in report.trials:
-        for arm_name, m in [("U", t.ungated), ("F", t.fixed_filter), ("PT", t.per_task_filter)]:
+        for arm_name, m in [
+            ("U", t.ungated),
+            ("F", t.fixed_filter),
+            ("PT", t.per_task_filter),
+        ]:
             if m.error:
-                errors.append(f"  [{arm_name}] {t.task_name}: [{m.error_kind}] {m.error[:80]}")
+                errors.append(
+                    f"  [{arm_name}] {t.task_name}: [{m.error_kind}] {m.error[:80]}"
+                )
     if errors:
         print(f"\n{len(errors)} arm errors:")
         for e in errors[:10]:
@@ -380,11 +394,7 @@ async def _cmd_layered(reps: int, model: str, output: Path | None) -> None:
     """Run the layered benchmark."""
     from tcp.agent.benchmark import run_layered_benchmark
 
-    print(
-        f"\n--- Layered benchmark ---"
-        f"\n  Reps: {reps}"
-        f"\n  Model: {model}"
-    )
+    print(f"\n--- Layered benchmark ---" f"\n  Reps: {reps}" f"\n  Model: {model}")
     if output:
         print(f"  Results: {output}")
 

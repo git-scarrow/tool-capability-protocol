@@ -31,7 +31,9 @@ def project_tool(tool: ToolRecord) -> dict[str, object]:
 
     return {
         "tool_name": tool.tool_name,
-        "summary": "; ".join(summary_parts) if summary_parts else "descriptor-only tool",
+        "summary": (
+            "; ".join(summary_parts) if summary_parts else "descriptor-only tool"
+        ),
         "commands": sorted(tool.commands),
         "input_formats": sorted(tool.input_formats),
         "output_formats": sorted(tool.output_formats),

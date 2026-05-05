@@ -38,9 +38,7 @@ def project_single_anthropic_tool(
     desc = _tool_description(tool)
 
     static_key = (
-        name
-        if name in STATIC_FLAG_BY_NAME
-        else normalize_mcp_git_tool_name(name)
+        name if name in STATIC_FLAG_BY_NAME else normalize_mcp_git_tool_name(name)
     )
     if static_key in STATIC_FLAG_BY_NAME:
         flags = STATIC_FLAG_BY_NAME[static_key]

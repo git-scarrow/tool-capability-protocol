@@ -9,7 +9,6 @@ from datetime import datetime, timezone
 from enum import IntEnum
 from typing import Any, Dict, List, Optional, Union
 
-
 UTC = timezone.utc
 
 

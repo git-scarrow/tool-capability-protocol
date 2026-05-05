@@ -47,7 +47,9 @@ class TestBuildAgentTasks:
         assert by_name["local json processing"].expected_tool == "jq"
         assert by_name["git status check"].expected_tool == "git-status"
         assert by_name["file search"].expected_tool == "fs-search-files"
-        assert by_name["semantic document search"].expected_tool == "rag-query-documents"
+        assert (
+            by_name["semantic document search"].expected_tool == "rag-query-documents"
+        )
         assert by_name["git commit (write)"].expected_tool == "git-commit"
         assert by_name["approval-guarded privileged command"].expected_tool == "chmod"
         assert by_name["approval-guarded systemctl"].expected_tool == "systemctl"

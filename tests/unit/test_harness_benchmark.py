@@ -71,7 +71,9 @@ def test_benchmark_exposure_paths_reduces_prompt_surface():
     comparisons = benchmark_exposure_paths(
         descriptors,
         tasks,
-        RuntimeEnvironment(installed_tools=frozenset({"fast-json", "slow-json", "curl-json"})),
+        RuntimeEnvironment(
+            installed_tools=frozenset({"fast-json", "slow-json", "curl-json"})
+        ),
     )
 
     comparison = comparisons[0]
@@ -154,7 +156,9 @@ def test_mt2_fixture_suite_exercises_broader_routing_surface():
     assert summary["schema_tasks_satisfied"] == len(tasks)
     assert summary["mean_prompt_bytes_reduction"] > 0
     assert summary["tcp_tasks_satisfied"] < len(tasks)
-    guarded = next(item for item in comparisons if item.task_name == "auto approval guarded")
+    guarded = next(
+        item for item in comparisons if item.task_name == "auto approval guarded"
+    )
     assert guarded.tcp_projection.selected_tool_name is None
     assert guarded.tcp_projection.false_rejection_count > 0
 

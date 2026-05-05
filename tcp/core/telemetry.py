@@ -1,4 +1,5 @@
 """Simple telemetry helpers."""
+
 from __future__ import annotations
 
 from statistics import median

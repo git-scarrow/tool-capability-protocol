@@ -12,7 +12,6 @@ import pytest
 
 from tcp.agent.loop import ErrorKind, LoopMetrics, run_agent_loop
 
-
 # --- Test fixtures ---
 
 
@@ -149,9 +148,7 @@ class TestRunAgentLoop:
         mock_client = AsyncMock()
         mock_client.messages.create = AsyncMock(return_value=mock_response)
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Hello",
                 tools=[
@@ -192,9 +189,7 @@ class TestRunAgentLoop:
             side_effect=[tool_response, final_response]
         )
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Read /tmp/x",
                 tools=[],
@@ -226,9 +221,7 @@ class TestRunAgentLoop:
             side_effect=[tool_response, final_response]
         )
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Read file",
                 tools=[],
@@ -250,9 +243,7 @@ class TestRunAgentLoop:
         mock_client = AsyncMock()
         mock_client.messages.create = AsyncMock(return_value=tool_response)
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Loop forever",
                 tools=[],
@@ -267,13 +258,9 @@ class TestRunAgentLoop:
     async def test_api_error_captured(self):
         """API errors are captured in the error field, not raised."""
         mock_client = AsyncMock()
-        mock_client.messages.create = AsyncMock(
-            side_effect=Exception("rate limited")
-        )
+        mock_client.messages.create = AsyncMock(side_effect=Exception("rate limited"))
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Fail",
                 tools=[],
@@ -292,7 +279,9 @@ class TestRunAgentLoop:
         import httpx
 
         mock_client = AsyncMock()
-        mock_response = httpx.Response(401, request=httpx.Request("POST", "https://api.anthropic.com"))
+        mock_response = httpx.Response(
+            401, request=httpx.Request("POST", "https://api.anthropic.com")
+        )
         mock_client.messages.create = AsyncMock(
             side_effect=anthropic.AuthenticationError(
                 message="invalid api key",
@@ -301,9 +290,7 @@ class TestRunAgentLoop:
             )
         )
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Fail",
                 tools=[],
@@ -320,7 +307,9 @@ class TestRunAgentLoop:
         import httpx
 
         mock_client = AsyncMock()
-        mock_response = httpx.Response(400, request=httpx.Request("POST", "https://api.anthropic.com"))
+        mock_response = httpx.Response(
+            400, request=httpx.Request("POST", "https://api.anthropic.com")
+        )
         mock_client.messages.create = AsyncMock(
             side_effect=anthropic.BadRequestError(
                 message="invalid tool schema",
@@ -329,9 +318,7 @@ class TestRunAgentLoop:
             )
         )
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Fail",
                 tools=[],
@@ -357,9 +344,7 @@ class TestRunAgentLoop:
             for i in range(15)
         ]
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Hi",
                 tools=tools,
@@ -391,7 +376,10 @@ class TestMT12Telemetry:
                 task_prompt="Read a file",
                 tools=[
                     {"name": "fs-read-file", "description": "Reads a file from disk"},
-                    {"name": "fs-write-file", "description": "Writes content to a file"},
+                    {
+                        "name": "fs-write-file",
+                        "description": "Writes content to a file",
+                    },
                 ],
                 mock_executor=_noop_executor,
                 expected_tool="fs-read-file",
@@ -422,7 +410,10 @@ class TestMT12Telemetry:
                 task_prompt="Read a file",
                 tools=[
                     {"name": "fs-read-file", "description": "Reads a file from disk"},
-                    {"name": "git-status", "description": "Shows git repository status"},
+                    {
+                        "name": "git-status",
+                        "description": "Shows git repository status",
+                    },
                 ],
                 mock_executor=_noop_executor,
                 expected_tool="fs-read-file",
@@ -500,7 +491,13 @@ class TestMT12Telemetry:
         with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Hi",
-                tools=[{"name": "t", "description": "t", "input_schema": {"type": "object", "properties": {}}}],
+                tools=[
+                    {
+                        "name": "t",
+                        "description": "t",
+                        "input_schema": {"type": "object", "properties": {}},
+                    }
+                ],
                 mock_executor=_noop_executor,
                 expected_tool=None,
                 task_name="mt12-flags",
@@ -561,12 +558,16 @@ class TestBypassPath:
         mock_client = AsyncMock()
         mock_client.messages.create = AsyncMock(return_value=mock_response)
 
-        with patch(
-            "tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client
-        ):
+        with patch("tcp.agent.loop.anthropic.AsyncAnthropic", return_value=mock_client):
             metrics = await run_agent_loop(
                 task_prompt="Hello",
-                tools=[{"name": "t", "description": "t", "input_schema": {"type": "object", "properties": {}}}],
+                tools=[
+                    {
+                        "name": "t",
+                        "description": "t",
+                        "input_schema": {"type": "object", "properties": {}},
+                    }
+                ],
                 mock_executor=_noop_executor,
                 expected_tool=None,
                 task_name="no-bypass",

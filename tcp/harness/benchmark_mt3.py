@@ -25,6 +25,7 @@ def build_mt3_environment(
 ) -> RuntimeEnvironment:
     """Build environment with all corpus tools installed."""
     from tcp.harness.corpus import build_mcp_corpus
+
     entries = build_mcp_corpus()
     all_names = frozenset(e.descriptor.name for e in entries)
     return RuntimeEnvironment(
@@ -179,7 +180,10 @@ def run_mt3_benchmark(*, repetitions: int = 5) -> dict:
     environment = build_mt3_environment(network=False, file_access=True)
 
     suite = benchmark_exposure_suite(
-        descriptors, tasks, environment, repetitions=repetitions,
+        descriptors,
+        tasks,
+        environment,
+        repetitions=repetitions,
     )
 
     return {

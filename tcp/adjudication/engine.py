@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-
 Row = dict[str, Any]
 _RATER_PREFIXES = {"rater1", "rater2"}
 _SYNC_FIELDS = (
@@ -95,7 +94,9 @@ def sync_rows_by_key(source_rows: list[Row], target_rows: list[Row]) -> int:
 
 
 def compute_calibration_summary(rows: list[Row]) -> CalibrationSummary:
-    paired_rows = [row for row in rows if _has_rating(row, "rater1") and _has_rating(row, "rater2")]
+    paired_rows = [
+        row for row in rows if _has_rating(row, "rater1") and _has_rating(row, "rater2")
+    ]
     status_counts = Counter(str(row.get("label_status", "unlabeled")) for row in rows)
 
     flags_rater1 = [str(row["rater1_flags"]) for row in paired_rows]
@@ -151,10 +152,9 @@ def _has_rating(row: Row, prefix: str) -> bool:
 def _labels_match(row: Row) -> bool:
     if not (_has_rating(row, "rater1") and _has_rating(row, "rater2")):
         return False
-    return (
-        int(row["rater1_flags"]) == int(row["rater2_flags"])
-        and _normalize_formats(row["rater1_formats"]) == _normalize_formats(row["rater2_formats"])
-    )
+    return int(row["rater1_flags"]) == int(row["rater2_flags"]) and _normalize_formats(
+        row["rater1_formats"]
+    ) == _normalize_formats(row["rater2_formats"])
 
 
 def _formats_label(formats: list[str] | None) -> str:
@@ -202,11 +202,16 @@ def _cohens_kappa(labels_a: list[str], labels_b: list[str]) -> float | None:
         return None
 
     total = len(labels_a)
-    observed = sum(1 for left, right in zip(labels_a, labels_b) if left == right) / total
+    observed = (
+        sum(1 for left, right in zip(labels_a, labels_b) if left == right) / total
+    )
     categories = sorted(set(labels_a) | set(labels_b))
     counts_a = Counter(labels_a)
     counts_b = Counter(labels_b)
-    expected = sum((counts_a[category] / total) * (counts_b[category] / total) for category in categories)
+    expected = sum(
+        (counts_a[category] / total) * (counts_b[category] / total)
+        for category in categories
+    )
 
     if expected == 1.0:
         return 1.0 if observed == 1.0 else 0.0

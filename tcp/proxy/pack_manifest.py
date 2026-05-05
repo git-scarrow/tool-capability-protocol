@@ -10,7 +10,6 @@ from typing import Any, Literal, Mapping
 
 import yaml
 
-
 PackState = Literal["active", "deferred", "suppressed"]
 
 MANIFEST_VERSION = 1
@@ -320,7 +319,9 @@ def pack_context_from_env(
     profile: str | None = None,
     workspace_allowed_servers: frozenset[str] | None = None,
 ) -> PackContext:
-    workspace_path = str(Path(cwd or os.environ.get("TCP_PROXY_CWD") or os.getcwd()).resolve())
+    workspace_path = str(
+        Path(cwd or os.environ.get("TCP_PROXY_CWD") or os.getcwd()).resolve()
+    )
     workspace_name = Path(workspace_path).name
     resolved_profile = (
         profile

@@ -7,7 +7,6 @@ from typing import Dict, List, Optional, Set, Tuple
 
 from .descriptors import CapabilityDescriptor
 
-
 UTC = timezone.utc
 
 logger = logging.getLogger(__name__)
@@ -41,9 +40,7 @@ class CapabilityRegistry:
                     self._tools[descriptor.name] = {}
 
                 self._tools[descriptor.name][descriptor.version] = descriptor
-                self._access_times[
-                    (descriptor.name, descriptor.version)
-                ] = _utc_now()
+                self._access_times[(descriptor.name, descriptor.version)] = _utc_now()
 
                 logger.info(f"Registered tool: {descriptor.name} v{descriptor.version}")
                 return True
@@ -109,9 +106,7 @@ class CapabilityRegistry:
                 descriptor = self._tools[name][version]
 
             # Update access time
-            self._access_times[
-                (descriptor.name, descriptor.version)
-            ] = _utc_now()
+            self._access_times[(descriptor.name, descriptor.version)] = _utc_now()
 
             return descriptor
 

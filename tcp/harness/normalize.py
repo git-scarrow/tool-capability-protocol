@@ -15,7 +15,6 @@ from tcp.core.descriptors import (
 
 from .models import ToolRecord
 
-
 _PRIVILEGED_DEPENDENCIES = frozenset({"sudo", "ssh", "su", "doas", "pkexec"})
 
 
@@ -151,7 +150,9 @@ def _processing_mode_name(mode: ProcessingMode | int) -> str:
     return ProcessingMode(mode).name.lower()
 
 
-def _derive_structured_risk_level(*, capability_flags: int, permission_level: str) -> str:
+def _derive_structured_risk_level(
+    *, capability_flags: int, permission_level: str
+) -> str:
     """Derive a conservative risk label from the structured descriptor surface."""
     if permission_level in {"denied", "execute_full"}:
         return "approval_required"

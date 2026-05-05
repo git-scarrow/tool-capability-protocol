@@ -27,8 +27,8 @@ from tcp.proxy.cc_proxy import (
 )
 from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
 
-
 # ── Helpers ──────────────────────────────────────────────────────────────────
+
 
 def _session(cwd: str = "/home/user/projects/app") -> SessionStartEvent:
     return SessionStartEvent("test", "default", cwd)
@@ -36,18 +36,37 @@ def _session(cwd: str = "/home/user/projects/app") -> SessionStartEvent:
 
 def _make_tools(*names: str) -> list[dict[str, Any]]:
     """Build minimal Anthropic-format tool defs."""
-    return [{"name": n, "description": f"Tool {n}", "input_schema": {"type": "object"}} for n in names]
+    return [
+        {"name": n, "description": f"Tool {n}", "input_schema": {"type": "object"}}
+        for n in names
+    ]
 
 
 CORE_CODING_TOOLS = ("Read", "Edit", "MultiEdit", "Glob", "Grep", "Bash")
 
 REALISTIC_TOOL_SET = _make_tools(
-    "Read", "Edit", "MultiEdit", "Write", "Glob", "Grep", "Bash",
-    "Agent", "EnterPlanMode", "ExitPlanMode", "AskUserQuestion",
-    "WebFetch", "WebSearch", "Think", "Skill",
-    "TaskCreate", "TaskUpdate", "TaskList",
-    "mcp__filesystem__read_file", "mcp__filesystem__list_directory",
-    "mcp__git__git_status", "mcp__git__git_diff",
+    "Read",
+    "Edit",
+    "MultiEdit",
+    "Write",
+    "Glob",
+    "Grep",
+    "Bash",
+    "Agent",
+    "EnterPlanMode",
+    "ExitPlanMode",
+    "AskUserQuestion",
+    "WebFetch",
+    "WebSearch",
+    "Think",
+    "Skill",
+    "TaskCreate",
+    "TaskUpdate",
+    "TaskList",
+    "mcp__filesystem__read_file",
+    "mcp__filesystem__list_directory",
+    "mcp__git__git_status",
+    "mcp__git__git_diff",
     "mcp__notion-agents__start_agent_run",
 )
 
@@ -58,17 +77,32 @@ def _tool_names(tools: list[dict]) -> set[str]:
 
 # ── 1. "endpoint" no longer strips core coding tools ────────────────────────
 
+
 class TestEndpointFalsePositive:
     """Words like 'endpoint' triggered SUPPORTS_NETWORK, rejecting Read/Edit/Bash."""
 
     def test_endpoint_prompt_preserves_core_tools_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Implement SSE streaming in the LLB's /v1/responses endpoint"}
-        ]}]}
-        result_tools, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Implement SSE streaming in the LLB's /v1/responses endpoint",
+                        }
+                    ],
+                }
+            ]
+        }
+        result_tools, meta = _process_tools_array(
+            REALISTIC_TOOL_SET, prompt_body, "live"
+        )
         surviving = _tool_names(result_tools)
         for tool in CORE_CODING_TOOLS:
-            assert tool in surviving, f"{tool} was incorrectly removed by live filtering"
+            assert (
+                tool in surviving
+            ), f"{tool} was incorrectly removed by live filtering"
 
     def test_endpoint_prompt_heuristic_flags_are_nonzero(self):
         """The heuristic still detects network intent — it just doesn't hard-reject."""
@@ -80,18 +114,38 @@ class TestEndpointFalsePositive:
         assert req.hard_capability_flags == 0
 
     def test_api_keyword_preserves_core_tools_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Add error handling to the API request handler"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Add error handling to the API request handler",
+                        }
+                    ],
+                }
+            ]
+        }
         result_tools, _ = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         for tool in CORE_CODING_TOOLS:
             assert tool in surviving
 
     def test_fetch_keyword_preserves_core_tools_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Refactor the fetch handler to use async/await"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Refactor the fetch handler to use async/await",
+                        }
+                    ],
+                }
+            ]
+        }
         result_tools, _ = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         for tool in CORE_CODING_TOOLS:
@@ -100,17 +154,28 @@ class TestEndpointFalsePositive:
 
 # ── 2. Genuine environment constraints still remove impossible tools ─────────
 
+
 class TestEnvironmentConstraints:
     def test_network_disabled_removes_network_tools(self):
         """When network is genuinely off, SUPPORTS_NETWORK tools should be rejected."""
         import os
+
         old = os.environ.get("TCP_PROXY_NETWORK")
         os.environ["TCP_PROXY_NETWORK"] = "false"
         try:
-            prompt_body = {"messages": [{"role": "user", "content": [
-                {"type": "text", "text": "Search for documentation online"}
-            ]}]}
-            result_tools, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
+            prompt_body = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": "Search for documentation online"}
+                        ],
+                    }
+                ]
+            }
+            result_tools, meta = _process_tools_array(
+                REALISTIC_TOOL_SET, prompt_body, "live"
+            )
             surviving = _tool_names(result_tools)
             # WebFetch and WebSearch should be removed (pure network tools)
             assert "WebFetch" not in surviving
@@ -133,6 +198,7 @@ class TestEnvironmentConstraints:
 
 # ── 3. Offline/benchmark filtering stays unchanged ───────────────────────────
 
+
 class TestBackwardCompatibility:
     """The full required_capability_flags (union) is still available for offline consumers."""
 
@@ -146,42 +212,91 @@ class TestBackwardCompatibility:
 
     def test_live_strict_uses_full_flags(self):
         """live-strict mode should use full capability flags like benchmarks."""
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Fetch https://api.example.com/status and return JSON"}
-        ]}]}
-        result_tools, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live-strict")
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Fetch https://api.example.com/status and return JSON",
+                        }
+                    ],
+                }
+            ]
+        }
+        result_tools, meta = _process_tools_array(
+            REALISTIC_TOOL_SET, prompt_body, "live-strict"
+        )
         assert meta["strategy"] == "strict"
         # In strict mode, tools without SUPPORTS_NETWORK may be rejected
         # This is the benchmark-style behavior
 
     def test_shadow_returns_all_tools(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Implement the /v1/responses endpoint handler"}
-        ]}]}
-        result_tools, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "shadow")
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Implement the /v1/responses endpoint handler",
+                        }
+                    ],
+                }
+            ]
+        }
+        result_tools, meta = _process_tools_array(
+            REALISTIC_TOOL_SET, prompt_body, "shadow"
+        )
         assert len(result_tools) == len(REALISTIC_TOOL_SET)
         assert meta["mode"] == "shadow"
 
 
 # ── 4. Live sets never collapse to near-empty ────────────────────────────────
 
+
 class TestSafetyFloor:
     def test_safety_floor_rescues_core_tools(self):
         """Even if heuristic flags would reject everything, safety floor preserves coding tools."""
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Implement SSE streaming in the LLB's /v1/responses endpoint"}
-        ]}]}
-        result_tools, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Implement SSE streaming in the LLB's /v1/responses endpoint",
+                        }
+                    ],
+                }
+            ]
+        }
+        result_tools, meta = _process_tools_array(
+            REALISTIC_TOOL_SET, prompt_body, "live"
+        )
         surviving = _tool_names(result_tools)
         # At minimum, all core coding tools must survive
         for tool in CORE_CODING_TOOLS:
             assert tool in surviving, f"Safety floor failed to preserve {tool}"
 
     def test_live_never_returns_empty(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Do something complex with network endpoints and sudo"}
-        ]}]}
-        result_tools, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Do something complex with network endpoints and sudo",
+                        }
+                    ],
+                }
+            ]
+        }
+        result_tools, meta = _process_tools_array(
+            REALISTIC_TOOL_SET, prompt_body, "live"
+        )
         assert len(result_tools) > 0
 
     def test_safety_floor_constants_include_essentials(self):
@@ -191,27 +306,42 @@ class TestSafetyFloor:
 
 # ── 5. Decisions log shows stage metadata ────────────────────────────────────
 
+
 class TestDecisionMetadata:
     def test_meta_includes_strategy(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Read the file"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {"role": "user", "content": [{"type": "text", "text": "Read the file"}]}
+            ]
+        }
         _, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
         assert meta["strategy"] == "conservative"
 
     def test_meta_includes_flag_tiers(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Implement the endpoint handler"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Implement the endpoint handler"}
+                    ],
+                }
+            ]
+        }
         _, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
         assert "hard_capability_flags" in meta
         assert "heuristic_capability_flags" in meta
         assert "required_capability_flags" in meta
 
     def test_meta_includes_stage_counts(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Read the config file"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": "Read the config file"}],
+                }
+            ]
+        }
         _, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
         assert "stage1_survivor_count" in meta
         assert "safety_floor_activated" in meta
@@ -219,18 +349,33 @@ class TestDecisionMetadata:
         assert isinstance(meta["heuristic_would_reject"], list)
 
     def test_meta_includes_heuristic_would_reject(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Implement SSE streaming in the LLB's /v1/responses endpoint"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "Implement SSE streaming in the LLB's /v1/responses endpoint",
+                        }
+                    ],
+                }
+            ]
+        }
         _, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "live")
         # Heuristic would have rejected some tools that lack SUPPORTS_NETWORK
         assert meta["heuristic_would_reject_count"] >= 0
         assert isinstance(meta["heuristic_would_reject"], list)
 
     def test_shadow_meta_also_includes_stage_metadata(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Implement the endpoint"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": "Implement the endpoint"}],
+                }
+            ]
+        }
         _, meta = _process_tools_array(REALISTIC_TOOL_SET, prompt_body, "shadow")
         assert meta["strategy"] == "shadow"
         assert "hard_capability_flags" in meta
@@ -238,6 +383,7 @@ class TestDecisionMetadata:
 
 
 # ── Derivation tier split correctness ────────────────────────────────────────
+
 
 class TestDerivationTierSplit:
     def test_neutral_prompt_has_zero_hard_and_heuristic(self):
@@ -268,21 +414,41 @@ class TestDerivationTierSplit:
 
 FULL_TOOL_SET = _make_tools(
     # Built-ins
-    "Read", "Edit", "MultiEdit", "Write", "Glob", "Grep", "Bash",
-    "Agent", "EnterPlanMode", "AskUserQuestion", "Think", "Skill",
+    "Read",
+    "Edit",
+    "MultiEdit",
+    "Write",
+    "Glob",
+    "Grep",
+    "Bash",
+    "Agent",
+    "EnterPlanMode",
+    "AskUserQuestion",
+    "Think",
+    "Skill",
     # Allowed MCP servers
-    "mcp__filesystem__read_file", "mcp__filesystem__list_directory",
-    "mcp__git__git_status", "mcp__git__git_diff",
-    "mcp__chatsearch__chatsearch_find", "mcp__chatsearch__chatsearch_ask",
-    "mcp__notion-agents__chat_with_agent", "mcp__notion-agents__query_database",
+    "mcp__filesystem__read_file",
+    "mcp__filesystem__list_directory",
+    "mcp__git__git_status",
+    "mcp__git__git_diff",
+    "mcp__chatsearch__chatsearch_find",
+    "mcp__chatsearch__chatsearch_ask",
+    "mcp__notion-agents__chat_with_agent",
+    "mcp__notion-agents__query_database",
     "mcp__fetch__fetch",
     # Disallowed MCP servers (should be filtered in live mode)
-    "mcp__proxmox__get_vms", "mcp__proxmox__start_vm", "mcp__proxmox__stop_vm",
-    "mcp__playwright__browser_click", "mcp__playwright__browser_snapshot",
-    "mcp__claude_ai_tally__list_forms", "mcp__claude_ai_tally__create_blocks",
-    "mcp__claude_ai_Vercel__deploy_to_vercel", "mcp__claude_ai_Vercel__list_projects",
+    "mcp__proxmox__get_vms",
+    "mcp__proxmox__start_vm",
+    "mcp__proxmox__stop_vm",
+    "mcp__playwright__browser_click",
+    "mcp__playwright__browser_snapshot",
+    "mcp__claude_ai_tally__list_forms",
+    "mcp__claude_ai_tally__create_blocks",
+    "mcp__claude_ai_Vercel__deploy_to_vercel",
+    "mcp__claude_ai_Vercel__list_projects",
     "mcp__plugin:Notion:notion__notion-create-pages",
-    "mcp__bay-view-graph__list_emails", "mcp__bay-view-graph__send_email",
+    "mcp__bay-view-graph__list_emails",
+    "mcp__bay-view-graph__send_email",
     "mcp__claude_ai_Google_Calendar__gcal_list_events",
     "mcp__claude_ai_Gmail__gmail_search_messages",
 )
@@ -292,9 +458,16 @@ class TestServerLevelFiltering:
     """Stage 2: Budget-aware server-level MCP filtering."""
 
     def test_disallowed_servers_removed_in_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Read the config file and fix the bug"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Read the config file and fix the bug"}
+                    ],
+                }
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         # Proxmox, Playwright, Tally, Vercel, Bay-View-Graph, Calendar, Gmail should be gone
@@ -308,9 +481,14 @@ class TestServerLevelFiltering:
         assert "mcp__claude_ai_Gmail__gmail_search_messages" not in surviving
 
     def test_allowed_servers_preserved_in_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Read the config file"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [{"type": "text", "text": "Read the config file"}],
+                }
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         assert "mcp__filesystem__read_file" in surviving
@@ -320,33 +498,41 @@ class TestServerLevelFiltering:
         assert "mcp__fetch__fetch" in surviving
 
     def test_builtins_never_server_filtered(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Do something"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {"role": "user", "content": [{"type": "text", "text": "Do something"}]}
+            ]
+        }
         result_tools, _ = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         for tool in CORE_CODING_TOOLS:
             assert tool in surviving
 
     def test_shadow_preserves_all(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Do something"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {"role": "user", "content": [{"type": "text", "text": "Do something"}]}
+            ]
+        }
         result_tools, _ = _process_tools_array(FULL_TOOL_SET, prompt_body, "shadow")
         assert len(result_tools) == len(FULL_TOOL_SET)
 
     def test_meta_reports_server_filtered(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Fix the bug"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {"role": "user", "content": [{"type": "text", "text": "Fix the bug"}]}
+            ]
+        }
         _, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         assert meta["server_filtered_count"] > 0
         assert "mcp__proxmox__get_vms" in meta["server_filtered"]
 
     def test_reduction_is_significant(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Fix the bug"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {"role": "user", "content": [{"type": "text", "text": "Fix the bug"}]}
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         reduction = 1 - len(result_tools) / len(FULL_TOOL_SET)
         assert reduction >= 0.25, f"Expected >=25% reduction, got {reduction:.0%}"
@@ -365,15 +551,30 @@ class TestServerLevelFiltering:
         old = os.environ.get("TCP_PROXY_WORKSPACE_MCP_SERVERS")
         os.environ["TCP_PROXY_WORKSPACE_MCP_SERVERS"] = "bay-view-graph"
         try:
-            prompt_body = {"messages": [{"role": "user", "content": [
-                {"type": "text", "text": "Check email from Jason from today"}
-            ]}]}
-            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            prompt_body = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Check email from Jason from today",
+                            }
+                        ],
+                    }
+                ]
+            }
+            result_tools, meta = _process_tools_array(
+                FULL_TOOL_SET, prompt_body, "live"
+            )
             surviving = _tool_names(result_tools)
             assert "mcp__bay-view-graph__list_emails" in surviving
             assert "mcp__bay-view-graph__send_email" in surviving
             assert meta["pack_states"]["workspace-critical"] == "deferred"
-            assert "workspace_allow" in meta["pack_activation_reasons"]["workspace-critical"]
+            assert (
+                "workspace_allow"
+                in meta["pack_activation_reasons"]["workspace-critical"]
+            )
             assert "bay-view-graph" in meta["workspace_allowed_servers"]
             assert "mcp__bay-view-graph__list_emails" in meta["workspace_rescued"]
             assert "mcp__bay-view-graph__list_emails" in meta["deferred_visible"]
@@ -388,14 +589,29 @@ class TestServerLevelFiltering:
         old = os.environ.get("TCP_PROXY_WORKSPACE_PROFILE")
         os.environ["TCP_PROXY_WORKSPACE_PROFILE"] = "bay-view"
         try:
-            prompt_body = {"messages": [{"role": "user", "content": [
-                {"type": "text", "text": "Check email from Jason from today"}
-            ]}]}
-            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            prompt_body = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Check email from Jason from today",
+                            }
+                        ],
+                    }
+                ]
+            }
+            result_tools, meta = _process_tools_array(
+                FULL_TOOL_SET, prompt_body, "live"
+            )
             surviving = _tool_names(result_tools)
             assert "mcp__bay-view-graph__list_emails" in surviving
             assert meta["pack_states"]["workspace-critical"] == "active"
-            assert "profile:bay-view" in meta["pack_activation_reasons"]["workspace-critical"]
+            assert (
+                "profile:bay-view"
+                in meta["pack_activation_reasons"]["workspace-critical"]
+            )
             assert meta["server_allow_source"]["bay-view-graph"] == "pack_active"
         finally:
             if old is None:
@@ -409,14 +625,29 @@ class TestServerLevelFiltering:
         os.environ.pop("TCP_PROXY_WORKSPACE_PROFILE", None)
         os.environ["TCP_PROXY_PROFILE"] = "bay-view"
         try:
-            prompt_body = {"messages": [{"role": "user", "content": [
-                {"type": "text", "text": "Check email from Jason from today"}
-            ]}]}
-            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            prompt_body = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Check email from Jason from today",
+                            }
+                        ],
+                    }
+                ]
+            }
+            result_tools, meta = _process_tools_array(
+                FULL_TOOL_SET, prompt_body, "live"
+            )
             surviving = _tool_names(result_tools)
             assert "mcp__bay-view-graph__list_emails" in surviving
             assert meta["pack_states"]["workspace-critical"] == "active"
-            assert "profile:bay-view" in meta["pack_activation_reasons"]["workspace-critical"]
+            assert (
+                "profile:bay-view"
+                in meta["pack_activation_reasons"]["workspace-critical"]
+            )
             assert meta["server_allow_source"]["bay-view-graph"] == "pack_active"
         finally:
             if old_ws is None:
@@ -429,9 +660,19 @@ class TestServerLevelFiltering:
                 os.environ["TCP_PROXY_PROFILE"] = old_profile
 
     def test_explicit_tool_name_rescues_server_in_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "use mcp__bay-view-graph__list_emails to check email from Jason"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "use mcp__bay-view-graph__list_emails to check email from Jason",
+                        }
+                    ],
+                }
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         assert "mcp__bay-view-graph__list_emails" in surviving
@@ -439,19 +680,41 @@ class TestServerLevelFiltering:
         assert meta["server_allow_source"]["bay-view-graph"] == "explicit_request"
 
     def test_mixed_case_server_name_rescues_server_in_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "please use claude_ai_vercel for deployment status"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "please use claude_ai_vercel for deployment status",
+                        }
+                    ],
+                }
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         assert "mcp__claude_ai_Vercel__deploy_to_vercel" in surviving
-        assert "mcp__claude_ai_Vercel__deploy_to_vercel" in meta["explicit_server_rescued"]
+        assert (
+            "mcp__claude_ai_Vercel__deploy_to_vercel" in meta["explicit_server_rescued"]
+        )
         assert meta["server_allow_source"]["claude_ai_Vercel"] == "explicit_request"
 
     def test_plugin_server_phrase_rescues_plugin_tools_in_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "try notion plugin and log the admin work"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "try notion plugin and log the admin work",
+                        }
+                    ],
+                }
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         assert "mcp__plugin:Notion:notion__notion-create-pages" in surviving
@@ -462,12 +725,19 @@ class TestServerLevelFiltering:
         assert meta["server_allow_source"]["plugin:Notion:notion"] == "explicit_request"
 
     def test_notion_api_phrase_rescues_plugin_tools_in_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {
-                "type": "text",
-                "text": "the skill requires a notionapi mcp server so try the notion api path",
-            }
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "the skill requires a notionapi mcp server so try the notion api path",
+                        }
+                    ],
+                }
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         assert "mcp__plugin:Notion:notion__notion-create-pages" in surviving
@@ -478,9 +748,19 @@ class TestServerLevelFiltering:
         assert meta["server_allow_source"]["plugin:Notion:notion"] == "explicit_request"
 
     def test_claude_connector_phrase_rescues_gmail_server_in_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "use the claude gmail plugin to find the renewal email"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "use the claude gmail plugin to find the renewal email",
+                        }
+                    ],
+                }
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         assert "mcp__claude_ai_Gmail__gmail_search_messages" in surviving
@@ -491,9 +771,19 @@ class TestServerLevelFiltering:
         assert meta["server_allow_source"]["claude_ai_Gmail"] == "explicit_request"
 
     def test_claude_connector_phrase_rescues_google_calendar_server_in_live(self):
-        prompt_body = {"messages": [{"role": "user", "content": [
-            {"type": "text", "text": "check the google calendar claude plugin for next rehearsal"}
-        ]}]}
+        prompt_body = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "check the google calendar claude plugin for next rehearsal",
+                        }
+                    ],
+                }
+            ]
+        }
         result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
         surviving = _tool_names(result_tools)
         assert "mcp__claude_ai_Google_Calendar__gcal_list_events" in surviving
@@ -510,10 +800,17 @@ class TestServerLevelFiltering:
         old = os.environ.get("TCP_PROXY_ALLOWED_MCP_SERVERS")
         os.environ["TCP_PROXY_ALLOWED_MCP_SERVERS"] = "filesystem,git"
         try:
-            prompt_body = {"messages": [{"role": "user", "content": [
-                {"type": "text", "text": "Fix the bug"}
-            ]}]}
-            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            prompt_body = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [{"type": "text", "text": "Fix the bug"}],
+                    }
+                ]
+            }
+            result_tools, meta = _process_tools_array(
+                FULL_TOOL_SET, prompt_body, "live"
+            )
             surviving = _tool_names(result_tools)
             # core-coding pack is an absolute safety floor and is not suppressed
             # by the hard allow override; workspace-critical packs still are.
@@ -535,10 +832,22 @@ class TestServerLevelFiltering:
         os.environ["TCP_PROXY_ALLOWED_MCP_SERVERS"] = "filesystem,git"
         os.environ["TCP_PROXY_WORKSPACE_MCP_SERVERS"] = "bay-view-graph"
         try:
-            prompt_body = {"messages": [{"role": "user", "content": [
-                {"type": "text", "text": "Check email from Jason from today"}
-            ]}]}
-            result_tools, meta = _process_tools_array(FULL_TOOL_SET, prompt_body, "live")
+            prompt_body = {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "Check email from Jason from today",
+                            }
+                        ],
+                    }
+                ]
+            }
+            result_tools, meta = _process_tools_array(
+                FULL_TOOL_SET, prompt_body, "live"
+            )
             surviving = _tool_names(result_tools)
             assert "mcp__bay-view-graph__list_emails" not in surviving
             assert meta["workspace_allowed_servers"] == []

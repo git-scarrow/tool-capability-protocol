@@ -50,14 +50,18 @@ class AuditMetrics:
 def main() -> None:
     parser = argparse.ArgumentParser(description="TCP request derivation audit")
     parser.add_argument("--audit-set", help="Path to hand-labeled audit set JSON")
-    parser.add_argument("--decisions", help="Path to proxy decisions.jsonl for side-by-side")
+    parser.add_argument(
+        "--decisions", help="Path to proxy decisions.jsonl for side-by-side"
+    )
     args = parser.parse_args()
 
     if not args.audit_set:
         print("Error: --audit-set is required for this implementation slice.")
         return
 
-    run_evaluation(Path(args.audit_set), Path(args.decisions) if args.decisions else None)
+    run_evaluation(
+        Path(args.audit_set), Path(args.decisions) if args.decisions else None
+    )
 
 
 def run_evaluation(audit_path: Path, decisions_path: Path | None = None) -> None:
@@ -71,12 +75,12 @@ def run_evaluation(audit_path: Path, decisions_path: Path | None = None) -> None
 
 def calculate_metrics(samples: Sequence[AuditSample]) -> AuditMetrics:
     divergent = []
-    
+
     # Capability flag stats
     flag_tp = 0
     flag_fp = 0
     flag_fn = 0
-    
+
     # Format stats
     format_tp = 0
     format_fp = 0
@@ -84,55 +88,67 @@ def calculate_metrics(samples: Sequence[AuditSample]) -> AuditMetrics:
 
     for sample in samples:
         derived = derive_request(sample.prompt, sample.session)
-        
+
         # Flags
         d_flags = derived.required_capability_flags
         gt_flags = sample.ground_truth_flags
-        
+
         # Format (simplification: union of all formats)
         d_formats = derived.required_output_formats
         gt_formats = sample.ground_truth_formats
 
         # Track divergences for report
         if d_flags != gt_flags or d_formats != gt_formats:
-            divergent.append({
-                "prompt": sample.prompt[:100],
-                "derived_flags": bin(d_flags),
-                "gt_flags": bin(gt_flags),
-                "derived_formats": sorted(list(d_formats)),
-                "gt_formats": sorted(list(gt_formats)),
-            })
+            divergent.append(
+                {
+                    "prompt": sample.prompt[:100],
+                    "derived_flags": bin(d_flags),
+                    "gt_flags": bin(gt_flags),
+                    "derived_formats": sorted(list(d_formats)),
+                    "gt_formats": sorted(list(gt_formats)),
+                }
+            )
 
         # Calculate TP/FP/FN for flags (bitwise)
         for i in range(16):
             mask = 1 << i
             d_has = bool(d_flags & mask)
             gt_has = bool(gt_flags & mask)
-            if d_has and gt_has: flag_tp += 1
-            elif d_has and not gt_has: flag_fp += 1
-            elif not d_has and gt_has: flag_fn += 1
+            if d_has and gt_has:
+                flag_tp += 1
+            elif d_has and not gt_has:
+                flag_fp += 1
+            elif not d_has and gt_has:
+                flag_fn += 1
 
         # Calculate TP/FP/FN for formats
         all_formats = d_formats | gt_formats
         for f in all_formats:
             d_has = f in d_formats
             gt_has = f in gt_formats
-            if d_has and gt_has: format_tp += 1
-            elif d_has and not gt_has: format_fp += 1
-            elif not d_has and gt_has: format_fn += 1
+            if d_has and gt_has:
+                format_tp += 1
+            elif d_has and not gt_has:
+                format_fp += 1
+            elif not d_has and gt_has:
+                format_fn += 1
 
     precision_flags = flag_tp / (flag_tp + flag_fp) if (flag_tp + flag_fp) > 0 else 1.0
     recall_flags = flag_tp / (flag_tp + flag_fn) if (flag_tp + flag_fn) > 0 else 1.0
-    
-    precision_formats = format_tp / (format_tp + format_fp) if (format_tp + format_fp) > 0 else 1.0
-    recall_formats = format_tp / (format_tp + format_fn) if (format_tp + format_fn) > 0 else 1.0
+
+    precision_formats = (
+        format_tp / (format_tp + format_fp) if (format_tp + format_fp) > 0 else 1.0
+    )
+    recall_formats = (
+        format_tp / (format_tp + format_fn) if (format_tp + format_fn) > 0 else 1.0
+    )
 
     return AuditMetrics(
         total_turns=len(samples),
-        coverage_delta=0.0, # Placeholder for proxy-derived vs prompt-derived delta
+        coverage_delta=0.0,  # Placeholder for proxy-derived vs prompt-derived delta
         precision={"flags": precision_flags, "formats": precision_formats},
         recall={"flags": recall_flags, "formats": recall_formats},
-        divergent_turns=divergent
+        divergent_turns=divergent,
     )
 
 
@@ -150,13 +166,17 @@ def print_report(metrics: AuditMetrics) -> None:
     print(f"  Precision: {metrics.precision['formats']:.1%}")
     print(f"  Recall:    {metrics.recall['formats']:.1%}")
     print()
-    
+
     if metrics.divergent_turns:
         print(f"Divergent Turns ({len(metrics.divergent_turns)}):")
         for turn in metrics.divergent_turns:
             print(f"  Prompt: {turn['prompt']}")
-            print(f"    Derived Flags: {turn['derived_flags']} | GT: {turn['gt_flags']}")
-            print(f"    Derived Formats: {turn['derived_formats']} | GT: {turn['gt_formats']}")
+            print(
+                f"    Derived Flags: {turn['derived_flags']} | GT: {turn['gt_flags']}"
+            )
+            print(
+                f"    Derived Formats: {turn['derived_formats']} | GT: {turn['gt_formats']}"
+            )
 
 
 def _load_audit_set(path: Path) -> list[AuditSample]:
@@ -174,12 +194,16 @@ def _load_audit_set(path: Path) -> list[AuditSample]:
             permission_mode=item.get("permission_mode", "default"),
             cwd=item.get("cwd", "/home/user"),
         )
-        samples.append(AuditSample(
-            prompt=item["prompt"],
-            session=session,
-            ground_truth_flags=item.get("ground_truth_flags", 0),
-            ground_truth_formats=frozenset(item.get("ground_truth_formats", ["text"])),
-        ))
+        samples.append(
+            AuditSample(
+                prompt=item["prompt"],
+                session=session,
+                ground_truth_flags=item.get("ground_truth_flags", 0),
+                ground_truth_formats=frozenset(
+                    item.get("ground_truth_formats", ["text"])
+                ),
+            )
+        )
     return samples
 
 

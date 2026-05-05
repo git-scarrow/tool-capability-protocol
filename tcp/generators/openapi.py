@@ -319,9 +319,11 @@ class OpenAPIGenerator:
                     "schema": {
                         "type": "string",
                         "enum": [fmt.name for fmt in command.output_formats],
-                        "default": command.output_formats[0].name
-                        if command.output_formats
-                        else None,
+                        "default": (
+                            command.output_formats[0].name
+                            if command.output_formats
+                            else None
+                        ),
                     },
                     "description": "Desired output format",
                 }

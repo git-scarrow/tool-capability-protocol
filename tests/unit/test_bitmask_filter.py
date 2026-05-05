@@ -85,7 +85,9 @@ def test_require_mask_rejects_tools_missing_required_capability():
 def test_deny_and_require_combined():
     tools = [
         _make_tool("good", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.STATELESS),
-        _make_tool("networked", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.SUPPORTS_NETWORK),
+        _make_tool(
+            "networked", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.SUPPORTS_NETWORK
+        ),
         _make_tool("no-json", CapabilityFlags.STATELESS),
     ]
     deny = EnvironmentMask.from_constraints(network=False)
@@ -118,8 +120,12 @@ def test_empty_tool_list():
 
 def test_approval_mask_creates_middle_tier():
     tools = [
-        _make_tool("safe-json", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.STATELESS),
-        _make_tool("authed-json", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.AUTH_REQUIRED),
+        _make_tool(
+            "safe-json", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.STATELESS
+        ),
+        _make_tool(
+            "authed-json", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.AUTH_REQUIRED
+        ),
         _make_tool("net-tool", CapabilityFlags.SUPPORTS_NETWORK),
     ]
     deny = EnvironmentMask.from_constraints(network=False)
@@ -141,7 +147,9 @@ def test_approval_mask_with_multiple_flags():
         _make_tool("plain", CapabilityFlags.STATELESS),
         _make_tool("authed", CapabilityFlags.AUTH_REQUIRED),
         _make_tool("limited", CapabilityFlags.RATE_LIMITING),
-        _make_tool("both", CapabilityFlags.AUTH_REQUIRED | CapabilityFlags.RATE_LIMITING),
+        _make_tool(
+            "both", CapabilityFlags.AUTH_REQUIRED | CapabilityFlags.RATE_LIMITING
+        ),
     ]
     approval = int(CapabilityFlags.AUTH_REQUIRED | CapabilityFlags.RATE_LIMITING)
 
@@ -150,7 +158,11 @@ def test_approval_mask_with_multiple_flags():
     assert result.approved_count == 1
     assert result.approved[0].tool_name == "plain"
     assert result.approval_required_count == 3
-    assert {t.tool_name for t in result.approval_required} == {"authed", "limited", "both"}
+    assert {t.tool_name for t in result.approval_required} == {
+        "authed",
+        "limited",
+        "both",
+    }
 
 
 def test_deny_wins_over_approval_on_overlap():
@@ -176,9 +188,13 @@ def test_three_tier_full_pipeline():
     """Deny + approval + require together produce correct three-way split."""
     tools = [
         _make_tool("perfect", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.STATELESS),
-        _make_tool("needs-ok", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.AUTH_REQUIRED),
+        _make_tool(
+            "needs-ok", CapabilityFlags.JSON_OUTPUT | CapabilityFlags.AUTH_REQUIRED
+        ),
         _make_tool("no-json", CapabilityFlags.STATELESS),
-        _make_tool("net-only", CapabilityFlags.SUPPORTS_NETWORK | CapabilityFlags.JSON_OUTPUT),
+        _make_tool(
+            "net-only", CapabilityFlags.SUPPORTS_NETWORK | CapabilityFlags.JSON_OUTPUT
+        ),
     ]
     deny = EnvironmentMask.from_constraints(network=False)
     approval = int(CapabilityFlags.AUTH_REQUIRED)
@@ -232,7 +248,9 @@ def test_filter_for_prompt_returns_projected_dicts():
 def test_filter_for_prompt_includes_approval_required_annotated():
     tools = [
         _make_tool("safe", CapabilityFlags.JSON_OUTPUT),
-        _make_tool("gated", CapabilityFlags.AUTH_REQUIRED | CapabilityFlags.JSON_OUTPUT),
+        _make_tool(
+            "gated", CapabilityFlags.AUTH_REQUIRED | CapabilityFlags.JSON_OUTPUT
+        ),
     ]
     approval = int(CapabilityFlags.AUTH_REQUIRED)
 
@@ -250,7 +268,9 @@ def test_filter_for_prompt_includes_approval_required_annotated():
 def test_filter_for_prompt_excludes_approval_required_when_disabled():
     tools = [
         _make_tool("safe", CapabilityFlags.JSON_OUTPUT),
-        _make_tool("gated", CapabilityFlags.AUTH_REQUIRED | CapabilityFlags.JSON_OUTPUT),
+        _make_tool(
+            "gated", CapabilityFlags.AUTH_REQUIRED | CapabilityFlags.JSON_OUTPUT
+        ),
     ]
     approval = int(CapabilityFlags.AUTH_REQUIRED)
 
@@ -304,7 +324,9 @@ def test_100_tool_bitmask_filter():
         assert (tool.capability_flags & deny_val) != 0
 
     # All tools accounted for
-    total = result.approved_count + result.approval_required_count + result.rejection_count
+    total = (
+        result.approved_count + result.approval_required_count + result.rejection_count
+    )
     assert total == 100
 
 
@@ -349,7 +371,9 @@ def test_100_tool_bitmask_filter_performance():
     iterations = 1000
     start = time.perf_counter_ns()
     for _ in range(iterations):
-        bitmask_filter(tools, deny_mask=deny, approval_mask=approval, require_mask=require)
+        bitmask_filter(
+            tools, deny_mask=deny, approval_mask=approval, require_mask=require
+        )
     elapsed_ns = time.perf_counter_ns() - start
 
     avg_ns = elapsed_ns / iterations

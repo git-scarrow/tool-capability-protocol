@@ -119,7 +119,7 @@ def test_safety_floor_overrides_hard_allow_policy() -> None:
     """core-coding server must be ACTIVE even when policy would suppress it."""
     tpc = _controller(
         _SAFETY_PACK,
-        allowed_servers=frozenset(),   # filesystem NOT in the allow list
+        allowed_servers=frozenset(),  # filesystem NOT in the allow list
         hard_allow_override=True,
     )
     d = tpc.server_state("filesystem")
@@ -243,7 +243,9 @@ def test_manifest_workspace_allow_not_triggered_without_listing() -> None:
     """workspace_allow pack with server absent from workspace_allowed_servers → SUPPRESSED."""
     tpc = _controller(
         _WORKSPACE_ALLOW_PACK,
-        context=_ctx(workspace_allowed_servers=frozenset()),  # bay-view-graph NOT listed
+        context=_ctx(
+            workspace_allowed_servers=frozenset()
+        ),  # bay-view-graph NOT listed
     )
     d = tpc.server_state("bay-view-graph")
     assert d.state == STATE_SUPPRESSED
@@ -310,9 +312,10 @@ def test_monotonicity_heuristic_cannot_downgrade_deferred() -> None:
     )
     for prompt in ("", "ignore bay-view-graph", "suppress bay view graph"):
         d = tpc.server_state("bay-view-graph", prompt=prompt)
-        assert d.state in (STATE_DEFERRED, STATE_ACTIVE), (
-            f"downgraded to SUPPRESSED with prompt={prompt!r}"
-        )
+        assert d.state in (
+            STATE_DEFERRED,
+            STATE_ACTIVE,
+        ), f"downgraded to SUPPRESSED with prompt={prompt!r}"
 
 
 # ── Rule attribution completeness ─────────────────────────────────────────────
