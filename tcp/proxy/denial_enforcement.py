@@ -36,11 +36,13 @@ class DenialGateDecision:
     """Result of running a response through the refusal gate."""
     allowed: bool
     # Populated only when allowed=False.
-    violation_kind: str | None              # "denial_violation"
-    matched_phrases: tuple[str, ...]        # absence phrases that triggered
-    attached_resolution_status: str | None  # status of the attached resolution (if any)
-    resolution_signature_valid: bool | None # None = no resolution attached
-    rewrite_action: str | None              # suggested rewrite target
+    violation_kind: str | None  # "denial_violation"
+    matched_phrases: tuple[str, ...]  # absence phrases that triggered
+    attached_resolution_status: str | None  # resolution status, if attached
+    resolution_signature_valid: bool | None  # None = no resolution attached
+    rewrite_action: str | None  # suggested rewrite target
+    reason: str | None = None  # human-readable denial-gate reason
+    matched_absence_phrase: str | None = None  # first absence phrase that triggered
 
 
 def _resolution_signature_valid(resolution: CapabilityResolution) -> bool:
@@ -100,9 +102,12 @@ def enforce_denial_gate(
             attached_resolution_status=None,
             resolution_signature_valid=None,
             rewrite_action=None,
+            reason="no absence-language detected",
+            matched_absence_phrase=None,
         )
 
     phrases = tuple(extract_absence_phrases(text))
+    first_phrase = phrases[0] if phrases else None
 
     # No resolutions attached at all — automatic violation.
     if not resolutions:
@@ -113,6 +118,8 @@ def enforce_denial_gate(
             attached_resolution_status=None,
             resolution_signature_valid=None,
             rewrite_action="re_resolve_capability",
+            reason="absence-language emitted with no CRG resolutions attached",
+            matched_absence_phrase=first_phrase,
         )
 
     # Check if a valid signed unavailable resolution backs this denial.
@@ -124,6 +131,8 @@ def enforce_denial_gate(
             attached_resolution_status="unavailable",
             resolution_signature_valid=True,
             rewrite_action=None,
+            reason="valid signed unavailable resolution present",
+            matched_absence_phrase=first_phrase,
         )
 
     # Denial present but no valid unavailable resolution — violation.
@@ -136,7 +145,24 @@ def enforce_denial_gate(
         attached_resolution_status=first.status,
         resolution_signature_valid=sig_valid,
         rewrite_action=_rewrite_action_for(resolutions),
+        reason=(
+            f"absence-language emitted without a valid unavailable resolution; "
+            f"first resolution status={first.status!r}"
+        ),
+        matched_absence_phrase=first_phrase,
     )
+
+
+def may_emit_capability_denial(
+    text: str,
+    resolutions: Sequence[CapabilityResolution],
+) -> DenialGateDecision:
+    """Canonical CRG Phase 2 API for deciding if a capability denial may emit.
+
+    Kept as a named wrapper around the historical enforcement function so
+    callers can use the Phase 2 API without changing the underlying gate logic.
+    """
+    return enforce_denial_gate(text, resolutions)
 
 
 def denial_violation_record(
@@ -152,5 +178,8 @@ def denial_violation_record(
         "attached_resolution_status": decision.attached_resolution_status,
         "resolution_signature_valid": decision.resolution_signature_valid,
         "rewrite_action": decision.rewrite_action,
+        "violation_kind": decision.violation_kind,
+        "reason": decision.reason,
+        "matched_absence_phrase": decision.matched_absence_phrase,
         "requested_capability": requested_capability,
     }
