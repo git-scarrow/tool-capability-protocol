@@ -172,7 +172,9 @@ def _check_mock_coverage(corpus_names: set[str]) -> PreflightCheck:
     )
 
 
-def _check_expected_tools_in_corpus(tasks: list, corpus_names: set[str]) -> PreflightCheck:
+def _check_expected_tools_in_corpus(
+    tasks: list, corpus_names: set[str]
+) -> PreflightCheck:
     missing = []
     for t in tasks:
         if t.expected_tool is not None and t.expected_tool not in corpus_names:
@@ -197,7 +199,8 @@ def _check_filtered_sets_nonempty(tasks: list, schemas: list[dict]) -> Preflight
     # (e.g., network-denied tasks, nonexistent commands)
     tasks_by_name = {t.name: t for t in tasks}
     unexpected_empty = [
-        name for name, s in filtered.items()
+        name
+        for name, s in filtered.items()
         if not s and tasks_by_name[name].expected_tool is not None
     ]
     if unexpected_empty:
@@ -216,7 +219,9 @@ def _check_filtered_sets_nonempty(tasks: list, schemas: list[dict]) -> Preflight
     )
 
 
-def _check_filtered_subset_of_corpus(tasks: list, schemas: list[dict]) -> PreflightCheck:
+def _check_filtered_subset_of_corpus(
+    tasks: list, schemas: list[dict]
+) -> PreflightCheck:
     corpus_ids = {id(s) for s in schemas}
     filtered = build_filtered_schemas(tasks, schemas)
     violations = []

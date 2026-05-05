@@ -85,9 +85,11 @@ class TestExpectedToolPreserved:
         # Tasks where the expected tool should be in the filtered set
         # (excludes network-denied and nonexistent tasks)
         verifiable = [
-            t for t in tasks
+            t
+            for t in tasks
             if t.expected_tool is not None
-            and t.name not in {
+            and t.name
+            not in {
                 "network fetch denied offline",
                 "database query denied offline",
                 "nonexistent command",
@@ -107,8 +109,10 @@ class TestExpectedToolPreserved:
         per_task = build_filtered_schemas(tasks, corpus_schemas)
 
         denied_tasks = [
-            t for t in tasks
-            if t.name in {"network fetch denied offline", "database query denied offline"}
+            t
+            for t in tasks
+            if t.name
+            in {"network fetch denied offline", "database query denied offline"}
         ]
         for task in denied_tasks:
             filtered_names = {s["name"] for s in per_task[task.name]}

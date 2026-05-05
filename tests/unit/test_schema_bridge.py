@@ -33,7 +33,7 @@ def _make_descriptor(
 ) -> CapabilityDescriptor:
     """Test helper to build a minimal descriptor."""
     cmds = []
-    for c in (commands or [name]):
+    for c in commands or [name]:
         cmd = CommandDescriptor(name=c, parameters=parameters or [])
         cmds.append(cmd)
     return CapabilityDescriptor(

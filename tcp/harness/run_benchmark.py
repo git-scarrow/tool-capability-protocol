@@ -78,7 +78,9 @@ def _run_mt2(repetitions: int) -> dict:
     )
 
     descriptors, tasks, environment = build_mt2_fixture_set()
-    suite = benchmark_exposure_suite(descriptors, tasks, environment, repetitions=repetitions)
+    suite = benchmark_exposure_suite(
+        descriptors, tasks, environment, repetitions=repetitions
+    )
     s = suite.summary
 
     checks = [

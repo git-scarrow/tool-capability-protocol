@@ -6,7 +6,9 @@ from tcp.agent.routing_strategy import should_bypass_llm
 from tcp.harness.router import RouteConfidence, RouteResult
 
 
-def _make_route_result(confidence: RouteConfidence, survivor_count: int = 1) -> RouteResult:
+def _make_route_result(
+    confidence: RouteConfidence, survivor_count: int = 1
+) -> RouteResult:
     return RouteResult(
         selected_tool=None,
         confidence=confidence,

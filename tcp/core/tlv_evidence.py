@@ -17,6 +17,7 @@ an ordered map with two keys:
 Entries are sorted by ``(kind, ref)`` and duplicate pairs are rejected.
 The encoded TLV payload must not exceed 64KiB.
 """
+
 from __future__ import annotations
 
 import hashlib

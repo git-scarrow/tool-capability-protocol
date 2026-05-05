@@ -1,7 +1,7 @@
 """
 Yuki Tanaka Performance Validation Framework
 
-High-precision performance validation framework implementing Yuki's 
+High-precision performance validation framework implementing Yuki's
 sub-microsecond timing methodology and hardware-optimized benchmarking.
 """
 
@@ -316,14 +316,14 @@ class YukiPerformanceValidationFramework:
             min_latency_ns=int(min(all_latencies)),
             max_latency_ns=int(max(all_latencies)),
             std_deviation_ns=int(std_deviation),
-            coefficient_variation=std_deviation / mean_latency
-            if mean_latency > 0
-            else 0,
+            coefficient_variation=(
+                std_deviation / mean_latency if mean_latency > 0 else 0
+            ),
             operations_per_second=(concurrent_threads * operations_per_thread)
             / total_duration,
-            memory_efficiency_ratio=statistics.mean(memory_samples)
-            if memory_samples
-            else 0,
+            memory_efficiency_ratio=(
+                statistics.mean(memory_samples) if memory_samples else 0
+            ),
             cpu_utilization_percent=100.0 * concurrent_threads,  # Theoretical max
         )
 
@@ -417,9 +417,9 @@ class YukiPerformanceValidationFramework:
                 min_latency_ns=int(min(latencies)),
                 max_latency_ns=int(max(latencies)),
                 std_deviation_ns=int(std_deviation),
-                coefficient_variation=std_deviation / mean_latency
-                if mean_latency > 0
-                else 0,
+                coefficient_variation=(
+                    std_deviation / mean_latency if mean_latency > 0 else 0
+                ),
                 operations_per_second=iterations / total_duration,
                 memory_efficiency_ratio=statistics.mean(memory_samples),
                 cpu_utilization_percent=100.0

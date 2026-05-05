@@ -403,9 +403,11 @@ class OptimizedToolCapabilityProtocol(ToolCapabilityProtocol):
             value=total_time,
             metadata={
                 "descriptor_count": len(descriptors),
-                "avg_validation_time_ms": sum(validation_times) / len(validation_times)
-                if validation_times
-                else 0,
+                "avg_validation_time_ms": (
+                    sum(validation_times) / len(validation_times)
+                    if validation_times
+                    else 0
+                ),
                 "parallelization": "sequential",  # Will be updated when Yuki adds parallel processing
             },
         )
@@ -474,9 +476,9 @@ class OptimizedToolCapabilityProtocol(ToolCapabilityProtocol):
                 "descriptor_count": len(descriptors),
                 "cache_hit_rate": cache_hit_rate,
                 "uncached_count": len(uncached_descriptors),
-                "avg_binary_time_ms": sum(binary_times) / len(binary_times)
-                if binary_times
-                else 0,
+                "avg_binary_time_ms": (
+                    sum(binary_times) / len(binary_times) if binary_times else 0
+                ),
             },
         )
 

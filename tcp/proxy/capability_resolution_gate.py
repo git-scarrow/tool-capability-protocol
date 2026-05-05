@@ -23,7 +23,6 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Literal, Mapping, Sequence
 
-
 # ── Semantic capability → MCP server families ──────────────────────────────────
 # Maps stable capability identifiers to the MCP server names that can satisfy them.
 # This is the bootstrap latent descriptor index; a full index would be in a registry.
@@ -59,7 +58,9 @@ _ALL_KNOWN_SERVERS: frozenset[str] = frozenset().union(*_CAPABILITY_SERVERS.valu
 # ── Prompt → semantic capability extraction ────────────────────────────────────
 
 _NOTION_RE = re.compile(r"\b(notion|my workspace|notion database|notion page)\b", re.I)
-_GITHUB_RE = re.compile(r"\b(github|pull.?request|pr\b|code.?search|repository)\b", re.I)
+_GITHUB_RE = re.compile(
+    r"\b(github|pull.?request|pr\b|code.?search|repository)\b", re.I
+)
 _CALENDAR_RE = re.compile(r"\b(calendar|meetings?|event|schedule|appointment)\b", re.I)
 _EMAIL_RE = re.compile(r"\b(email|mail|inbox|send.?message|outlook)\b", re.I)
 _ORACLE_RE = re.compile(r"\b(oracle|oracle.?db|sql.?query)\b", re.I)
@@ -67,8 +68,12 @@ _WEB_FETCH_RE = re.compile(r"\b(fetch.+url|curl|browse.+page|open.+url|http)\b",
 _WEB_SEARCH_RE = re.compile(r"\b(search.+web|web.+search|google|exa.+search)\b", re.I)
 _NIX_RE = re.compile(r"\b(nix|nixos|nixpkgs?|home.?manager|flake)\b", re.I)
 _GIT_RE = re.compile(r"\b(git\s|git log|git diff|commit|branch|merge)\b", re.I)
-_CHATSEARCH_RE = re.compile(r"\b(chat.?search|chat history|prior conversation|past session)\b", re.I)
-_ORACLE_REMOTE_RE = re.compile(r"\b(oracle.?remote|oracle database|lab.?mirror)\b", re.I)
+_CHATSEARCH_RE = re.compile(
+    r"\b(chat.?search|chat history|prior conversation|past session)\b", re.I
+)
+_ORACLE_REMOTE_RE = re.compile(
+    r"\b(oracle.?remote|oracle database|lab.?mirror)\b", re.I
+)
 
 _PATTERN_CAPABILITIES: list[tuple[re.Pattern[str], list[str]]] = [
     (_NOTION_RE, ["notion.search", "notion.read"]),
@@ -117,6 +122,7 @@ class CapabilityResolution:
 
     The model may read status.  Only the resolver authors status.
     """
+
     requested_capability: str
     status: CapabilityStatus
     matched_tools: tuple[str, ...]
@@ -130,6 +136,7 @@ class CapabilityResolution:
 @dataclass(frozen=True)
 class CRGContext:
     """Snapshot of proxy-stage data needed for six-surface resolution."""
+
     # Surface 1: active tools with materialized schema
     visible_tools: frozenset[str]
     # Surface 2: tools with deferred/minimal schema

@@ -17,7 +17,6 @@ from tcp.core.descriptors import (
 from tcp.harness.corpus import CorpusEntry
 from tcp.harness.models import ToolRecord
 
-
 _PARAM_TYPE_MAP = {
     ParameterType.STRING: "string",
     ParameterType.INTEGER: "integer",

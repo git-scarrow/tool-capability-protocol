@@ -112,12 +112,12 @@ class JSONGenerator:
                 "optional_dependencies": descriptor.optional_dependencies,
             },
             "metadata": {
-                "created_at": descriptor.created_at.isoformat()
-                if descriptor.created_at
-                else None,
-                "updated_at": descriptor.updated_at.isoformat()
-                if descriptor.updated_at
-                else None,
+                "created_at": (
+                    descriptor.created_at.isoformat() if descriptor.created_at else None
+                ),
+                "updated_at": (
+                    descriptor.updated_at.isoformat() if descriptor.updated_at else None
+                ),
                 "schema_version": descriptor.schema_version,
             },
         }
@@ -131,9 +131,11 @@ class JSONGenerator:
                 "title": f"{descriptor.name} API",
                 "description": descriptor.description,
                 "version": descriptor.version,
-                "contact": {"name": descriptor.author, "url": descriptor.homepage}
-                if descriptor.author or descriptor.homepage
-                else {},
+                "contact": (
+                    {"name": descriptor.author, "url": descriptor.homepage}
+                    if descriptor.author or descriptor.homepage
+                    else {}
+                ),
                 "license": {"name": descriptor.license} if descriptor.license else {},
             },
             "servers": [

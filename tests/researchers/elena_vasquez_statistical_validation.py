@@ -1,7 +1,7 @@
 """
 Elena Vasquez Statistical Validation Framework
 
-Comprehensive statistical validation framework tailored to Elena's research 
+Comprehensive statistical validation framework tailored to Elena's research
 methodology and statistical rigor requirements for TCP validation.
 """
 

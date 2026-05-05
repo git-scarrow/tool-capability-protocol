@@ -209,9 +209,9 @@ class HelpTextParser:
             default_cmd = RawCommand(
                 name="default",
                 description=analysis.description,
-                usage_pattern=analysis.usage_patterns[0]
-                if analysis.usage_patterns
-                else "",
+                usage_pattern=(
+                    analysis.usage_patterns[0] if analysis.usage_patterns else ""
+                ),
                 options=analysis.global_options.copy(),
             )
             analysis.commands.append(default_cmd)

@@ -132,9 +132,7 @@ class TestBuildFilteredSchemas:
         filtered = build_filtered_schemas(tasks, corpus_schemas)
 
         full_count = len(corpus_schemas)
-        any_reduced = any(
-            len(schemas) < full_count for schemas in filtered.values()
-        )
+        any_reduced = any(len(schemas) < full_count for schemas in filtered.values())
         assert any_reduced, "No task had a reduced tool set after filtering"
 
 
@@ -348,4 +346,7 @@ class TestRunLayeredBenchmark:
             report = await run_layered_benchmark(repetitions=1)
 
         assert isinstance(report, LaneReport)
-        assert report.deterministic_count + report.ambiguous_count + report.no_match_count > 0
+        assert (
+            report.deterministic_count + report.ambiguous_count + report.no_match_count
+            > 0
+        )

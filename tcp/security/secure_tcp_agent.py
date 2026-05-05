@@ -298,9 +298,11 @@ class SecureTCPAgent:
 
         return {
             "suggestion": best_tool,
-            "confidence": matches / len(capability_requirements)
-            if capability_requirements
-            else 0.5,
+            "confidence": (
+                matches / len(capability_requirements)
+                if capability_requirements
+                else 0.5
+            ),
             "capabilities": capabilities,
             "permission_level": self.capability_cache[best_tool]["permission_level"],
             "reasoning": f"Matches {matches} of {len(capability_requirements)} required capabilities",

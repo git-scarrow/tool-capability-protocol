@@ -36,7 +36,9 @@ def test_decision_has_freshness_context_requires_captured_fields() -> None:
     )
 
 
-def test_match_decision_record_uses_workspace_and_prompt_hash(monkeypatch, tmp_path) -> None:
+def test_match_decision_record_uses_workspace_and_prompt_hash(
+    monkeypatch, tmp_path
+) -> None:
     prompt = "read the config file"
     prompt_hash = _prompt_hash(prompt)
     rows = {
@@ -134,7 +136,9 @@ def test_analyse_session_uses_captured_inventory_and_turn_context(
     )
 
     monkeypatch.setattr("scripts.shadow_analysis.INVENTORIES_DIR", inventories_dir)
-    monkeypatch.setattr("scripts.shadow_analysis.DECISIONS_LOG", proxy_dir / "decisions.jsonl")
+    monkeypatch.setattr(
+        "scripts.shadow_analysis.DECISIONS_LOG", proxy_dir / "decisions.jsonl"
+    )
     _load_decision_index.cache_clear()
 
     results = analyse_session(session_path)

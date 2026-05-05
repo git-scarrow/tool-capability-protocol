@@ -159,9 +159,9 @@ class TCPGenerationPipeline:
                 if output_format == "tcp":
                     results["outputs"]["tcp"] = tcp_descriptor
                 elif output_format == "json":
-                    results["outputs"][
-                        "json"
-                    ] = self.tcp_generator.generate_json_schema(capabilities)
+                    results["outputs"]["json"] = (
+                        self.tcp_generator.generate_json_schema(capabilities)
+                    )
                 elif output_format == "binary":
                     binary_data = self.tcp_generator.generate_binary_descriptor(
                         capabilities

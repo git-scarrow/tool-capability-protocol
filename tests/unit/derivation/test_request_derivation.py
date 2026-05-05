@@ -11,10 +11,12 @@ from tcp.derivation.request_derivation import (
     PostToolUseEvent,
 )
 
-
 # ── fixtures ──────────────────────────────────────────────────────────────────
 
-def default_session(permission_mode: str = "default", cwd: str = "/home/user/projects/myapp") -> SessionStartEvent:
+
+def default_session(
+    permission_mode: str = "default", cwd: str = "/home/user/projects/myapp"
+) -> SessionStartEvent:
     return SessionStartEvent(
         session_id="test-session-1",
         permission_mode=permission_mode,
@@ -34,6 +36,7 @@ def tool_event(tool_name: str, tool_input: dict | None = None) -> PostToolUseEve
 
 # ── derive_request: capability flags ─────────────────────────────────────────
 
+
 class TestCapabilityFlagDerivation:
     def test_file_read_prompt_sets_files_flag(self):
         req = derive_request("Read the contents of config.yaml", default_session())
@@ -44,7 +47,9 @@ class TestCapabilityFlagDerivation:
         assert req.required_capability_flags & int(CapabilityFlags.SUPPORTS_FILES)
 
     def test_network_fetch_prompt_sets_network_flag(self):
-        req = derive_request("Fetch https://api.example.com/status and return JSON", default_session())
+        req = derive_request(
+            "Fetch https://api.example.com/status and return JSON", default_session()
+        )
         assert req.required_capability_flags & int(CapabilityFlags.SUPPORTS_NETWORK)
 
     def test_sudo_prompt_sets_auth_required_flag(self):
@@ -75,6 +80,7 @@ class TestCapabilityFlagDerivation:
 
 # ── derive_request: output formats ───────────────────────────────────────────
 
+
 class TestOutputFormatDerivation:
     def test_default_output_format_is_text(self):
         req = derive_request("Show me the file contents", default_session())
@@ -99,6 +105,7 @@ class TestOutputFormatDerivation:
 
 # ── derive_request: environment → deny_mask + approval_mode ──────────────────
 
+
 class TestEnvironmentMapping:
     def test_default_permission_mode_sets_prompt_approval(self):
         req = derive_request("Do something", default_session("default"))
@@ -119,6 +126,7 @@ class TestEnvironmentMapping:
 
 
 # ── get_equivalence_class ─────────────────────────────────────────────────────
+
 
 class TestEquivalenceClass:
     def test_read_tool_maps_to_file_read(self):
@@ -143,25 +151,38 @@ class TestEquivalenceClass:
         assert get_equivalence_class("Bash", {"command": "ls -la"}) == "EXEC_COMMAND"
 
     def test_bash_git_log_maps_to_git_read(self):
-        assert get_equivalence_class("Bash", {"command": "git log --oneline"}) == "GIT_READ"
+        assert (
+            get_equivalence_class("Bash", {"command": "git log --oneline"})
+            == "GIT_READ"
+        )
 
     def test_bash_git_commit_maps_to_git_write(self):
-        assert get_equivalence_class("Bash", {"command": "git commit -m 'fix'"}) == "GIT_WRITE"
+        assert (
+            get_equivalence_class("Bash", {"command": "git commit -m 'fix'"})
+            == "GIT_WRITE"
+        )
 
     def test_bash_curl_maps_to_web_fetch(self):
-        assert get_equivalence_class("Bash", {"command": "curl https://example.com"}) == "WEB_FETCH"
+        assert (
+            get_equivalence_class("Bash", {"command": "curl https://example.com"})
+            == "WEB_FETCH"
+        )
 
     def test_web_fetch_tool_maps_to_web_fetch(self):
         assert get_equivalence_class("WebFetch", {}) == "WEB_FETCH"
 
     def test_unknown_tool_maps_to_itself(self):
-        assert get_equivalence_class("some_unknown_mcp_tool", {}) == "some_unknown_mcp_tool"
+        assert (
+            get_equivalence_class("some_unknown_mcp_tool", {})
+            == "some_unknown_mcp_tool"
+        )
 
     def test_mcp_git_log_maps_to_git_read(self):
         assert get_equivalence_class("mcp__git__git_log", {}) == "GIT_READ"
 
 
 # ── classify_unscorable ───────────────────────────────────────────────────────
+
 
 class TestClassifyUnscorable:
     def test_system_tool_is_unscorable(self):

@@ -1,4 +1,5 @@
 """Miscellaneous self-test helpers used in runbook."""
+
 from __future__ import annotations
 
 import argparse
@@ -25,14 +26,20 @@ def main() -> None:
     parser.add_argument("--evidence-check")
     parser.add_argument("--latency")
     parser.add_argument("--snf-check")
-    parser.add_argument("warm", nargs="?", help="Optional 'warm=true|false' tag; advisory only.")
+    parser.add_argument(
+        "warm", nargs="?", help="Optional 'warm=true|false' tag; advisory only."
+    )
     args = parser.parse_args()
 
     if args.pairs:
         pairs = _load_pairs(args.pairs)
         print(f"loaded {len(pairs)} pairs")
         if args.evidence_check:
-            sample_of = int(args.evidence_check.split("=", 1)[1]) if "=" in args.evidence_check else 5
+            sample_of = (
+                int(args.evidence_check.split("=", 1)[1])
+                if "=" in args.evidence_check
+                else 5
+            )
             sample_of = max(1, sample_of)
             for pair in random.sample(pairs, min(sample_of, len(pairs))):
                 meta = dict(pair)
@@ -45,9 +52,9 @@ def main() -> None:
     if args.latency:
         N = 1000
         if "=" in args.latency:
-            for part in args.latency.split(','):
-                k, _, v = part.partition('=')
-                if k.strip().lower() == 'n' and v:
+            for part in args.latency.split(","):
+                k, _, v = part.partition("=")
+                if k.strip().lower() == "n" and v:
                     N = int(v)
         vals = [random.randint(1, 1000) for _ in range(N)]
         hist = record_hist("lat", vals)
@@ -64,7 +71,7 @@ def main() -> None:
         print(json.dumps(hist))
 
     if args.vectors:
-        for p in args.vectors.split(','):
+        for p in args.vectors.split(","):
             if Path(p).exists():
                 print(f"vector {p} ok")
 

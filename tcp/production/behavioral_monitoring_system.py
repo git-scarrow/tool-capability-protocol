@@ -1135,9 +1135,9 @@ class ProductionBehavioralMonitor:
                 "active_sessions": len(self.active_sessions),
                 "threats_last_hour": len(recent_threats),
                 "total_threats_detected": len(self.threat_history),
-                "latest_health_metrics": asdict(latest_health)
-                if latest_health
-                else None,
+                "latest_health_metrics": (
+                    asdict(latest_health) if latest_health else None
+                ),
             },
             "optimization_status": optimization_report,
             "statistical_engine": stats_summary,

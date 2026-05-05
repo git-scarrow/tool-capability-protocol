@@ -1,4 +1,5 @@
 """Minimal command line interface for TCP utilities."""
+
 from __future__ import annotations
 
 import binascii

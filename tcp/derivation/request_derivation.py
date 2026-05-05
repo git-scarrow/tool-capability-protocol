@@ -17,10 +17,13 @@ from tcp.harness.models import ToolSelectionRequest
 
 # ── Event types (mirrors Claude Code hook payloads) ───────────────────────────
 
+
 @dataclass(frozen=True)
 class SessionStartEvent:
     session_id: str
-    permission_mode: str  # "default" | "plan" | "bypassPermissions" | "dangerouslySkipPermissions"
+    permission_mode: (
+        str  # "default" | "plan" | "bypassPermissions" | "dangerouslySkipPermissions"
+    )
     cwd: str
 
 
@@ -35,60 +38,96 @@ class PostToolUseEvent:
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-_SYSTEM_TOOLS = frozenset({
-    "TodoRead", "TodoWrite", "MemoryRead", "MemoryWrite",
-    "TaskCreate", "TaskUpdate", "TaskGet", "TaskList", "TaskOutput", "TaskStop",
-    "Skill",  # Claude Code skill invocation — no TCP descriptor, not a task tool
-})
+_SYSTEM_TOOLS = frozenset(
+    {
+        "TodoRead",
+        "TodoWrite",
+        "MemoryRead",
+        "MemoryWrite",
+        "TaskCreate",
+        "TaskUpdate",
+        "TaskGet",
+        "TaskList",
+        "TaskOutput",
+        "TaskStop",
+        "Skill",  # Claude Code skill invocation — no TCP descriptor, not a task tool
+    }
+)
 
-_CONTINUATION_PROMPTS = frozenset({
-    "yes", "no", "ok", "okay", "sure", "continue", "go", "go ahead",
-    "proceed", "done", "next", "yep", "yup", "fine", "great",
-    "continue this work", "yes please", "yes, please", "yes.", "no."
-})
+_CONTINUATION_PROMPTS = frozenset(
+    {
+        "yes",
+        "no",
+        "ok",
+        "okay",
+        "sure",
+        "continue",
+        "go",
+        "go ahead",
+        "proceed",
+        "done",
+        "next",
+        "yep",
+        "yup",
+        "fine",
+        "great",
+        "continue this work",
+        "yes please",
+        "yes, please",
+        "yes.",
+        "no.",
+    }
+)
 
 _SYSTEM_DIRS = {"/", "/usr", "/etc", "/var", "/boot", "/sys", "/proc", "/bin", "/sbin"}
 
 # Intent verbs
-_FILE_VERBS = re.compile(r'\b(read|write|edit|create|save|open|load|delete|copy|move|rename|list|grep|glob|ls|find|dig|proceed|pick|analyze|check|search|scan|fix|harden|identify|perform|review|access|show|use)\b', re.I)
-_NET_VERBS = re.compile(r'\b(fetch|curl|wget|download|upload|api|endpoint|http|get|post|visit|open|search|check|request|deploy|reply|send|did|any|use)\b', re.I)
+_FILE_VERBS = re.compile(
+    r"\b(read|write|edit|create|save|open|load|delete|copy|move|rename|list|grep|glob|ls|find|dig|proceed|pick|analyze|check|search|scan|fix|harden|identify|perform|review|access|show|use)\b",
+    re.I,
+)
+_NET_VERBS = re.compile(
+    r"\b(fetch|curl|wget|download|upload|api|endpoint|http|get|post|visit|open|search|check|request|deploy|reply|send|did|any|use)\b",
+    re.I,
+)
 
 # Objects
 _FILE_OBJECTS = re.compile(
-    r'\b[\w/.-]+\.(py|js|ts|go|rb|rs|c|h|cpp|hpp|sh|json|yaml|yml|md|sql|html|css)\b'  # Removed txt
-    r'|\b(file|files|dir|directory|path|folder|code|repo|doc|docs|source|fonts|source-grounded)\b',
-    re.I
+    r"\b[\w/.-]+\.(py|js|ts|go|rb|rs|c|h|cpp|hpp|sh|json|yaml|yml|md|sql|html|css)\b"  # Removed txt
+    r"|\b(file|files|dir|directory|path|folder|code|repo|doc|docs|source|fonts|source-grounded)\b",
+    re.I,
 )
-_NEGATIVE_OBJECTS = re.compile(r'\b(hello world|worship folder|ADMIN|notion)\b', re.I)
+_NEGATIVE_OBJECTS = re.compile(r"\b(hello world|worship folder|ADMIN|notion)\b", re.I)
 
 _NET_OBJECTS = re.compile(
-    r'https?://\S+'
-    r'|\b(notion|email|emails|thread|message|messages|nixos|aws-ec2|remote|api|endpoint|playwright|myanonamouse)\b',
-    re.I
+    r"https?://\S+"
+    r"|\b(notion|email|emails|thread|message|messages|nixos|aws-ec2|remote|api|endpoint|playwright|myanonamouse)\b",
+    re.I,
 )
 
 
-_URL_PATTERN = re.compile(r'https?://\S+')
+_URL_PATTERN = re.compile(r"https?://\S+")
 
 # Absolute paths (strong signal)
-_ABS_PATH_PATTERN = re.compile(r'(?:^|\s)/(home|tmp|var|etc|usr)/[\w/.-]+\b')
+_ABS_PATH_PATTERN = re.compile(r"(?:^|\s)/(home|tmp|var|etc|usr)/[\w/.-]+\b")
 
 # Auth patterns
 _AUTH_PATTERNS = re.compile(
-    r'\b(sudo|privilege|systemctl|apt|yum|chmod|chown)\b'
-    r'|\broot\b(?!.*\b(dir|directory|folder|path)\b)'
-    r'|\b(notion|email|emails|myanonamouse|login)\b',
-    re.I
+    r"\b(sudo|privilege|systemctl|apt|yum|chmod|chown)\b"
+    r"|\broot\b(?!.*\b(dir|directory|folder|path)\b)"
+    r"|\b(notion|email|emails|myanonamouse|login)\b",
+    re.I,
 )
 
 
 # Output format patterns
 _JSON_PATTERNS = re.compile(
-    r'\b(output json|format as json|return json|as json|json format|structured output)\b', re.IGNORECASE
+    r"\b(output json|format as json|return json|as json|json format|structured output)\b",
+    re.IGNORECASE,
 )
 _BINARY_PATTERNS = re.compile(
-    r'\b(image|screenshot|diagram|pdf|zip|tar)\b'
-    r'|\.(png|jpg|jpeg|gif|pdf|zip|tar|gz|bin)\b',
+    r"\b(image|screenshot|diagram|pdf|zip|tar)\b"
+    r"|\.(png|jpg|jpeg|gif|pdf|zip|tar|gz|bin)\b",
     re.IGNORECASE,
 )
 
@@ -144,14 +183,15 @@ _EXACT_CLASSES: dict[str, str] = {
 }
 
 _GIT_WRITE_COMMANDS = re.compile(
-    r'^git\s+(add|commit|push|checkout\s+-b|rebase|merge|tag|rm|mv)\b',
+    r"^git\s+(add|commit|push|checkout\s+-b|rebase|merge|tag|rm|mv)\b",
     re.IGNORECASE,
 )
-_GIT_READ_COMMANDS = re.compile(r'^git\b', re.IGNORECASE)
-_WEB_COMMANDS = re.compile(r'^(curl|wget|fetch)\b', re.IGNORECASE)
+_GIT_READ_COMMANDS = re.compile(r"^git\b", re.IGNORECASE)
+_WEB_COMMANDS = re.compile(r"^(curl|wget|fetch)\b", re.IGNORECASE)
 
 
 # ── Public API ────────────────────────────────────────────────────────────────
+
 
 def normalize_mcp_git_tool_name(tool_name: str) -> str:
     """Map ``mcp__<server-slug>__git__…`` to ``mcp__git__…`` for stable matching.
@@ -180,7 +220,7 @@ def derive_request(
 ) -> ToolSelectionRequest:
     """Convert a UserPromptSubmit prompt + SessionStart into a ToolSelectionRequest."""
     stripped = prompt.strip().lower()
-    
+
     # 1. Skip system/continuation prompts (High Precision Filter)
     if not stripped or stripped in _CONTINUATION_PROMPTS:
         return ToolSelectionRequest.from_kwargs(
@@ -189,9 +229,13 @@ def derive_request(
             required_output_formats=frozenset({"text"}),
             require_auto_approval=_derive_approval_mode(session),
         )
-        
+
     # 2. Skip tool-output/notification-like prompts
-    if "<task-notification>" in prompt or "tool-use-id" in prompt or "output-file" in prompt:
+    if (
+        "<task-notification>" in prompt
+        or "tool-use-id" in prompt
+        or "output-file" in prompt
+    ):
         return ToolSelectionRequest.from_kwargs(
             required_capability_flags=0,
             heuristic_capability_flags=0,
@@ -213,7 +257,6 @@ def derive_request(
         require_auto_approval=require_auto_approval,
         preferred_criteria="speed",
     )
-
 
 
 def get_equivalence_class(tool_name: str, tool_input: dict) -> str:
@@ -242,7 +285,10 @@ def get_equivalence_class(tool_name: str, tool_input: dict) -> str:
     if tool_name.startswith("mcp__git__"):
         # Catch any git write patterns by name
         name_part = tool_name.split("__")[-1]
-        if any(w in name_part for w in ("add", "commit", "push", "checkout", "reset", "create_branch")):
+        if any(
+            w in name_part
+            for w in ("add", "commit", "push", "checkout", "reset", "create_branch")
+        ):
             return "GIT_WRITE"
         return "GIT_READ"
 
@@ -279,9 +325,12 @@ def classify_unscorable(prompt: str, tool_event: PostToolUseEvent) -> bool:
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
 
+
 def _derive_capability_flags(prompt: str, session: SessionStartEvent) -> int:
     """Legacy: returns union of prompt + env flags. Kept for classify_unscorable."""
-    return _derive_capability_flags_from_prompt_only(prompt) | _derive_env_flags(prompt, session)
+    return _derive_capability_flags_from_prompt_only(prompt) | _derive_env_flags(
+        prompt, session
+    )
 
 
 def _derive_env_flags(_prompt: str, session: SessionStartEvent) -> int:
@@ -296,21 +345,39 @@ def _derive_env_flags(_prompt: str, session: SessionStartEvent) -> int:
 def _strip_tool_logs(text: str) -> str:
     """Remove patterns like Read(...), Bash(...), Tracebacks, and JSON from the text."""
     # Catch interactive interruptions
-    text = re.sub(r'●\s+[\w-]+ - [\w-]+ \(MCP\).*?What should Claude do instead\?', '', text, flags=re.DOTALL)
-    text = re.sub(r'●\s+(Read|Write|Edit|Bash|Glob|Grep|WebFetch|Skill).*?What should Claude do instead\?', '', text, flags=re.DOTALL)
-    text = re.sub(r'\u23bf\s+\u00a0Interrupted \u00b7 What should Claude do instead\?', '', text)
+    text = re.sub(
+        r"●\s+[\w-]+ - [\w-]+ \(MCP\).*?What should Claude do instead\?",
+        "",
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"●\s+(Read|Write|Edit|Bash|Glob|Grep|WebFetch|Skill).*?What should Claude do instead\?",
+        "",
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"\u23bf\s+\u00a0Interrupted \u00b7 What should Claude do instead\?", "", text
+    )
     # Generic MCP and Claude Code tool payloads
-    text = re.sub(r'●\s+[\w-]+ - [\w-]+ \(MCP\)\(.*?\)[\s\u23bf\u2022]*', '', text, flags=re.DOTALL)
-    text = re.sub(r'[●\s]*\b(Read|Write|Edit|Bash|Glob|Grep|WebFetch|Skill)\(.*?\)[\s\u23bf\u2022]*', '', text, flags=re.DOTALL)
+    text = re.sub(
+        r"●\s+[\w-]+ - [\w-]+ \(MCP\)\(.*?\)[\s\u23bf\u2022]*",
+        "",
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"[●\s]*\b(Read|Write|Edit|Bash|Glob|Grep|WebFetch|Skill)\(.*?\)[\s\u23bf\u2022]*",
+        "",
+        text,
+        flags=re.DOTALL,
+    )
     # Strip Tracebacks and general system paths in quotes
-    text = re.sub(r'\bFile\s+"[^"]+",\s+line\s+\d+', '', text)
+    text = re.sub(r'\bFile\s+"[^"]+",\s+line\s+\d+', "", text)
     # Strip JSON-like blocks
-    text = re.sub(r'\{[^{}]*?"[^{}]*?":.*\}', '', text, flags=re.DOTALL)
+    text = re.sub(r'\{[^{}]*?"[^{}]*?":.*\}', "", text, flags=re.DOTALL)
     return text
-
-
-
-
 
 
 def _derive_capability_flags_from_prompt_only(prompt: str) -> int:
@@ -318,24 +385,30 @@ def _derive_capability_flags_from_prompt_only(prompt: str) -> int:
     # Pre-strip logs to avoid false positives from history
     clean_prompt = _strip_tool_logs(prompt)
     stripped = clean_prompt.strip()
-    
+
     # Base signals
     has_abs_path = bool(_ABS_PATH_PATTERN.search(stripped))
-    has_http_method = bool(re.search(r'\bHTTP\s+(?:GET|POST|PUT|DELETE|PATCH)\b', clean_prompt))
-    
+    has_http_method = bool(
+        re.search(r"\bHTTP\s+(?:GET|POST|PUT|DELETE|PATCH)\b", clean_prompt)
+    )
+
     # Request Score Calculation
     score = 0
-    
+
     # 1. Imperative/Directive starts (Strong Signal)
-    if re.search(r'^(?:please\s+)?\b(do|run|fix|harden|create|read|write|edit|find|search|grep|glob|ls|list|check|analyze|dig|proceed|pick|deploy|visit|open|fetch|download|upload|search|scan|identify|perform)\b', stripped, re.I):
+    if re.search(
+        r"^(?:please\s+)?\b(do|run|fix|harden|create|read|write|edit|find|search|grep|glob|ls|list|check|analyze|dig|proceed|pick|deploy|visit|open|fetch|download|upload|search|scan|identify|perform)\b",
+        stripped,
+        re.I,
+    ):
         score += 4
-    
+
     # 2. Standalone strong signals
     if has_abs_path:
         score += 5
     if has_http_method:
         score += 5
-        
+
     # Semantic pairs bump score dramatically to bypass long-prompt penalties
     if _FILE_VERBS.search(stripped) and _FILE_OBJECTS.search(stripped):
         score += 5
@@ -343,15 +416,19 @@ def _derive_capability_flags_from_prompt_only(prompt: str) -> int:
         score += 5
     if _AUTH_PATTERNS.search(stripped):
         score += 5
-        
+
     # 3. Question marks
     if "?" in stripped:
         score += 2
-        
+
     # 4. Direct address/Personal intent
-    if re.search(r'\b(can you|could you|please|i want to|i need to|help me|did any)\b', stripped, re.I):
+    if re.search(
+        r"\b(can you|could you|please|i want to|i need to|help me|did any)\b",
+        stripped,
+        re.I,
+    ):
         score += 2
-        
+
     # 5. Length penalties
     words = stripped.split()
     if len(words) > 50:
@@ -374,14 +451,6 @@ def _derive_capability_flags_from_prompt_only(prompt: str) -> int:
     return _derive_capability_flags_unconditional(clean_prompt)
 
 
-
-
-
-
-
-
-
-
 def _derive_capability_flags_unconditional(text: str) -> int:
     """Apply FILE/NETWORK/AUTH pattern rules without the short-prompt early exit."""
     flags = 0
@@ -397,18 +466,21 @@ def _derive_capability_flags_unconditional(text: str) -> int:
     # 2. NETWORK (SUPPORTS_NETWORK)
     net_verb = _NET_VERBS.search(text)
     net_obj = _NET_OBJECTS.search(text)
-    http_method = re.search(r'\bHTTP\s+(?:GET|POST|PUT|DELETE|PATCH)\b', text)
+    http_method = re.search(r"\bHTTP\s+(?:GET|POST|PUT|DELETE|PATCH)\b", text)
     if (net_verb and net_obj) or http_method:
         flags |= int(CapabilityFlags.SUPPORTS_NETWORK)
 
     # 3. AUTH (AUTH_REQUIRED)
-    is_network_auth = bool(net_verb and re.search(r'\b(notion|email|emails|login|myanonamouse|thread)\b', text, re.I))
+    is_network_auth = bool(
+        net_verb
+        and re.search(
+            r"\b(notion|email|emails|login|myanonamouse|thread)\b", text, re.I
+        )
+    )
     if _AUTH_PATTERNS.search(text) or is_network_auth:
         flags |= int(CapabilityFlags.AUTH_REQUIRED)
 
     return flags
-
-
 
 
 def derive_capability_flags_from_description(description: str) -> int:
@@ -432,4 +504,7 @@ def _derive_output_formats(prompt: str) -> frozenset[str]:
 
 def _derive_approval_mode(session: SessionStartEvent) -> bool:
     """Return True if tools should be auto-approved (no prompt)."""
-    return session.permission_mode in ("bypassPermissions", "dangerouslySkipPermissions")
+    return session.permission_mode in (
+        "bypassPermissions",
+        "dangerouslySkipPermissions",
+    )

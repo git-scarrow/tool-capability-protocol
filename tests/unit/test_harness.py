@@ -94,7 +94,9 @@ def test_gate_tools_approves_safe_matching_tool_and_router_selects_fastest():
             input_formats=[FormatDescriptor(name="json", type=FormatType.JSON)],
             output_formats=[FormatDescriptor(name="json", type=FormatType.JSON)],
             processing_modes=[ProcessingMode.SYNC],
-            performance=PerformanceMetrics(avg_processing_time_ms=10, memory_usage_mb=8),
+            performance=PerformanceMetrics(
+                avg_processing_time_ms=10, memory_usage_mb=8
+            ),
         ),
         permission_level="read_only",
     )
@@ -106,7 +108,9 @@ def test_gate_tools_approves_safe_matching_tool_and_router_selects_fastest():
             input_formats=[FormatDescriptor(name="json", type=FormatType.JSON)],
             output_formats=[FormatDescriptor(name="json", type=FormatType.JSON)],
             processing_modes=[ProcessingMode.SYNC],
-            performance=PerformanceMetrics(avg_processing_time_ms=50, memory_usage_mb=4),
+            performance=PerformanceMetrics(
+                avg_processing_time_ms=50, memory_usage_mb=4
+            ),
         ),
         permission_level="read_only",
     )
@@ -152,7 +156,9 @@ def test_unknown_risk_requires_approval_when_auto_approval_enabled():
 
 def test_project_tool_keeps_prompt_surface_compact():
     binary = BinaryCapabilityDescriptor(
-        capability_flags=int(CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.JSON_OUTPUT),
+        capability_flags=int(
+            CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.JSON_OUTPUT
+        ),
         command_count=1,
         format_count=1,
         max_file_size_mb=10,

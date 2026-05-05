@@ -1,4 +1,5 @@
 """Implementation of POLICY (0x000C) TLV."""
+
 from __future__ import annotations
 
 from typing import Any, Dict

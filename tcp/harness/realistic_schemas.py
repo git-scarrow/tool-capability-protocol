@@ -105,7 +105,7 @@ _READ_DESCRIPTION = (
     "reading an image file the contents are presented visually as Claude Code "
     "is a multimodal LLM.\n"
     "- This tool can read PDF files (.pdf). For large PDFs (more than 10 "
-    'pages), you MUST provide the pages parameter to read specific page ranges '
+    "pages), you MUST provide the pages parameter to read specific page ranges "
     '(e.g., pages: "1-5"). Reading a large PDF without the pages parameter '
     "will fail. Maximum 20 pages per request.\n"
     "- This tool can read Jupyter notebooks (.ipynb files) and returns all "
@@ -503,8 +503,7 @@ _BUILTIN_TOOLS: list[dict] = [
                 },
                 "offset": {
                     "description": (
-                        "Skip first N lines/entries before applying "
-                        "head_limit."
+                        "Skip first N lines/entries before applying " "head_limit."
                     ),
                     "type": "number",
                 },
@@ -526,9 +525,7 @@ _BUILTIN_TOOLS: list[dict] = [
             "type": "object",
             "properties": {
                 "description": {
-                    "description": (
-                        "A short (3-5 word) description of the task"
-                    ),
+                    "description": ("A short (3-5 word) description of the task"),
                     "type": "string",
                 },
                 "prompt": {
@@ -547,9 +544,7 @@ _BUILTIN_TOOLS: list[dict] = [
                     "enum": ["sonnet", "opus", "haiku"],
                 },
                 "run_in_background": {
-                    "description": (
-                        "Set to true to run this agent in the background."
-                    ),
+                    "description": ("Set to true to run this agent in the background."),
                     "type": "boolean",
                 },
                 "isolation": {
@@ -599,9 +594,7 @@ _BUILTIN_TOOLS: list[dict] = [
                     "type": "string",
                 },
                 "prompt": {
-                    "description": (
-                        "The prompt to run on the fetched content"
-                    ),
+                    "description": ("The prompt to run on the fetched content"),
                     "type": "string",
                 },
             },
@@ -622,16 +615,12 @@ _BUILTIN_TOOLS: list[dict] = [
                     "type": "string",
                 },
                 "allowed_domains": {
-                    "description": (
-                        "Only include search results from these domains"
-                    ),
+                    "description": ("Only include search results from these domains"),
                     "type": "array",
                     "items": {"type": "string"},
                 },
                 "blocked_domains": {
-                    "description": (
-                        "Never include search results from these domains"
-                    ),
+                    "description": ("Never include search results from these domains"),
                     "type": "array",
                     "items": {"type": "string"},
                 },
@@ -679,8 +668,7 @@ _BUILTIN_TOOLS: list[dict] = [
     {
         "name": "TodoWrite",
         "description": (
-            "Create and manage a structured task checklist for tracking "
-            "progress."
+            "Create and manage a structured task checklist for tracking " "progress."
         ),
         "input_schema": {
             "type": "object",
@@ -722,9 +710,7 @@ _BUILTIN_TOOLS: list[dict] = [
                 "questions": {
                     "type": "array",
                     "items": {"type": "object"},
-                    "description": (
-                        "Questions to ask the user (1-4 questions)"
-                    ),
+                    "description": ("Questions to ask the user (1-4 questions)"),
                 },
             },
             "required": ["questions"],
@@ -819,16 +805,14 @@ _BUILTIN_TOOLS: list[dict] = [
             "properties": {
                 "query": {
                     "description": (
-                        'Query to find deferred tools. Use '
+                        "Query to find deferred tools. Use "
                         '"select:<tool_name>" for direct selection, or '
                         "keywords to search."
                     ),
                     "type": "string",
                 },
                 "max_results": {
-                    "description": (
-                        "Maximum number of results to return (default: 5)"
-                    ),
+                    "description": ("Maximum number of results to return (default: 5)"),
                     "type": "number",
                     "default": 5,
                 },
@@ -852,9 +836,7 @@ _BUILTIN_TOOLS: list[dict] = [
     },
     {
         "name": "EnterWorktree",
-        "description": (
-            "Create and enter a temporary git worktree for isolated work."
-        ),
+        "description": ("Create and enter a temporary git worktree for isolated work."),
         "input_schema": {
             "type": "object",
             "properties": {

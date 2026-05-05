@@ -24,8 +24,8 @@ from tcp.proxy.capability_resolution_gate import (
     resolution_to_log_record,
 )
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 def _empty_ctx(**overrides) -> CRGContext:
     defaults = dict(
@@ -50,15 +50,16 @@ _NOTION_SERVER = "notion-agents"
 
 # ── V1: Latent-only capability ────────────────────────────────────────────────
 
+
 class TestLatentOnlyCapability:
     """Server suppressed → tools in latent surface → schema_deferred, not unavailable."""
 
     def test_notion_in_latent_gives_schema_deferred(self):
         ctx = _empty_ctx(latent_tools=frozenset({_NOTION_TOOL}))
         r = resolve_capability("notion.search", ctx)
-        assert r.status == "schema_deferred", (
-            f"Expected schema_deferred but got {r.status}: {r.reason}"
-        )
+        assert (
+            r.status == "schema_deferred"
+        ), f"Expected schema_deferred but got {r.status}: {r.reason}"
 
     def test_notion_in_latent_matched_tools_populated(self):
         ctx = _empty_ctx(latent_tools=frozenset({_NOTION_TOOL}))
@@ -74,6 +75,7 @@ class TestLatentOnlyCapability:
 
 
 # ── V2: Unknown capability → unavailable ─────────────────────────────────────
+
 
 class TestUnavailableCapability:
     """No matching tools anywhere → unavailable with all six surfaces checked."""
@@ -107,6 +109,7 @@ class TestUnavailableCapability:
 
 # ── V3: Visible capability → callable_now ────────────────────────────────────
 
+
 class TestVisibleCapability:
     """Tool in visible surface → callable_now with confidence 1.0."""
 
@@ -131,6 +134,7 @@ class TestVisibleCapability:
 
 # ── V4: Connector-only match ──────────────────────────────────────────────────
 
+
 class TestConnectorOnlyMatch:
     """Server in manifest but no tools seen → schema_deferred at lower confidence."""
 
@@ -148,6 +152,7 @@ class TestConnectorOnlyMatch:
 
 
 # ── V5: Policy-blocked without visible alternative ───────────────────────────
+
 
 class TestPolicyBlocked:
     """Policy blocks a tool with no callable alternative → policy_blocked."""
@@ -169,34 +174,46 @@ class TestPolicyBlocked:
 
 # ── V6: Six surfaces always present ──────────────────────────────────────────
 
+
 class TestSixSurfacesAlwaysPresent:
     """All six surface results must appear in every resolution."""
 
-    @pytest.mark.parametrize("status_scenario", [
-        _empty_ctx(),  # unavailable
-        _empty_ctx(visible_tools=frozenset({_NOTION_TOOL})),  # callable_now
-        _empty_ctx(latent_tools=frozenset({_NOTION_TOOL})),  # schema_deferred
-        _empty_ctx(connector_servers=frozenset({_NOTION_SERVER})),  # schema_deferred
-        _empty_ctx(policy_blocked_tools=frozenset({_NOTION_TOOL})),  # policy_blocked
-    ])
+    @pytest.mark.parametrize(
+        "status_scenario",
+        [
+            _empty_ctx(),  # unavailable
+            _empty_ctx(visible_tools=frozenset({_NOTION_TOOL})),  # callable_now
+            _empty_ctx(latent_tools=frozenset({_NOTION_TOOL})),  # schema_deferred
+            _empty_ctx(
+                connector_servers=frozenset({_NOTION_SERVER})
+            ),  # schema_deferred
+            _empty_ctx(
+                policy_blocked_tools=frozenset({_NOTION_TOOL})
+            ),  # policy_blocked
+        ],
+    )
     def test_all_six_surfaces_present(self, status_scenario):
         r = resolve_capability("notion.search", status_scenario)
         surface_names = {sr.surface for sr in r.surface_results}
-        assert surface_names == set(_REQUIRED_SIX_SURFACES), (
-            f"Missing surfaces: {set(_REQUIRED_SIX_SURFACES) - surface_names}"
-        )
+        assert surface_names == set(
+            _REQUIRED_SIX_SURFACES
+        ), f"Missing surfaces: {set(_REQUIRED_SIX_SURFACES) - surface_names}"
 
-    @pytest.mark.parametrize("status_scenario", [
-        _empty_ctx(),
-        _empty_ctx(visible_tools=frozenset({_NOTION_TOOL})),
-        _empty_ctx(latent_tools=frozenset({_NOTION_TOOL})),
-    ])
+    @pytest.mark.parametrize(
+        "status_scenario",
+        [
+            _empty_ctx(),
+            _empty_ctx(visible_tools=frozenset({_NOTION_TOOL})),
+            _empty_ctx(latent_tools=frozenset({_NOTION_TOOL})),
+        ],
+    )
     def test_checked_surfaces_tuple_is_canonical(self, status_scenario):
         r = resolve_capability("notion.search", status_scenario)
         assert r.checked_surfaces == _REQUIRED_SIX_SURFACES
 
 
 # ── V7: Capability extraction from prompt ────────────────────────────────────
+
 
 class TestCapabilityExtraction:
     """extract_requested_capabilities detects semantic capabilities from prompts."""
@@ -242,6 +259,7 @@ class TestCapabilityExtraction:
 
 # ── Log record serialization ──────────────────────────────────────────────────
 
+
 class TestLogRecordSerialization:
     """resolution_to_log_record must produce a valid decisions.jsonl-compatible dict."""
 
@@ -260,6 +278,7 @@ class TestLogRecordSerialization:
 
     def test_log_record_is_json_serializable(self):
         import json
+
         ctx = _empty_ctx(latent_tools=frozenset({_NOTION_TOOL}))
         r = resolve_capability("notion.search", ctx)
         record = resolution_to_log_record(r)

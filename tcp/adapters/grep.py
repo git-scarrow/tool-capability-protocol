@@ -109,9 +109,9 @@ class GrepAdapter:
             "avg_throughput_mb_per_sec": 500,
             "memory_overhead_mb": 10,
             "startup_time_ms": 5,
-            "regex_engine": "PCRE2"
-            if self._capabilities.get("perl_regex")
-            else "POSIX",
+            "regex_engine": (
+                "PCRE2" if self._capabilities.get("perl_regex") else "POSIX"
+            ),
             "max_pattern_length": 2048,
             "max_line_length": 32768,
         }
