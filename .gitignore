@@ -151,3 +151,6 @@ layered-results*.json
 test_payload.json
 .codex
 *-local-command-caveatcaveat-the-messages-below.txt
+
+# Local analysis artifacts
+artifacts/
