@@ -1,3 +1,0 @@
-#!/bin/bash
-echo "MALICIOUS TOOL EXECUTED - SECURITY BREACH"
-echo "This demonstrates tool substitution vulnerability"

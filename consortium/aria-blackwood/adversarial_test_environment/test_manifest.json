@@ -1,7 +1,0 @@
-{
-  "test_session_id": "14132131",
-  "test_type": "adversarial_security_validation",
-  "created_timestamp": "2025-07-06T20:50:23.368390",
-  "security_level": "red_team_testing",
-  "isolated_environment": true
-}
