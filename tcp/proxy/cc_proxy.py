@@ -58,7 +58,6 @@ from tcp.proxy.absence_language import (
 )
 from tcp.proxy.capability_resolution_gate import (
     CapabilityResolution,
-    extract_requested_capabilities,
     resolve_capabilities_for_request,
     resolution_to_log_record,
 )
@@ -411,10 +410,7 @@ def _description_similarity_proxy_telemetry(
         return base
     if mode == "deferred":
         return base
-    if (
-        pair_count > DESC_SIM_MAX_INLINE_PAIRS
-        or max_chars > DESC_SIM_MAX_INLINE_CHARS
-    ):
+    if pair_count > DESC_SIM_MAX_INLINE_PAIRS or max_chars > DESC_SIM_MAX_INLINE_CHARS:
         base["description_similarity_max_status"] = "skipped_budget"
         return base
 
@@ -794,9 +790,9 @@ def _process_tools_array(
     # Ranks active_survivors and produces a capped shortlist for telemetry.
     # Never mutates live_tools in this PR; never overrides the IMP-22
     # expected_tool_name derivation.  See tcp/proxy/survivor_reducer.py.
-    _crg_requested_capabilities = (
-        extract_requested_capabilities(prompt or "") if prompt else []
-    )
+    # Reuses CRG's already-extracted capability list so the regex pass over the
+    # prompt only happens once per request.
+    _crg_requested_capabilities = [r.requested_capability for r in _crg_resolutions]
     _tool_surface_for_reducer: dict[str, dict[str, Any]] = {}
     for _orig, _rec, _tier, _name in entries:
         if _rec is None:
@@ -880,10 +876,11 @@ class _ExpectedToolDerivation:
     TCP-IMP-22: expected_tool_name is only emitted when supported by defensible
     evidence. All other cases abstain and set expected_tool_abstain_reason.
     """
+
     expected_tool_name: str | None
-    derivation_source: str | None   # "single_survivor" | None
-    candidate_set_size: int         # survivor_count at derivation time
-    abstain_reason: str | None      # why expected_tool_name is None
+    derivation_source: str | None  # "single_survivor" | None
+    candidate_set_size: int  # survivor_count at derivation time
+    abstain_reason: str | None  # why expected_tool_name is None
 
 
 def _top_survivor_by_prompt_similarity(
@@ -1170,6 +1167,7 @@ def _check_denial_enforcement(
         SurfaceResult,
         _REQUIRED_SIX_SURFACES as _SIX,
     )
+
     resolutions: list[CapabilityResolution] = []
     for rec in crg_records:
         surface_results = tuple(
@@ -1472,7 +1470,12 @@ async def proxy_post_messages(request: Request) -> Response:
         # _tap["buf"] holds only the unparsed tail (incomplete last line) so that
         # _all_tools_from_sse_buf never rescans already-consumed bytes (O(n) total).
         # _tap["tool_sequence"] accumulates all tool calls until message_stop.
-        _tap: dict[str, Any] = {"buf": b"", "done": False, "tool_sequence": [], "text_buf": b""}
+        _tap: dict[str, Any] = {
+            "buf": b"",
+            "done": False,
+            "tool_sequence": [],
+            "text_buf": b"",
+        }
         first_byte_at: float | None = None
 
         async def body_iter() -> Any:

@@ -38,6 +38,12 @@ import re
 from dataclasses import dataclass, field
 from typing import Mapping, Sequence
 
+# Reducer ranking reuses CRG's canonical capability → MCP server mapping so the
+# two modules cannot drift.  ``capability_resolution_gate`` does not import
+# anything from this module, so the dependency is acyclic.
+from tcp.proxy.capability_resolution_gate import (
+    _CAPABILITY_SERVERS as CAPABILITY_SERVERS,
+)
 
 REDUCER_VERSION: str = "imp23.evidence_gated_reducer.v1"
 
@@ -58,35 +64,6 @@ STATE_SUPPRESSED = "SUPPRESSED"
 
 ABSTAIN_NO_SURVIVORS = "no_survivors"
 ABSTAIN_NO_POSITIVE_EVIDENCE = "no_positive_evidence"
-
-# Capability identifier → MCP server family.  Mirrors the table in
-# ``tcp.proxy.capability_resolution_gate`` so the reducer can rank survivors by
-# CRG match without importing the full CRG module (avoids circular telemetry
-# coupling).  Kept narrow on purpose; missing capabilities yield no score.
-_CAPABILITY_SERVERS: dict[str, frozenset[str]] = {
-    "notion.search": frozenset({"notion-agents", "plugin_Notion_notion"}),
-    "notion.read": frozenset({"notion-agents", "plugin_Notion_notion"}),
-    "notion.write": frozenset({"notion-agents", "plugin_Notion_notion"}),
-    "github.code_search": frozenset({"github"}),
-    "github.pr": frozenset({"github"}),
-    "calendar.read": frozenset({"bay-view-graph"}),
-    "calendar.write": frozenset({"bay-view-graph"}),
-    "email.read": frozenset({"bay-view-graph"}),
-    "email.send": frozenset({"bay-view-graph"}),
-    "email.search": frozenset({"bay-view-graph"}),
-    "oracle.query": frozenset({"oracle-remote"}),
-    "web.fetch": frozenset({"fetch", "exa"}),
-    "web.search": frozenset({"exa", "nixos", "fetch"}),
-    "nix.package_search": frozenset({"nixos"}),
-    "filesystem.read": frozenset({"filesystem"}),
-    "filesystem.write": frozenset({"filesystem"}),
-    "git.log": frozenset({"git"}),
-    "git.diff": frozenset({"git"}),
-    "chatsearch.find": frozenset({"chatsearch"}),
-    "writing.rag": frozenset({"writing-rag"}),
-    "claude_projects.read": frozenset({"claude-projects"}),
-    "context7.docs": frozenset({"context7"}),
-}
 
 
 @dataclass(frozen=True)
@@ -176,7 +153,11 @@ def _popcount(value: int) -> int:
 
 
 def _coerce_state(raw: object) -> str:
-    if isinstance(raw, str) and raw.upper() in {STATE_ACTIVE, STATE_DEFERRED, STATE_SUPPRESSED}:
+    if isinstance(raw, str) and raw.upper() in {
+        STATE_ACTIVE,
+        STATE_DEFERRED,
+        STATE_SUPPRESSED,
+    }:
         return raw.upper()
     return STATE_ACTIVE
 
@@ -192,8 +173,26 @@ def _state_score(state: str) -> int:
 def _crg_servers_for_capabilities(capabilities: Sequence[str]) -> frozenset[str]:
     servers: set[str] = set()
     for cap in capabilities:
-        servers.update(_CAPABILITY_SERVERS.get(cap, frozenset()))
+        servers.update(CAPABILITY_SERVERS.get(cap, frozenset()))
     return frozenset(servers)
+
+
+def _word_boundary_present(needle: str, prompt_lc: str) -> bool:
+    """Return True iff ``needle`` (lowercased) appears in ``prompt_lc`` bounded
+    by non-alphanumeric characters on both sides.
+
+    Substring containment alone over-fires: the prompt ``"explain digital
+    signatures"`` would match an MCP server named ``git`` inside ``digital``,
+    producing a false positive-evidence verdict.  Word-boundary matching keeps
+    the exact-name feature true to its name.
+    """
+    if not needle or not prompt_lc:
+        return False
+    needle_lc = needle.lower()
+    pattern = re.compile(
+        r"(?:^|[^A-Za-z0-9])" + re.escape(needle_lc) + r"(?:[^A-Za-z0-9]|$)"
+    )
+    return bool(pattern.search(prompt_lc))
 
 
 # ── Public API ─────────────────────────────────────────────────────────────────
@@ -247,6 +246,8 @@ def reduce_survivors(
         to mutate ``live_tools`` in this PR.
     """
     if not survivor_names:
+        # Same key set as the populated path so downstream telemetry consumers
+        # see a stable schema regardless of abstain reason.
         return SurvivorReduction(
             original_count=0,
             shortlisted_count=0,
@@ -266,6 +267,10 @@ def reduce_survivors(
                 "safety_floor_preserved": 0,
                 "positive_evidence_tools": 0,
                 "crg_capabilities": list(crg_requested_capabilities),
+                "heuristic_capability_flags": int(heuristic_capability_flags),
+                "hard_capability_flags": int(hard_capability_flags),
+                "required_capability_flags": int(required_capability_flags),
+                "max_shortlist": int(max_shortlist),
             },
         )
 
@@ -299,12 +304,18 @@ def reduce_survivors(
         if not isinstance(mcp_server, str) or not mcp_server:
             mcp_server = _extract_mcp_server(name)
 
-        # Feature 1: exact tool name or server name appears in the prompt.
+        # Feature 1: exact tool name or server name appears in the prompt,
+        # bounded by non-alphanumeric characters so incidental substrings
+        # (e.g. "git" inside "digital") do not register as evidence.
         feat_exact_name = False
         if prompt_lc:
-            if name and name.lower() in prompt_lc:
+            if name and _word_boundary_present(name, prompt_lc):
                 feat_exact_name = True
-            elif isinstance(mcp_server, str) and mcp_server and mcp_server.lower() in prompt_lc:
+            elif (
+                isinstance(mcp_server, str)
+                and mcp_server
+                and _word_boundary_present(mcp_server, prompt_lc)
+            ):
                 feat_exact_name = True
 
         # Feature 2: CRG capability family match by MCP server.
@@ -320,11 +331,13 @@ def reduce_survivors(
             SCORE_HEURISTIC_OVERLAP_CAP,
         )
 
-        # Feature 4: command/name lexical match — any tool token appears in prompt.
+        # Feature 4: command/name lexical match — any tool token appears in the
+        # prompt as a whole word.  Word-boundary checking keeps short tokens
+        # like ``git`` from matching inside ``digital``.
         feat_lexical_name = False
         if prompt_lc:
             for token in _lexical_tokens(name):
-                if token in prompt_lc:
+                if _word_boundary_present(token, prompt_lc):
                     feat_lexical_name = True
                     break
 

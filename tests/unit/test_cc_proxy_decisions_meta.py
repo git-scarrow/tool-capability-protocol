@@ -150,8 +150,12 @@ def test_prompt_similarity_caps_large_prompt_and_descriptions() -> None:
 def test_decision_log_schema_is_present_in_written_record() -> None:
     """decision_log_schema must be present on every written record (IMP-23)."""
     captured: list[dict] = []
-    with patch("tcp.proxy.cc_proxy._append_jsonl", lambda _path, rec: captured.append(rec)):
-        _write_decision_record(0.0, {"survivor_count": 0, "survivor_names_sorted": []}, None)
+    with patch(
+        "tcp.proxy.cc_proxy._append_jsonl", lambda _path, rec: captured.append(rec)
+    ):
+        _write_decision_record(
+            0.0, {"survivor_count": 0, "survivor_names_sorted": []}, None
+        )
     assert len(captured) == 1
     assert captured[0]["decision_log_schema"] == DECISION_LOG_SCHEMA
     assert isinstance(captured[0]["decision_log_schema"], int)
@@ -160,14 +164,23 @@ def test_decision_log_schema_is_present_in_written_record() -> None:
 def test_derivation_algorithm_version_is_present_in_written_record() -> None:
     """expected_tool_derivation_algorithm must be present on every written record."""
     captured: list[dict] = []
-    with patch("tcp.proxy.cc_proxy._append_jsonl", lambda _path, rec: captured.append(rec)):
-        _write_decision_record(0.0, {"survivor_count": 1, "survivor_names_sorted": ["Read"]}, None)
-    assert captured[0]["expected_tool_derivation_algorithm"] == EXPECTED_TOOL_DERIVATION_ALGORITHM
+    with patch(
+        "tcp.proxy.cc_proxy._append_jsonl", lambda _path, rec: captured.append(rec)
+    ):
+        _write_decision_record(
+            0.0, {"survivor_count": 1, "survivor_names_sorted": ["Read"]}, None
+        )
+    assert (
+        captured[0]["expected_tool_derivation_algorithm"]
+        == EXPECTED_TOOL_DERIVATION_ALGORITHM
+    )
 
 
 def test_derivation_single_survivor_emits_with_source() -> None:
     """Single survivor → expected_tool_name emitted, source='single_survivor', no abstain."""
-    result = _compute_expected_tool_name({"survivor_count": 1, "survivor_names_sorted": ["Read"]})
+    result = _compute_expected_tool_name(
+        {"survivor_count": 1, "survivor_names_sorted": ["Read"]}
+    )
     assert result.expected_tool_name == "Read"
     assert result.derivation_source == "single_survivor"
     assert result.candidate_set_size == 1
@@ -186,14 +199,18 @@ def test_derivation_multiple_survivors_abstains() -> None:
 
 def test_derivation_no_survivors_abstains() -> None:
     """Zero survivors → abstains with 'no_survivors'."""
-    result = _compute_expected_tool_name({"survivor_count": 0, "survivor_names_sorted": []})
+    result = _compute_expected_tool_name(
+        {"survivor_count": 0, "survivor_names_sorted": []}
+    )
     assert result.expected_tool_name is None
     assert result.abstain_reason == "no_survivors"
 
 
 def test_derivation_count_list_mismatch_abstains() -> None:
     """count=1 but empty survivors list → abstains with 'count_list_mismatch'."""
-    result = _compute_expected_tool_name({"survivor_count": 1, "survivor_names_sorted": []})
+    result = _compute_expected_tool_name(
+        {"survivor_count": 1, "survivor_names_sorted": []}
+    )
     assert result.expected_tool_name is None
     assert result.abstain_reason == "count_list_mismatch"
 
@@ -216,9 +233,13 @@ def test_derivation_source_null_iff_name_null() -> None:
     for meta in cases:
         r = _compute_expected_tool_name(meta)
         if r.expected_tool_name is None:
-            assert r.derivation_source is None, f"source should be null when name is null: {meta}"
+            assert (
+                r.derivation_source is None
+            ), f"source should be null when name is null: {meta}"
         else:
-            assert r.derivation_source is not None, f"source must be set when name is emitted: {meta}"
+            assert (
+                r.derivation_source is not None
+            ), f"source must be set when name is emitted: {meta}"
 
 
 def test_derivation_abstain_reason_null_iff_emitted() -> None:
@@ -232,14 +253,22 @@ def test_derivation_abstain_reason_null_iff_emitted() -> None:
     for meta in cases:
         r = _compute_expected_tool_name(meta)
         if r.expected_tool_name is not None:
-            assert r.abstain_reason is None, f"abstain_reason must be null when tool emitted: {meta}"
+            assert (
+                r.abstain_reason is None
+            ), f"abstain_reason must be null when tool emitted: {meta}"
         else:
-            assert r.abstain_reason is not None, f"abstain_reason required when abstained: {meta}"
+            assert (
+                r.abstain_reason is not None
+            ), f"abstain_reason required when abstained: {meta}"
 
 
 def test_decision_log_schema_candidate_set_phase_present() -> None:
     """expected_tool_candidate_set_phase must be logged to disambiguate pipeline stage."""
     captured: list[dict] = []
-    with patch("tcp.proxy.cc_proxy._append_jsonl", lambda _path, rec: captured.append(rec)):
-        _write_decision_record(0.0, {"survivor_count": 1, "survivor_names_sorted": ["Read"]}, "Read")
+    with patch(
+        "tcp.proxy.cc_proxy._append_jsonl", lambda _path, rec: captured.append(rec)
+    ):
+        _write_decision_record(
+            0.0, {"survivor_count": 1, "survivor_names_sorted": ["Read"]}, "Read"
+        )
     assert captured[0]["expected_tool_candidate_set_phase"] == "post_stage4_survivors"

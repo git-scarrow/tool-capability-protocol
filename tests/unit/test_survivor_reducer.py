@@ -18,7 +18,6 @@ from tcp.proxy.survivor_reducer import (
     reduce_survivors,
 )
 
-
 _SAFETY_FLOOR = frozenset(
     {
         "Read",
@@ -212,6 +211,37 @@ def test_empty_survivors_abstains_with_no_survivors_reason() -> None:
     assert reduction.shortlisted_tools == ()
 
 
+def test_feature_summary_schema_is_stable_across_paths() -> None:
+    """Empty-survivors path emits the same keys as the populated path."""
+    populated = reduce_survivors(
+        prompt="search notion",
+        survivor_names=frozenset({"mcp__notion-agents__notion-search"}),
+        tool_surface_by_name={
+            "mcp__notion-agents__notion-search": _make_surface(
+                "mcp__notion-agents__notion-search"
+            )
+        },
+        required_capability_flags=1,
+        hard_capability_flags=2,
+        heuristic_capability_flags=4,
+        crg_requested_capabilities=["notion.search"],
+        safety_floor_tools=_SAFETY_FLOOR,
+        max_shortlist=20,
+    )
+    empty = reduce_survivors(
+        prompt="anything",
+        survivor_names=frozenset(),
+        tool_surface_by_name={},
+        required_capability_flags=1,
+        hard_capability_flags=2,
+        heuristic_capability_flags=4,
+        crg_requested_capabilities=["notion.search"],
+        safety_floor_tools=_SAFETY_FLOOR,
+        max_shortlist=20,
+    )
+    assert set(populated.feature_summary.keys()) == set(empty.feature_summary.keys())
+
+
 # ── Test 5: heuristic flags alone can rank but cannot hard-prune ──────────────
 
 
@@ -263,6 +293,48 @@ def test_heuristic_flags_can_break_ties_when_evidence_is_present() -> None:
     )
     assert not reduction.abstained
     assert reduction.ranked_tools[0] == notion_tool
+
+
+# ── Token-boundary precision: substrings must not register as evidence ───────
+
+
+def test_exact_name_requires_word_boundary_not_substring() -> None:
+    """``git`` server name must not match inside ``digital`` (Codex review)."""
+    git_tool = "mcp__git__git_status"
+    survivors = frozenset({git_tool})
+    surface = {git_tool: _make_surface(git_tool)}
+    reduction = reduce_survivors(
+        prompt="explain digital signatures",
+        survivor_names=survivors,
+        tool_surface_by_name=surface,
+        required_capability_flags=0,
+        hard_capability_flags=0,
+        heuristic_capability_flags=0,
+        crg_requested_capabilities=[],
+        safety_floor_tools=_SAFETY_FLOOR,
+    )
+    assert (
+        reduction.abstained
+    ), "substring of 'git' inside 'digital' must not register as evidence"
+    assert reduction.abstain_reason == ABSTAIN_NO_POSITIVE_EVIDENCE
+
+
+def test_exact_name_fires_on_word_bounded_mention() -> None:
+    git_tool = "mcp__git__git_status"
+    survivors = frozenset({git_tool})
+    surface = {git_tool: _make_surface(git_tool)}
+    reduction = reduce_survivors(
+        prompt="run git status please",
+        survivor_names=survivors,
+        tool_surface_by_name=surface,
+        required_capability_flags=0,
+        hard_capability_flags=0,
+        heuristic_capability_flags=0,
+        crg_requested_capabilities=[],
+        safety_floor_tools=_SAFETY_FLOOR,
+    )
+    assert not reduction.abstained
+    assert git_tool in reduction.shortlisted_tools
 
 
 # ── Test 6: CRG family match outranks unrelated tools ─────────────────────────
@@ -364,7 +436,10 @@ def test_replay_against_local_corpus_caps_broad_survivors() -> None:
                 rec = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if rec.get("expected_tool_derivation_algorithm") != "imp22.evidence_gated.v1":
+            if (
+                rec.get("expected_tool_derivation_algorithm")
+                != "imp22.evidence_gated.v1"
+            ):
                 continue
             sc = rec.get("survivor_count")
             if not isinstance(sc, int) or sc < 50:
