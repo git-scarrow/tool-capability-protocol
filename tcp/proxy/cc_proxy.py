@@ -58,9 +58,11 @@ from tcp.proxy.absence_language import (
 )
 from tcp.proxy.capability_resolution_gate import (
     CapabilityResolution,
+    extract_requested_capabilities,
     resolve_capabilities_for_request,
     resolution_to_log_record,
 )
+from tcp.proxy.survivor_reducer import reduce_survivors
 from tcp.proxy.denial_enforcement import (
     denial_violation_record,
     enforce_denial_gate,
@@ -787,6 +789,46 @@ def _process_tools_array(
         meta["crg_false_denial_risk"] = any(
             r.status not in ("callable_now",) for r in _crg_resolutions
         )
+
+    # ── Stage 4.5: Evidence-gated survivor reducer (TCP-IMP-23, shadow-only)
+    # Ranks active_survivors and produces a capped shortlist for telemetry.
+    # Never mutates live_tools in this PR; never overrides the IMP-22
+    # expected_tool_name derivation.  See tcp/proxy/survivor_reducer.py.
+    _crg_requested_capabilities = (
+        extract_requested_capabilities(prompt or "") if prompt else []
+    )
+    _tool_surface_for_reducer: dict[str, dict[str, Any]] = {}
+    for _orig, _rec, _tier, _name in entries:
+        if _rec is None:
+            continue
+        if _rec.tool_name not in active_survivors:
+            continue
+        _tool_surface_for_reducer[_rec.tool_name] = {
+            "description": (
+                _orig.get("description", "") if isinstance(_orig, Mapping) else ""
+            ),
+            "capability_flags": _rec.capability_flags,
+            "surface_state": surface_state_by_tool.get(_rec.tool_name, STATE_ACTIVE),
+            "mcp_server": _extract_mcp_server(_rec.tool_name),
+        }
+    _reduction = reduce_survivors(
+        prompt=prompt or "",
+        survivor_names=frozenset(active_survivors),
+        tool_surface_by_name=_tool_surface_for_reducer,
+        required_capability_flags=tsel.required_capability_flags,
+        hard_capability_flags=tsel.hard_capability_flags,
+        heuristic_capability_flags=tsel.heuristic_capability_flags,
+        crg_requested_capabilities=_crg_requested_capabilities,
+        safety_floor_tools=_SAFETY_FLOOR_TOOLS,
+    )
+    meta["reducer_version"] = _reduction.reducer_version
+    meta["reducer_original_count"] = _reduction.original_count
+    meta["reducer_shortlisted_count"] = _reduction.shortlisted_count
+    meta["reducer_shortlisted_tools"] = list(_reduction.shortlisted_tools)
+    meta["reducer_ranked_tools"] = list(_reduction.ranked_tools)
+    meta["reducer_abstained"] = _reduction.abstained
+    meta["reducer_abstain_reason"] = _reduction.abstain_reason
+    meta["reducer_feature_summary"] = dict(_reduction.feature_summary)
 
     # ── Empty-set guardrail ──────────────────────────────────────────────
     if mode in ("live", "live-strict") and len(tools) > 0 and len(live_tools) == 0:
