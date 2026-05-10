@@ -61,6 +61,7 @@ from tcp.proxy.capability_resolution_gate import (
     resolve_capabilities_for_request,
     resolution_to_log_record,
 )
+from tcp.proxy.survivor_reducer import reduce_survivors
 from tcp.proxy.denial_enforcement import (
     denial_violation_record,
     enforce_denial_gate,
@@ -71,6 +72,12 @@ from tcp.proxy.prompt_select import extract_task_prompt
 PROXY_STATE_DIR = Path.home() / ".tcp-shadow" / "proxy"
 MODE_PATH = PROXY_STATE_DIR / "mode"
 DECISIONS_LOG = PROXY_STATE_DIR / "decisions.jsonl"
+
+# Versioning: allows MT-21 analysis to distinguish rows logged before IMP-22
+# (where absent expected_tool_* fields mean "not recorded") from rows logged
+# after IMP-22 (where expected_tool_name=null means "system abstained").
+DECISION_LOG_SCHEMA: int = 2
+EXPECTED_TOOL_DERIVATION_ALGORITHM: str = "imp22.evidence_gated.v1"
 
 HOP_BY_HOP = frozenset(
     {
@@ -98,6 +105,23 @@ UPSTREAM_LIMITS = httpx.Limits(
 )
 UPSTREAM_RETRY_MAX_ATTEMPTS = 2
 SAFE_RETRY_METHODS = frozenset({"GET", "HEAD", "OPTIONS"})
+DESC_SIM_MODE_ENV = "TCP_CC_DESC_SIM_MODE"
+DESC_SIM_VALID_MODES = frozenset({"deferred", "off", "inline"})
+DESC_SIM_DEFAULT_MODE = "deferred"
+DESC_SIM_METHOD = "difflib_v1"
+DESC_SIM_MAX_INLINE_PAIRS = int(
+    os.environ.get("TCP_CC_DESC_SIM_MAX_INLINE_PAIRS", "2000")
+)
+DESC_SIM_MAX_INLINE_CHARS = int(
+    os.environ.get("TCP_CC_DESC_SIM_MAX_INLINE_CHARS", "1024")
+)
+PROMPT_SIM_METHOD = "difflib_capped_v1"
+PROMPT_SIM_MAX_PROMPT_CHARS = int(
+    os.environ.get("TCP_CC_PROMPT_SIM_MAX_PROMPT_CHARS", "2048")
+)
+PROMPT_SIM_MAX_DESC_CHARS = int(
+    os.environ.get("TCP_CC_PROMPT_SIM_MAX_DESC_CHARS", "1024")
+)
 
 
 def _read_mode() -> str:
@@ -340,6 +364,59 @@ def _max_description_similarity_proxy(tools: list[Any]) -> float:
             if sim > max_sim:
                 max_sim = sim
     return max_sim
+
+
+def _description_similarity_mode() -> str:
+    mode = os.environ.get(DESC_SIM_MODE_ENV, DESC_SIM_DEFAULT_MODE).strip().lower()
+    return mode if mode in DESC_SIM_VALID_MODES else DESC_SIM_DEFAULT_MODE
+
+
+def _description_similarity_proxy_telemetry(
+    tools: list[Any],
+) -> dict[str, Any]:
+    """Bound live description-similarity telemetry.
+
+    The exact full-description metric is diagnostic only. It used to run in
+    live preflight for every request, where large tool surfaces turned the
+    O(n^2) SequenceMatcher loop into a seconds-long event-loop stall. Keep the
+    legacy numeric field present, but make expensive exact computation explicit
+    and opt-in.
+    """
+    descriptions = [
+        t.get("description", "")
+        for t in tools
+        if isinstance(t, Mapping) and t.get("description")
+    ]
+    tool_count = len(descriptions)
+    pair_count = tool_count * (tool_count - 1) // 2
+    max_chars = max((len(str(d)) for d in descriptions), default=0)
+    mode = _description_similarity_mode()
+
+    base: dict[str, Any] = {
+        "description_similarity_max": None,
+        "description_similarity_max_status": mode,
+        "description_similarity_max_method": DESC_SIM_METHOD,
+        "description_similarity_max_pair_count": pair_count,
+        "description_similarity_max_input_count": tool_count,
+        "description_similarity_max_max_chars": max_chars,
+    }
+
+    if tool_count < 2:
+        base["description_similarity_max"] = 0.0
+        base["description_similarity_max_status"] = "exact"
+        return base
+    if mode == "off":
+        base["description_similarity_max_status"] = "disabled"
+        return base
+    if mode == "deferred":
+        return base
+    if pair_count > DESC_SIM_MAX_INLINE_PAIRS or max_chars > DESC_SIM_MAX_INLINE_CHARS:
+        base["description_similarity_max_status"] = "skipped_budget"
+        return base
+
+    base["description_similarity_max"] = _max_description_similarity_proxy(tools)
+    base["description_similarity_max_status"] = "exact"
+    return base
 
 
 def _process_tools_array(
@@ -663,7 +740,7 @@ def _process_tools_array(
         # first_tool_name / expected_tool_name / first_tool_correct are
         # populated by the response tap in proxy_post_messages after the
         # upstream response is observed.
-        "description_similarity_max": _max_description_similarity_proxy(
+        **_description_similarity_proxy_telemetry(
             [
                 orig
                 for (orig, rec, _tier, _name) in entries
@@ -672,7 +749,7 @@ def _process_tools_array(
         ),
         # TCP-IMP-17: prompt-similarity ranking — top survivor regardless of count.
         # Populated when the task prompt is non-empty and any survivors exist.
-        "top_survivor_by_similarity": _top_survivor_by_prompt_similarity(
+        **_top_survivor_by_prompt_similarity_telemetry(
             prompt,
             [
                 orig
@@ -708,6 +785,46 @@ def _process_tools_array(
         meta["crg_false_denial_risk"] = any(
             r.status not in ("callable_now",) for r in _crg_resolutions
         )
+
+    # ── Stage 4.5: Evidence-gated survivor reducer (TCP-IMP-23, shadow-only)
+    # Ranks active_survivors and produces a capped shortlist for telemetry.
+    # Never mutates live_tools in this PR; never overrides the IMP-22
+    # expected_tool_name derivation.  See tcp/proxy/survivor_reducer.py.
+    # Reuses CRG's already-extracted capability list so the regex pass over the
+    # prompt only happens once per request.
+    _crg_requested_capabilities = [r.requested_capability for r in _crg_resolutions]
+    _tool_surface_for_reducer: dict[str, dict[str, Any]] = {}
+    for _orig, _rec, _tier, _name in entries:
+        if _rec is None:
+            continue
+        if _rec.tool_name not in active_survivors:
+            continue
+        _tool_surface_for_reducer[_rec.tool_name] = {
+            "description": (
+                _orig.get("description", "") if isinstance(_orig, Mapping) else ""
+            ),
+            "capability_flags": _rec.capability_flags,
+            "surface_state": surface_state_by_tool.get(_rec.tool_name, STATE_ACTIVE),
+            "mcp_server": _extract_mcp_server(_rec.tool_name),
+        }
+    _reduction = reduce_survivors(
+        prompt=prompt or "",
+        survivor_names=frozenset(active_survivors),
+        tool_surface_by_name=_tool_surface_for_reducer,
+        required_capability_flags=tsel.required_capability_flags,
+        hard_capability_flags=tsel.hard_capability_flags,
+        heuristic_capability_flags=tsel.heuristic_capability_flags,
+        crg_requested_capabilities=_crg_requested_capabilities,
+        safety_floor_tools=_SAFETY_FLOOR_TOOLS,
+    )
+    meta["reducer_version"] = _reduction.reducer_version
+    meta["reducer_original_count"] = _reduction.original_count
+    meta["reducer_shortlisted_count"] = _reduction.shortlisted_count
+    meta["reducer_shortlisted_tools"] = list(_reduction.shortlisted_tools)
+    meta["reducer_ranked_tools"] = list(_reduction.ranked_tools)
+    meta["reducer_abstained"] = _reduction.abstained
+    meta["reducer_abstain_reason"] = _reduction.abstain_reason
+    meta["reducer_feature_summary"] = dict(_reduction.feature_summary)
 
     # ── Empty-set guardrail ──────────────────────────────────────────────
     if mode in ("live", "live-strict") and len(tools) > 0 and len(live_tools) == 0:
@@ -759,10 +876,11 @@ class _ExpectedToolDerivation:
     TCP-IMP-22: expected_tool_name is only emitted when supported by defensible
     evidence. All other cases abstain and set expected_tool_abstain_reason.
     """
+
     expected_tool_name: str | None
-    derivation_source: str | None   # "single_survivor" | None
-    candidate_set_size: int         # survivor_count at derivation time
-    abstain_reason: str | None      # why expected_tool_name is None
+    derivation_source: str | None  # "single_survivor" | None
+    candidate_set_size: int  # survivor_count at derivation time
+    abstain_reason: str | None  # why expected_tool_name is None
 
 
 def _top_survivor_by_prompt_similarity(
@@ -795,6 +913,52 @@ def _top_survivor_by_prompt_similarity(
             best_score = score
             best_name = name if isinstance(name, str) else None
     return best_name
+
+
+def _top_survivor_by_prompt_similarity_telemetry(
+    prompt: str | None,
+    tools: list[Any],
+) -> dict[str, Any]:
+    """Bound prompt-to-tool similarity diagnostic work.
+
+    Claude Code requests can include large system-reminder text in the extracted
+    prompt. Running SequenceMatcher against full prompt and full tool
+    descriptions makes this diagnostic scale with prompt size and tool-surface
+    prose. Keep the legacy top_survivor_by_similarity field, but cap the text
+    that feeds the diagnostic.
+    """
+    base: dict[str, Any] = {
+        "top_survivor_by_similarity": None,
+        "top_survivor_by_similarity_status": "empty",
+        "top_survivor_by_similarity_method": PROMPT_SIM_METHOD,
+        "top_survivor_by_similarity_prompt_chars": len(prompt or ""),
+        "top_survivor_by_similarity_tool_count": len(tools),
+    }
+    if not prompt or not tools:
+        return base
+
+    prompt_capped = prompt[:PROMPT_SIM_MAX_PROMPT_CHARS].lower()
+    capped = len(prompt) > PROMPT_SIM_MAX_PROMPT_CHARS
+    best_name: str | None = None
+    best_score = -1.0
+    for tool in tools:
+        if not isinstance(tool, Mapping):
+            continue
+        name = tool.get("name", "") or ""
+        desc = tool.get("description", "") or ""
+        desc_s = desc if isinstance(desc, str) else str(desc)
+        if len(desc_s) > PROMPT_SIM_MAX_DESC_CHARS:
+            capped = True
+            desc_s = desc_s[:PROMPT_SIM_MAX_DESC_CHARS]
+        candidate = f"{name} {desc_s}".lower()
+        score = difflib.SequenceMatcher(None, prompt_capped, candidate).ratio()
+        if score > best_score:
+            best_score = score
+            best_name = name if isinstance(name, str) else None
+
+    base["top_survivor_by_similarity"] = best_name
+    base["top_survivor_by_similarity_status"] = "capped" if capped else "exact"
+    return base
 
 
 def _compute_expected_tool_name(meta: dict[str, Any] | None) -> _ExpectedToolDerivation:
@@ -1003,6 +1167,7 @@ def _check_denial_enforcement(
         SurfaceResult,
         _REQUIRED_SIX_SURFACES as _SIX,
     )
+
     resolutions: list[CapabilityResolution] = []
     for rec in crg_records:
         surface_results = tuple(
@@ -1074,10 +1239,13 @@ def _write_decision_record(
             "ts": req_ts,
             "path": "/v1/messages",
             **meta,
+            "decision_log_schema": DECISION_LOG_SCHEMA,
             "first_tool_name": first_tool_name,
             "expected_tool_name": expected_tool_name,
             "expected_tool_derivation_source": derivation.derivation_source,
+            "expected_tool_derivation_algorithm": EXPECTED_TOOL_DERIVATION_ALGORITHM,
             "expected_tool_candidate_set_size": derivation.candidate_set_size,
+            "expected_tool_candidate_set_phase": "post_stage4_survivors",
             "expected_tool_abstain_reason": derivation.abstain_reason,
             "first_tool_correct": first_tool_correct,
             "tap_skipped": tap_skipped,
@@ -1302,7 +1470,12 @@ async def proxy_post_messages(request: Request) -> Response:
         # _tap["buf"] holds only the unparsed tail (incomplete last line) so that
         # _all_tools_from_sse_buf never rescans already-consumed bytes (O(n) total).
         # _tap["tool_sequence"] accumulates all tool calls until message_stop.
-        _tap: dict[str, Any] = {"buf": b"", "done": False, "tool_sequence": [], "text_buf": b""}
+        _tap: dict[str, Any] = {
+            "buf": b"",
+            "done": False,
+            "tool_sequence": [],
+            "text_buf": b"",
+        }
         first_byte_at: float | None = None
 
         async def body_iter() -> Any:
