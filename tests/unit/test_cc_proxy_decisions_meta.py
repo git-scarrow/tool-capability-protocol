@@ -272,3 +272,87 @@ def test_decision_log_schema_candidate_set_phase_present() -> None:
             0.0, {"survivor_count": 1, "survivor_names_sorted": ["Read"]}, "Read"
         )
     assert captured[0]["expected_tool_candidate_set_phase"] == "post_stage4_survivors"
+
+
+# ── TCP-IMP-25: prompt_text and tool_capability_flags_by_name ─────────────────
+
+
+def test_prompt_text_full_present_in_meta() -> None:
+    """prompt_text must be the full extracted prompt, not truncated (IMP-25)."""
+    long_prompt = "read the file " * 200  # well over 240 chars
+    tools = [
+        {"name": "Read", "description": "read", "input_schema": {"type": "object"}},
+    ]
+    body = {
+        "messages": [
+            {"role": "user", "content": [{"type": "text", "text": long_prompt}]}
+        ],
+    }
+    _, meta = _process_tools_array(tools, body, "shadow")
+    assert "prompt_text" in meta
+    assert meta["prompt_text"] == long_prompt.strip()
+    # prompt_excerpt is still capped at 240
+    assert len(meta["prompt_excerpt"]) <= 240
+
+
+def test_tool_capability_flags_by_name_present_in_meta() -> None:
+    """tool_capability_flags_by_name must map each active survivor to its int flags (IMP-25)."""
+    tools = [
+        {"name": "Read", "description": "read files", "input_schema": {"type": "object"}},
+        {"name": "Bash", "description": "run shell", "input_schema": {"type": "object"}},
+    ]
+    body = {
+        "messages": [
+            {"role": "user", "content": [{"type": "text", "text": "show the logs"}]}
+        ],
+    }
+    _, meta = _process_tools_array(tools, body, "shadow")
+    assert "tool_capability_flags_by_name" in meta
+    flags_map = meta["tool_capability_flags_by_name"]
+    assert isinstance(flags_map, dict)
+    for name, flags in flags_map.items():
+        assert isinstance(name, str)
+        assert isinstance(flags, int)
+
+
+def test_tool_capability_flags_by_name_subset_of_survivors() -> None:
+    """tool_capability_flags_by_name keys must be a subset of survivor_names_sorted."""
+    tools = [
+        {"name": "Read", "description": "read", "input_schema": {"type": "object"}},
+        {"name": "Bash", "description": "shell", "input_schema": {"type": "object"}},
+        {"name": "Write", "description": "write", "input_schema": {"type": "object"}},
+    ]
+    body = {"messages": [{"role": "user", "content": "fix the test"}]}
+    _, meta = _process_tools_array(tools, body, "shadow")
+    flags_keys = set(meta["tool_capability_flags_by_name"].keys())
+    survivors = set(meta["survivor_names_sorted"])
+    assert flags_keys <= survivors, "flags map must not include non-survivor tools"
+
+
+def test_decision_log_schema_bumped_to_3() -> None:
+    """DECISION_LOG_SCHEMA must be 3 after IMP-25 adds prompt_text and flags (IMP-25)."""
+    from tcp.proxy.cc_proxy import DECISION_LOG_SCHEMA
+
+    assert DECISION_LOG_SCHEMA == 3
+
+
+def test_schema_3_fields_present_in_written_record() -> None:
+    """Written record must include prompt_text and tool_capability_flags_by_name (IMP-25)."""
+    captured: list[dict] = []
+    with patch(
+        "tcp.proxy.cc_proxy._append_jsonl", lambda _path, rec: captured.append(rec)
+    ):
+        _write_decision_record(
+            0.0,
+            {
+                "survivor_count": 1,
+                "survivor_names_sorted": ["Read"],
+                "prompt_text": "open the file",
+                "tool_capability_flags_by_name": {"Read": 4},
+            },
+            "Read",
+        )
+    rec = captured[0]
+    assert rec["decision_log_schema"] == 3
+    assert rec["prompt_text"] == "open the file"
+    assert rec["tool_capability_flags_by_name"] == {"Read": 4}

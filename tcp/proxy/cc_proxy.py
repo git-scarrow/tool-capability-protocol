@@ -76,7 +76,9 @@ DECISIONS_LOG = PROXY_STATE_DIR / "decisions.jsonl"
 # Versioning: allows MT-21 analysis to distinguish rows logged before IMP-22
 # (where absent expected_tool_* fields mean "not recorded") from rows logged
 # after IMP-22 (where expected_tool_name=null means "system abstained").
-DECISION_LOG_SCHEMA: int = 2
+# Schema 3 (IMP-25): adds prompt_text (full prompt) and
+# tool_capability_flags_by_name (per-tool int flag vectors) to every row.
+DECISION_LOG_SCHEMA: int = 3
 EXPECTED_TOOL_DERIVATION_ALGORITHM: str = "imp22.evidence_gated.v1"
 
 HOP_BY_HOP = frozenset(
@@ -646,6 +648,7 @@ def _process_tools_array(
             if mode == "live"
             else ("strict" if mode == "live-strict" else "shadow")
         ),
+        "prompt_text": prompt,
         "prompt_excerpt": prompt[:240],
         "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16],
         "workspace_path": session.cwd,
@@ -825,6 +828,13 @@ def _process_tools_array(
     meta["reducer_abstained"] = _reduction.abstained
     meta["reducer_abstain_reason"] = _reduction.abstain_reason
     meta["reducer_feature_summary"] = dict(_reduction.feature_summary)
+
+    # IMP-25: per-tool capability flag vectors — enables offline audit of whether
+    # the reducer's selection logic was correct on a per-tool basis.
+    meta["tool_capability_flags_by_name"] = {
+        name: int(surface.get("capability_flags", 0) or 0)
+        for name, surface in _tool_surface_for_reducer.items()
+    }
 
     # ── Empty-set guardrail ──────────────────────────────────────────────
     if mode in ("live", "live-strict") and len(tools) > 0 and len(live_tools) == 0:

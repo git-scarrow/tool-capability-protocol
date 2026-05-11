@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tcp:measurement:ground_truth:v1",
+  "title": "TCP Survivor Reducer Ground Truth Label",
+  "description": "One labeled example linking a decision-log row to its annotated correct tool set. Used to compute precision/recall for the survivor reducer.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "prompt_hash",
+    "correct_tool_set",
+    "annotator",
+    "annotation_method",
+    "confidence"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "description": "Must be 1 for rows conforming to this schema."
+    },
+    "prompt_hash": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 16,
+      "description": "SHA-256 hex prefix (first 16 chars) from the decisions.jsonl row. Primary key linking this label to the proxy row."
+    },
+    "prompt_text": {
+      "type": ["string", "null"],
+      "description": "The full task prompt from the decisions.jsonl row. Optional redundant copy for offline analysis without joining back to the log."
+    },
+    "correct_tool_set": {
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true,
+      "description": "Tool names that were appropriate for this prompt. The annotator's best judgment of what a correct gating decision would have included. May be a subset of active_survivors in the log row."
+    },
+    "annotator": {
+      "type": "string",
+      "description": "Identifier for who or what produced the label. Human: 'human:<initials>', LLM: 'llm:<model_id>', oracle: 'oracle:first_tool_used'."
+    },
+    "annotation_method": {
+      "type": "string",
+      "enum": ["human", "llm_assisted", "oracle"],
+      "description": "How the label was produced. 'oracle' uses first_tool_name from decisions.jsonl as ground truth (highest confidence when unambiguous). 'llm_assisted' uses an LLM to propose a label, reviewed or accepted by a human. 'human' is fully manual."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Annotator's confidence that correct_tool_set is accurate. 1.0 = certain, 0.5 = ambiguous. Rows with confidence < 0.7 should be excluded from precision/recall aggregation."
+    },
+    "oracle_first_tool": {
+      "type": ["string", "null"],
+      "description": "first_tool_name from the matched decisions.jsonl row, when annotation_method is 'oracle'. Null for other methods."
+    },
+    "shortlisted_tools": {
+      "type": ["array", "null"],
+      "items": { "type": "string" },
+      "description": "reducer_shortlisted_tools from the matched decisions.jsonl row, for offline precision/recall computation without joining to the log."
+    },
+    "reducer_abstained": {
+      "type": ["boolean", "null"],
+      "description": "reducer_abstained from the matched decisions.jsonl row."
+    },
+    "notes": {
+      "type": ["string", "null"],
+      "description": "Free-text annotation notes. Required when confidence < 0.8 or the correct_tool_set is empty."
+    },
+    "ts": {
+      "type": "number",
+      "description": "Unix timestamp (float) of the matched decisions.jsonl row."
+    },
+    "labeled_at": {
+      "type": ["number", "null"],
+      "description": "Unix timestamp (float) when this label was produced."
+    }
+  }
+}
