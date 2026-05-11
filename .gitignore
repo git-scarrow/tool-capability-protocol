@@ -153,4 +153,9 @@ test_payload.json
 *-local-command-caveatcaveat-the-messages-below.txt
 
 # Local analysis artifacts
-artifacts/
+artifacts/*
+!artifacts/tcp-data-1/
+!artifacts/tcp-data-1/**
+
+# Trained models (derived from local decision logs)
+tcp/measurement/server_classifier_model.json
