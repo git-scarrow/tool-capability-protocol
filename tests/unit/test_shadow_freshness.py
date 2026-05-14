@@ -3,11 +3,11 @@ from __future__ import annotations
 import json
 
 from scripts.shadow_analysis import (
-    analyse_session,
     _decision_has_freshness_context,
     _load_decision_index,
     _match_decision_record,
     _prompt_hash,
+    analyse_session,
 )
 from tcp.proxy.tool_flag_map import build_static_inventory
 

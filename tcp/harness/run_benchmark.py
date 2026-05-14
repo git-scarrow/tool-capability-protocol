@@ -72,10 +72,7 @@ def main() -> int:
 
 
 def _run_mt2(repetitions: int) -> dict:
-    from tcp.harness.benchmark import (
-        benchmark_exposure_suite,
-        build_mt2_fixture_set,
-    )
+    from tcp.harness.benchmark import benchmark_exposure_suite, build_mt2_fixture_set
 
     descriptors, tasks, environment = build_mt2_fixture_set()
     suite = benchmark_exposure_suite(

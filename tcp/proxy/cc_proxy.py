@@ -33,24 +33,6 @@ from starlette.routing import Route
 from tcp.derivation.request_derivation import SessionStartEvent, derive_request
 from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.models import ToolSelectionRequest
-from tcp.proxy.controller import (
-    ToolPackController,
-    TPC_RULE_HEURISTIC_UPGRADE,
-    _server_alias_tokens,
-)
-from tcp.proxy.pack_manifest import (
-    DEFAULT_ACTIVE_MCP_SERVERS,
-    PackInspection,
-    PackManifestError,
-    STATE_ACTIVE,
-    STATE_DEFERRED,
-    STATE_SUPPRESSED,
-    default_manifest_path,
-    inspect_pack_state,
-    load_pack_manifest,
-    pack_context_from_env,
-)
-from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
 from tcp.proxy.absence_language import (
     contains_absence_language,
     extract_text_from_response_body,
@@ -58,16 +40,34 @@ from tcp.proxy.absence_language import (
 )
 from tcp.proxy.capability_resolution_gate import (
     CapabilityResolution,
-    resolve_capabilities_for_request,
     resolution_to_log_record,
+    resolve_capabilities_for_request,
 )
-from tcp.proxy.survivor_reducer import reduce_survivors
+from tcp.proxy.controller import (
+    TPC_RULE_HEURISTIC_UPGRADE,
+    ToolPackController,
+    _server_alias_tokens,
+)
 from tcp.proxy.denial_enforcement import (
     denial_violation_record,
     enforce_denial_gate,
     may_emit_capability_denial,
 )
+from tcp.proxy.pack_manifest import (
+    DEFAULT_ACTIVE_MCP_SERVERS,
+    STATE_ACTIVE,
+    STATE_DEFERRED,
+    STATE_SUPPRESSED,
+    PackInspection,
+    PackManifestError,
+    default_manifest_path,
+    inspect_pack_state,
+    load_pack_manifest,
+    pack_context_from_env,
+)
+from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
 from tcp.proxy.prompt_select import extract_task_prompt
+from tcp.proxy.survivor_reducer import reduce_survivors
 
 PROXY_STATE_DIR = Path.home() / ".tcp-shadow" / "proxy"
 MODE_PATH = PROXY_STATE_DIR / "mode"
@@ -1163,10 +1163,8 @@ def _check_denial_enforcement(
     # Reconstruct lightweight resolution stubs from logged records.
     # Full CapabilityResolution objects are not stored in meta — we use the
     # serialised records to check status, surfaces, and signature.
-    from tcp.proxy.capability_resolution_gate import (
-        SurfaceResult,
-        _REQUIRED_SIX_SURFACES as _SIX,
-    )
+    from tcp.proxy.capability_resolution_gate import _REQUIRED_SIX_SURFACES as _SIX
+    from tcp.proxy.capability_resolution_gate import SurfaceResult
 
     resolutions: list[CapabilityResolution] = []
     for rec in crg_records:
