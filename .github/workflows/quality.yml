@@ -131,19 +131,23 @@ jobs:
       run: poetry install --with dev,test
       
     - name: Performance Benchmarks
+      id: performance-tests
       run: |
         if [ -d tests/performance ]; then
+          echo "present=true" >> "$GITHUB_OUTPUT"
           poetry run python -m pip install pytest-benchmark
           poetry run pytest tests/performance/ \
             --benchmark-json=benchmark-results.json \
             --benchmark-min-rounds=100 \
             -v
         else
+          echo "present=false" >> "$GITHUB_OUTPUT"
           echo '{"benchmarks":[],"reason":"tests/performance not present"}' > benchmark-results.json
           echo "No tests/performance directory; skipping optional benchmark tests."
         fi
           
     - name: Compression Ratio Validation
+      if: steps.performance-tests.outputs.present == 'true'
       run: |
         if [ ! -d tests/performance ]; then
           echo "No tests/performance directory; skipping compression ratio validation."
@@ -167,6 +171,7 @@ jobs:
         "
         
     - name: Decision Time Validation
+      if: steps.performance-tests.outputs.present == 'true'
       run: |
         if [ ! -d tests/performance ]; then
           echo "No tests/performance directory; skipping decision time validation."
