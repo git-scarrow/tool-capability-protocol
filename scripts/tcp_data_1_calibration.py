@@ -20,7 +20,6 @@ from tcp.adjudication import (
 )
 from tcp.core.descriptors import CapabilityFlags
 
-
 RATER1_CALIBRATION_SEED = (
     {
         "session_id": "e4d1609c-e012-4167-8930-cbb6e54666f1",
@@ -114,8 +113,12 @@ def main() -> None:
         "report",
         help="Write a calibration status markdown report for an existing JSONL file.",
     )
-    report.add_argument("--jsonl", type=Path, required=True, help="Calibration JSONL path")
-    report.add_argument("--output", type=Path, required=True, help="Markdown report path")
+    report.add_argument(
+        "--jsonl", type=Path, required=True, help="Calibration JSONL path"
+    )
+    report.add_argument(
+        "--output", type=Path, required=True, help="Markdown report path"
+    )
 
     tui = subparsers.add_parser(
         "rater2-tui",
@@ -156,7 +159,9 @@ def main() -> None:
         return
     if args.command == "report":
         rows = load_rows(args.jsonl)
-        args.output.write_text(render_report(rows, source_name=args.jsonl.name), encoding="utf-8")
+        args.output.write_text(
+            render_report(rows, source_name=args.jsonl.name), encoding="utf-8"
+        )
         print(f"Wrote calibration report to {args.output}")
         return
     if args.command == "rater2-tui":
@@ -193,7 +198,10 @@ def advance_rater1(package_dir: Path) -> None:
     synced = sync_rows_by_key(calibration_rows, candidate_rows)
     save_rows(candidate_path, candidate_rows)
 
-    status_path.write_text(render_report(calibration_rows, source_name=calibration_path.name), encoding="utf-8")
+    status_path.write_text(
+        render_report(calibration_rows, source_name=calibration_path.name),
+        encoding="utf-8",
+    )
 
     print(f"Applied rater1 seed to {len(RATER1_CALIBRATION_SEED)} calibration rows.")
     print(f"Synced {synced} rows back into {candidate_path}.")
@@ -229,7 +237,9 @@ def rater2_tui(package_dir: Path) -> None:
 
             while True:
                 try:
-                    raw_flags = input("Flags (int sum, e.g. 1 for FILES, 4 for NETWORK): ").strip()
+                    raw_flags = input(
+                        "Flags (int sum, e.g. 1 for FILES, 4 for NETWORK): "
+                    ).strip()
                     if not raw_flags:
                         flags = 0
                     else:
@@ -239,7 +249,9 @@ def rater2_tui(package_dir: Path) -> None:
                     print("Invalid integer. Please try again.")
 
             formats_str = input("Formats (comma-separated, default 'text'): ").strip()
-            formats = [f.strip() for f in formats_str.split(",") if f.strip()] or ["text"]
+            formats = [f.strip() for f in formats_str.split(",") if f.strip()] or [
+                "text"
+            ]
 
             notes = input("Notes: ").strip()
 
@@ -263,7 +275,9 @@ def rater2_tui(package_dir: Path) -> None:
     synced = sync_rows_by_key(rows, candidate_rows)
     save_rows(candidate_path, candidate_rows)
 
-    status_path.write_text(render_report(rows, source_name=calibration_path.name), encoding="utf-8")
+    status_path.write_text(
+        render_report(rows, source_name=calibration_path.name), encoding="utf-8"
+    )
 
     print(f"Saved {len(rows)} rows to {calibration_path}.")
     print(f"Synced {synced} rows back into {candidate_path}.")
@@ -294,12 +308,18 @@ def adjudicate_tui(package_dir: Path) -> None:
             print(f"Session: {row['session_id']} Turn: {row['turn_id']}")
             print(f"Prompt: {row['prompt']}")
             print(f"Tools:  {row.get('observed_tool_names', [])}")
-            print(f"Rater 1: Flags={row['rater1_flags']}, Formats={row['rater1_formats']}, Notes={row['rater1_notes']}")
-            print(f"Rater 2: Flags={row['rater2_flags']}, Formats={row['rater2_formats']}, Notes={row['rater2_notes']}")
+            print(
+                f"Rater 1: Flags={row['rater1_flags']}, Formats={row['rater1_formats']}, Notes={row['rater1_notes']}"
+            )
+            print(
+                f"Rater 2: Flags={row['rater2_flags']}, Formats={row['rater2_formats']}, Notes={row['rater2_notes']}"
+            )
             print("")
 
             while True:
-                choice = input("Resolve with [1] Rater 1, [2] Rater 2, or [3] Custom? ").strip()
+                choice = input(
+                    "Resolve with [1] Rater 1, [2] Rater 2, or [3] Custom? "
+                ).strip()
                 if choice == "1":
                     flags = row["rater1_flags"]
                     formats = row["rater1_formats"]
@@ -319,7 +339,9 @@ def adjudicate_tui(package_dir: Path) -> None:
                         except ValueError:
                             print("Invalid integer.")
                     formats_str = input("Custom Formats (comma-separated): ").strip()
-                    formats = [f.strip() for f in formats_str.split(",") if f.strip()] or ["text"]
+                    formats = [
+                        f.strip() for f in formats_str.split(",") if f.strip()
+                    ] or ["text"]
                     notes = input("Adjudication Notes: ").strip()
                     break
                 else:
@@ -345,7 +367,9 @@ def adjudicate_tui(package_dir: Path) -> None:
     synced = sync_rows_by_key(rows, candidate_rows)
     save_rows(candidate_path, candidate_rows)
 
-    status_path.write_text(render_report(rows, source_name=calibration_path.name), encoding="utf-8")
+    status_path.write_text(
+        render_report(rows, source_name=calibration_path.name), encoding="utf-8"
+    )
 
     print(f"Saved {len(rows)} rows to {calibration_path}.")
     print(f"Synced {synced} rows back into {candidate_path}.")
@@ -384,7 +408,9 @@ def finalize_rater1(package_dir: Path) -> None:
                     print("Invalid integer.")
 
             formats_str = input("Formats (comma-separated, default 'text'): ").strip()
-            formats = [f.strip() for f in formats_str.split(",") if f.strip()] or ["text"]
+            formats = [f.strip() for f in formats_str.split(",") if f.strip()] or [
+                "text"
+            ]
             notes = input("Notes: ").strip()
 
             # For single-rater final pass, we apply to rater1 then immediately mark as final
@@ -401,7 +427,10 @@ def finalize_rater1(package_dir: Path) -> None:
             # Find the row again in the full list to update its status to final
             # (apply_rating updates state but might not set 'final' if rater2 is missing)
             for r in rows:
-                if r["session_id"] == row["session_id"] and r["turn_id"] == row["turn_id"]:
+                if (
+                    r["session_id"] == row["session_id"]
+                    and r["turn_id"] == row["turn_id"]
+                ):
                     r["label_status"] = "final"
                     r["final_flags"] = flags
                     r["final_formats"] = formats
@@ -444,7 +473,9 @@ def render_report(rows: list[dict[str, object]], *, source_name: str) -> str:
         "## Status Counts",
         "",
     ]
-    lines.extend(f"- `{status}`: {count}" for status, count in summary.status_counts.items())
+    lines.extend(
+        f"- `{status}`: {count}" for status, count in summary.status_counts.items()
+    )
     lines.extend(
         [
             "",

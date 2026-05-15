@@ -46,7 +46,8 @@ def _next_turn_id(log_path: Path) -> int:
     if not log_path.exists():
         return 1
     count = sum(
-        1 for line in log_path.read_text().splitlines()
+        1
+        for line in log_path.read_text().splitlines()
         if line and json.loads(line).get("event") == "user_prompt"
     )
     return count + 1

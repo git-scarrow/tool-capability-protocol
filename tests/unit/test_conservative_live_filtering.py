@@ -15,15 +15,16 @@ import os
 from typing import Any
 
 import pytest
+
 from tcp.core.descriptors import CapabilityFlags
 from tcp.derivation.request_derivation import SessionStartEvent, derive_request
 from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.models import ToolRecord, ToolSelectionRequest
 from tcp.proxy.cc_proxy import (
-    _process_tools_array,
-    _SAFETY_FLOOR_TOOLS,
     _DEFAULT_ALLOWED_MCP_SERVERS,
+    _SAFETY_FLOOR_TOOLS,
     _is_mcp_server_allowed,
+    _process_tools_array,
 )
 from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
 

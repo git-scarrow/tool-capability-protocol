@@ -1,15 +1,16 @@
 """Tests for TCP-DS-2 request derivation contract."""
 
 import pytest
+
 from tcp.core.descriptors import CapabilityFlags
-from tcp.harness.models import ToolSelectionRequest
 from tcp.derivation.request_derivation import (
-    derive_request,
-    classify_unscorable,
-    get_equivalence_class,
-    SessionStartEvent,
     PostToolUseEvent,
+    SessionStartEvent,
+    classify_unscorable,
+    derive_request,
+    get_equivalence_class,
 )
+from tcp.harness.models import ToolSelectionRequest
 
 # ── fixtures ──────────────────────────────────────────────────────────────────
 

@@ -1,4 +1,5 @@
 """Stamp test vector hex files with canonical CBOR and CRC."""
+
 from __future__ import annotations
 
 import argparse

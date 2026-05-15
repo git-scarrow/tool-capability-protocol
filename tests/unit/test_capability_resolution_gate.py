@@ -15,13 +15,13 @@ from __future__ import annotations
 import pytest
 
 from tcp.proxy.capability_resolution_gate import (
-    CRGContext,
-    CapabilityResolution,
     _REQUIRED_SIX_SURFACES,
+    CapabilityResolution,
+    CRGContext,
     extract_requested_capabilities,
-    resolve_capability,
-    resolve_capabilities_for_request,
     resolution_to_log_record,
+    resolve_capabilities_for_request,
+    resolve_capability,
 )
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
