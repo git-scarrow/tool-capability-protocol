@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from tcp.harness.router import RouteConfidence, RouteResult, route_tool
 from tcp.harness.gating import RuntimeEnvironment
 from tcp.harness.models import ToolRecord, ToolSelectionRequest
+from tcp.harness.router import RouteConfidence, RouteResult, route_tool
 
 
 def _make_record(name: str, commands: frozenset[str] = frozenset()) -> ToolRecord:

@@ -899,7 +899,9 @@ class TransparentRiskAssessor:
                 risk_level = (
                     "HIGH"
                     if evidence.risk_contribution >= 0.7
-                    else "MED" if evidence.risk_contribution >= 0.4 else "LOW"
+                    else "MED"
+                    if evidence.risk_contribution >= 0.4
+                    else "LOW"
                 )
                 report_lines.append(f"  [{risk_level}] {evidence.evidence_text}")
                 report_lines.append(

@@ -1,12 +1,6 @@
 """TCP harness primitives for descriptor-native tool routing."""
 
 from .audit import AuditEntry, GatingDecision
-from .bitmask_filter import (
-    BitmaskFilterResult,
-    EnvironmentMask,
-    bitmask_filter,
-    filter_for_prompt,
-)
 from .benchmark import (
     BenchmarkComparison,
     BenchmarkSuiteResult,
@@ -15,6 +9,12 @@ from .benchmark import (
     benchmark_exposure_suite,
     build_mt2_fixture_set,
     summarize_comparisons,
+)
+from .bitmask_filter import (
+    BitmaskFilterResult,
+    EnvironmentMask,
+    bitmask_filter,
+    filter_for_prompt,
 )
 from .gating import GateResult, RuntimeEnvironment, gate_tools
 from .models import ToolRecord, ToolSelectionRequest

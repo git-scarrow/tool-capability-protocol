@@ -21,8 +21,8 @@ from starlette.testclient import TestClient
 from tcp.proxy.cc_proxy import (
     UPSTREAM_LIMITS,
     UPSTREAM_TIMEOUT,
-    _build_upstream_client,
     _buffered_response_headers,
+    _build_upstream_client,
     _forward_headers,
     _streaming_response_headers,
     _write_decision_record,
