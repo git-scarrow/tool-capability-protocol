@@ -1,15 +1,20 @@
 """Tests for TCP-DS-2 request derivation contract."""
 
+from __future__ import annotations
+
+from typing import Optional
+
 import pytest
+
 from tcp.core.descriptors import CapabilityFlags
-from tcp.harness.models import ToolSelectionRequest
 from tcp.derivation.request_derivation import (
-    derive_request,
-    classify_unscorable,
-    get_equivalence_class,
-    SessionStartEvent,
     PostToolUseEvent,
+    SessionStartEvent,
+    classify_unscorable,
+    derive_request,
+    get_equivalence_class,
 )
+from tcp.harness.models import ToolSelectionRequest
 
 # ── fixtures ──────────────────────────────────────────────────────────────────
 
@@ -24,7 +29,7 @@ def default_session(
     )
 
 
-def tool_event(tool_name: str, tool_input: dict | None = None) -> PostToolUseEvent:
+def tool_event(tool_name: str, tool_input: Optional[dict] = None) -> PostToolUseEvent:
     return PostToolUseEvent(
         session_id="test-session-1",
         tool_name=tool_name,

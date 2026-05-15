@@ -8,10 +8,7 @@ from __future__ import annotations
 
 import pytest
 
-from tcp.agent.benchmark import (
-    build_filtered_schemas,
-    build_fixed_filtered_schemas,
-)
+from tcp.agent.benchmark import build_filtered_schemas, build_fixed_filtered_schemas
 from tcp.agent.tasks import AgentTask, build_agent_tasks
 from tcp.harness.corpus import build_mcp_corpus
 from tcp.harness.schema_bridge import corpus_to_anthropic_schemas

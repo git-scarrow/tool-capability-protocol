@@ -17,9 +17,7 @@ from pathlib import Path
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="TCP-EXP-6: Primacy-bias experiment"
-    )
+    parser = argparse.ArgumentParser(description="TCP-EXP-6: Primacy-bias experiment")
     parser.add_argument(
         "--model",
         default="claude-sonnet-4-6",
@@ -85,11 +83,17 @@ def main() -> None:
     print(f"    mean latency ms        : {cn['mean_latency_ms']:.0f}")
     print(f"    error rate             : {cn['error_rate']:.1%}")
     print()
-    print(f"  Delta first-tool correctness  : {bias['delta_first_tool_correctness']:+.1%}")
-    print(f"  Delta any-position correctness: {bias['delta_any_position_correctness']:+.1%}")
+    print(
+        f"  Delta first-tool correctness  : {bias['delta_first_tool_correctness']:+.1%}"
+    )
+    print(
+        f"  Delta any-position correctness: {bias['delta_any_position_correctness']:+.1%}"
+    )
     print()
     if bias["stop_condition_met"]:
-        print("  [STOP CONDITION] any-position delta < 1pp — ordering has no material effect")
+        print(
+            "  [STOP CONDITION] any-position delta < 1pp — ordering has no material effect"
+        )
     else:
         print("  [RESULT] any-position delta ≥ 1pp — primacy bias detected")
 

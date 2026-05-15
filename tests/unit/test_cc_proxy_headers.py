@@ -21,13 +21,20 @@ from starlette.testclient import TestClient
 from tcp.proxy.cc_proxy import (
     UPSTREAM_LIMITS,
     UPSTREAM_TIMEOUT,
-    _build_upstream_client,
     _buffered_response_headers,
+    _build_upstream_client,
     _forward_headers,
     _streaming_response_headers,
     _write_decision_record,
     build_app,
 )
+
+try:
+    _EXCEPTION_GROUP = ExceptionGroup
+except NameError:  # Python < 3.11
+    from exceptiongroup import ExceptionGroup as _EXCEPTION_GROUP
+
+_READ_ERROR_EXCEPTIONS = (httpx.ReadError, _EXCEPTION_GROUP)
 
 
 def test_forward_headers_omit_content_length() -> None:
@@ -279,7 +286,7 @@ def test_get_does_not_retry_after_response_bytes_begin() -> None:
     with patch("tcp.proxy.cc_proxy._build_upstream_client", return_value=upstream):
         app = build_app()
         with TestClient(app) as client:
-            with pytest.raises((httpx.ReadError, ExceptionGroup)):
+            with pytest.raises(_READ_ERROR_EXCEPTIONS):
                 client.get("/v1/models")
         assert attempts == 1
 
