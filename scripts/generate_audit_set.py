@@ -35,13 +35,17 @@ SMOKE_CASES = [
     {
         "session_id": "synthetic_network_1",
         "prompt": "Fetch https://example.com/api/status and return the response body as plain text for inspection.",
-        "ground_truth_flags": int(CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.SUPPORTS_NETWORK),
+        "ground_truth_flags": int(
+            CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.SUPPORTS_NETWORK
+        ),
         "ground_truth_formats": ["text"],
     },
     {
         "session_id": "synthetic_network_2",
         "prompt": "Download the JSON payload from https://example.com/api/report and return it as structured json.",
-        "ground_truth_flags": int(CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.SUPPORTS_NETWORK),
+        "ground_truth_flags": int(
+            CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.SUPPORTS_NETWORK
+        ),
         "ground_truth_formats": ["text", "json"],
     },
     {
@@ -53,13 +57,17 @@ SMOKE_CASES = [
     {
         "session_id": "synthetic_files_auth_1",
         "prompt": "Use sudo to open the local secrets.yaml file, inspect the active settings, and answer in plain text.",
-        "ground_truth_flags": int(CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.AUTH_REQUIRED),
+        "ground_truth_flags": int(
+            CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.AUTH_REQUIRED
+        ),
         "ground_truth_formats": ["text"],
     },
     {
         "session_id": "synthetic_files_network_1",
         "prompt": "Compare the local config.yaml file against the remote response at https://example.com/api/config and summarize the differences in text.",
-        "ground_truth_flags": int(CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.SUPPORTS_NETWORK),
+        "ground_truth_flags": int(
+            CapabilityFlags.SUPPORTS_FILES | CapabilityFlags.SUPPORTS_NETWORK
+        ),
         "ground_truth_formats": ["text"],
     },
     {

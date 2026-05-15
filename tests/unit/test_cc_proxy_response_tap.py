@@ -19,10 +19,10 @@ import time
 from pathlib import Path
 
 from tcp.proxy.cc_proxy import (
-    _ExpectedToolDerivation,
     _all_tools_from_response_body,
     _all_tools_from_sse_buf,
     _compute_expected_tool_name,
+    _ExpectedToolDerivation,
     _first_tool_from_response_body,
     _first_tool_from_sse_buf,
     _top_survivor_by_prompt_similarity,
@@ -347,7 +347,10 @@ class TestComputeExpectedToolName:
         assert d.candidate_set_size == 2
 
     def test_three_survivors_abstains(self):
-        meta = {"survivor_count": 3, "survivor_names_sorted": ["alpha", "beta", "gamma"]}
+        meta = {
+            "survivor_count": 3,
+            "survivor_names_sorted": ["alpha", "beta", "gamma"],
+        }
         d = _compute_expected_tool_name(meta)
         assert d.expected_tool_name is None
         assert d.abstain_reason == "ambiguous_3_survivors"
@@ -691,8 +694,8 @@ class TestDenialEnforcementIntegration:
 
         from tcp.proxy.capability_resolution_gate import (
             CRGContext,
-            resolve_capability,
             resolution_to_log_record,
+            resolve_capability,
         )
 
         _NOTION_TOOL = "mcp__notion-agents__query_database"
@@ -846,7 +849,11 @@ class TestDenialEnforcementIntegration:
         log = tmp_path / "decisions.jsonl"
         monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
 
-        meta: dict = {"survivor_count": 1, "survivor_names_sorted": ["Bash"], "crg_resolutions": []}
+        meta: dict = {
+            "survivor_count": 1,
+            "survivor_names_sorted": ["Bash"],
+            "crg_resolutions": [],
+        }
         _check_denial_enforcement("", meta)
         _write_decision_record(time.time(), meta, "Bash")
 

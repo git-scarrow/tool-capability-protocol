@@ -13,7 +13,7 @@ from tcp.harness.benchmark import (
     benchmark_exposure_suite,
     summarize_comparisons,
 )
-from tcp.harness.corpus import build_mt3_corpus, corpus_summary, CorpusEntry
+from tcp.harness.corpus import CorpusEntry, build_mt3_corpus, corpus_summary
 from tcp.harness.gating import RuntimeEnvironment
 from tcp.harness.models import ToolSelectionRequest
 

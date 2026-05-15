@@ -37,11 +37,11 @@ import pytest
 
 from tcp.proxy.absence_language import contains_absence_language
 from tcp.proxy.capability_resolution_gate import (
-    CRGContext,
-    CapabilityResolution,
-    SurfaceResult,
     _CRG_RESOLVER_SECRET,
     _REQUIRED_SIX_SURFACES,
+    CapabilityResolution,
+    CRGContext,
+    SurfaceResult,
     _compute_signature,
     resolve_capability,
 )
@@ -56,6 +56,7 @@ _NOTION_TOOL = "mcp__notion-agents__query_database"
 _KNOWN_LITERAL_KEY = "crg-resolver-default-v1"  # the historical default
 
 # ── fixtures ──────────────────────────────────────────────────────────────────
+
 
 def _available_ctx() -> CRGContext:
     return CRGContext(
@@ -81,13 +82,16 @@ def _unavailable_ctx() -> CRGContext:
 
 def _make_available_resolution() -> CapabilityResolution:
     r = resolve_capability("notion.search", _available_ctx())
-    assert r.status in ("callable_now", "schema_deferred"), (
-        f"pre-condition: expected available resolution, got {r.status}"
-    )
+    assert r.status in (
+        "callable_now",
+        "schema_deferred",
+    ), f"pre-condition: expected available resolution, got {r.status}"
     return r
 
 
-def _forge_with_known_literal(capability: str = "notion.search") -> CapabilityResolution:
+def _forge_with_known_literal(
+    capability: str = "notion.search",
+) -> CapabilityResolution:
     """Forge an unavailable resolution using the historical literal key.
 
     With the fix, this should NOT validate, because the resolver no longer
@@ -97,13 +101,20 @@ def _forge_with_known_literal(capability: str = "notion.search") -> CapabilityRe
     status = "unavailable"
     matched_tools: tuple[str, ...] = ()
     surface_results = tuple(
-        SurfaceResult(surface=s, matched=False, tools=(), timestamp="", reason="", stale=False)
+        SurfaceResult(
+            surface=s, matched=False, tools=(), timestamp="", reason="", stale=False
+        )
         for s in _REQUIRED_SIX_SURFACES
     )
 
     canonical_surfaces = sorted(
         (
-            {"surface": sr.surface, "matched": sr.matched, "tools": sorted(sr.tools), "stale": sr.stale}
+            {
+                "surface": sr.surface,
+                "matched": sr.matched,
+                "tools": sorted(sr.tools),
+                "stale": sr.stale,
+            }
             for sr in surface_results
         ),
         key=lambda d: d["surface"],
@@ -140,8 +151,8 @@ def _forge_with_known_literal(capability: str = "notion.search") -> CapabilityRe
 
 # ── Nominal guarantee ─────────────────────────────────────────────────────────
 
-class TestNominalGuaranteeHolds:
 
+class TestNominalGuaranteeHolds:
     def test_p1_true_p2_true_produces_violation(self):
         resolution = _make_available_resolution()
         decision = enforce_denial_gate("I don't have access to Notion.", [resolution])
@@ -180,6 +191,7 @@ class TestNominalGuaranteeHolds:
 
 # ── Stream-abort breach: REMEDIATED ───────────────────────────────────────────
 
+
 class TestStreamAbortRemediated:
     """Regression guard: the finally block must call _check_denial_enforcement."""
 
@@ -189,7 +201,9 @@ class TestStreamAbortRemediated:
         import ast
         from pathlib import Path
 
-        proxy_path = Path(__file__).parent.parent.parent / "tcp" / "proxy" / "cc_proxy.py"
+        proxy_path = (
+            Path(__file__).parent.parent.parent / "tcp" / "proxy" / "cc_proxy.py"
+        )
         tree = ast.parse(proxy_path.read_text())
 
         denial_check_in_any_finally = False
@@ -232,6 +246,7 @@ class TestStreamAbortRemediated:
 
 # ── Pattern evasion: REMEDIATED ───────────────────────────────────────────────
 
+
 class TestPatternEvasionRemediated:
     """Regression guard: the 14 documented evasion phrases must all be detected."""
 
@@ -254,9 +269,9 @@ class TestPatternEvasionRemediated:
 
     @pytest.mark.parametrize("phrase", _PREVIOUSLY_EVADING_PHRASES)
     def test_previously_evading_phrase_now_detected(self, phrase: str):
-        assert contains_absence_language(phrase), (
-            f"REGRESSION: '{phrase}' is no longer detected as absence language."
-        )
+        assert contains_absence_language(
+            phrase
+        ), f"REGRESSION: '{phrase}' is no longer detected as absence language."
 
     def test_evasion_phrase_now_blocks_unjustified_denial(self):
         resolution = _make_available_resolution()
@@ -280,12 +295,13 @@ class TestPatternEvasionRemediated:
             "The Notion integration is enabled and working.",
         ]
         for text in clean_phrases:
-            assert not contains_absence_language(text), (
-                f"FALSE POSITIVE: '{text}' is being flagged as absence language."
-            )
+            assert not contains_absence_language(
+                text
+            ), f"FALSE POSITIVE: '{text}' is being flagged as absence language."
 
 
 # ── HMAC key in source: REMEDIATED ────────────────────────────────────────────
+
 
 class TestHMACKeyInSourceRemediated:
     """Regression guard: forging with the historical literal key must fail."""
@@ -302,16 +318,16 @@ class TestHMACKeyInSourceRemediated:
 
     def test_forgery_with_known_literal_key_fails_signature_check(self):
         forged = _forge_with_known_literal("notion.search")
-        assert not _resolution_signature_valid(forged), (
-            "REGRESSION: forgery using the historical literal key validates."
-        )
+        assert not _resolution_signature_valid(
+            forged
+        ), "REGRESSION: forgery using the historical literal key validates."
 
     def test_forgery_with_known_literal_key_does_not_authorise_denial(self):
         forged = _forge_with_known_literal("notion.search")
         decision = enforce_denial_gate("I don't have access to Notion.", [forged])
-        assert decision.allowed is False, (
-            "REGRESSION: forged unavailable resolution silenced the denial gate."
-        )
+        assert (
+            decision.allowed is False
+        ), "REGRESSION: forged unavailable resolution silenced the denial gate."
         assert decision.violation_kind == "denial_violation"
 
     def test_genuine_unavailable_still_authorises_denial(self):
@@ -339,6 +355,7 @@ class TestHMACKeyInSourceRemediated:
 
 # ── Signature scope: REMEDIATED ───────────────────────────────────────────────
 
+
 class TestSignatureScopeRemediated:
     """Regression guard: checked_surfaces and surface_results are now signed."""
 
@@ -354,9 +371,9 @@ class TestSignatureScopeRemediated:
         r = resolve_capability("notion.search", ctx)
         assert _resolution_signature_valid(r)
         stripped = replace(r, checked_surfaces=())
-        assert not _resolution_signature_valid(stripped), (
-            "REGRESSION: checked_surfaces is no longer covered by the HMAC."
-        )
+        assert not _resolution_signature_valid(
+            stripped
+        ), "REGRESSION: checked_surfaces is no longer covered by the HMAC."
 
     def test_mutating_surface_results_invalidates_signature(self):
         r = resolve_capability("notion.search", _unavailable_ctx())
@@ -371,9 +388,9 @@ class TestSignatureScopeRemediated:
         )
         new_surfaces = (forged_surface,) + r.surface_results[1:]
         tampered = replace(r, surface_results=new_surfaces)
-        assert not _resolution_signature_valid(tampered), (
-            "REGRESSION: surface_results is no longer covered by the HMAC."
-        )
+        assert not _resolution_signature_valid(
+            tampered
+        ), "REGRESSION: surface_results is no longer covered by the HMAC."
 
     def test_resolver_signed_resolutions_remain_valid(self):
         """Control: legitimate resolutions still pass the wider signature check."""
@@ -383,6 +400,7 @@ class TestSignatureScopeRemediated:
 
 
 # ── End-to-end: forged + evasion combo ────────────────────────────────────────
+
 
 class TestEndToEndDefenseInDepth:
     """Each fix is independent; verify no single fix relies on another."""

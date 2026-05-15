@@ -19,10 +19,10 @@ from pathlib import Path
 
 SESSIONS_DIR = Path.home() / ".tcp-shadow" / "sessions"
 
-_URL_RE = re.compile(r'https?://\S+')
-_SQL_RE = re.compile(r'\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)\b', re.IGNORECASE)
+_URL_RE = re.compile(r"https?://\S+")
+_SQL_RE = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE)\b", re.IGNORECASE)
 _PATH_RE = re.compile(r'(^|[\s\'"])(\/[\w/.-]+|\.\./[\w/.-]+)')
-_REGEX_RE = re.compile(r'[.*+?^${}()|[\]\\]')
+_REGEX_RE = re.compile(r"[.*+?^${}()|[\]\\]")
 
 
 def main() -> None:
@@ -84,7 +84,9 @@ def _extract_features(tool_input: dict) -> dict:
         "has_sql": bool(_SQL_RE.search(text)),
         "has_regex": bool(_REGEX_RE.search(text)),
         "arg_size_bucket": _size_bucket(len(text)),
-        "top_level_keys": sorted(tool_input.keys()) if isinstance(tool_input, dict) else [],
+        "top_level_keys": sorted(tool_input.keys())
+        if isinstance(tool_input, dict)
+        else [],
     }
 
 
@@ -102,7 +104,8 @@ def _current_turn_id(log_path: Path) -> int:
     if not log_path.exists():
         return 1
     prompts = [
-        json.loads(l) for l in log_path.read_text().splitlines()
+        json.loads(l)
+        for l in log_path.read_text().splitlines()
         if l and json.loads(l).get("event") == "user_prompt"
     ]
     return prompts[-1]["turn_id"] if prompts else 1
