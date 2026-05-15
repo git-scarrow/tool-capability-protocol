@@ -124,6 +124,11 @@ def resolution_allows_denial(resolution: CapabilityResolution) -> bool:
     return _resolution_signature_valid(resolution)
 
 
+def _has_valid_unavailable(resolution: CapabilityResolution) -> bool:
+    """Compat predicate for tests that inspect the CRG guarantee directly."""
+    return resolution_allows_denial(resolution)
+
+
 def contains_capability_denial(text: str) -> bool:
     """Return True if text contains capability-denial (absence-language) phrases."""
     return contains_absence_language(text)
