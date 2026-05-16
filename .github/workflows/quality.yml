@@ -377,17 +377,7 @@ jobs:
     needs: quality-gates
     strategy:
       matrix:
-        include:
-          - researcher: elena-vasquez
-            test-target: tests/researchers/elena_vasquez_statistical_validation.py
-          - researcher: yuki-tanaka
-            test-target: tests/researchers/yuki_tanaka_performance_validation.py
-          - researcher: aria-blackwood
-            test-target: ""
-          - researcher: marcus-chen
-            test-target: ""
-          - researcher: sam-mitchell
-            test-target: ""
+        researcher: [elena-vasquez, yuki-tanaka, aria-blackwood, marcus-chen, sam-mitchell]
     
     steps:
     - name: Checkout Repository
@@ -408,8 +398,9 @@ jobs:
       
     - name: Researcher-Specific Tests
       run: |
-        if [ -n "${{ matrix.test-target }}" ] && [ -e "${{ matrix.test-target }}" ]; then
-          poetry run pytest "${{ matrix.test-target }}" \
+        researcher_dir="tests/researchers/${{ matrix.researcher }}"
+        if [ -d "$researcher_dir" ] && find "$researcher_dir" -name 'test*.py' -print -quit | grep -q .; then
+          poetry run pytest "$researcher_dir" \
             --junitxml=pytest-${{ matrix.researcher }}.xml \
             -v
         else
