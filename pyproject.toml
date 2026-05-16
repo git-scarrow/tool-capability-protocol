@@ -61,7 +61,6 @@ anthropic = ">=0.39.0"
 
 [tool.poetry.group.test.dependencies]
 coverage = "^7.3.0"
-pytest-benchmark = "^4.0.0"
 pytest-mock = "^3.11.0"
 pytest-httpx = "^0.30.0"
 
