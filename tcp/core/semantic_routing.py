@@ -328,9 +328,9 @@ class SemanticRoutingEngine:
         self.path_success_rates: Dict[str, float] = defaultdict(lambda: 1.0)
 
         # Adaptive learning
-        self.content_routing_patterns: Dict[ContentType, Dict[str, float]] = (
-            defaultdict(dict)
-        )
+        self.content_routing_patterns: Dict[
+            ContentType, Dict[str, float]
+        ] = defaultdict(dict)
         self.behavioral_routing_adjustments: Dict[str, float] = defaultdict(float)
 
         # Register default routing strategies

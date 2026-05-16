@@ -65,9 +65,18 @@ class LabelTurn:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build the TCP-DATA-1 labeling package")
-    parser.add_argument("--limit", type=int, default=50, help="Number of labeled turns to prepare")
-    parser.add_argument("--calibration-size", type=int, default=10, help="Double-label calibration slice size")
+    parser = argparse.ArgumentParser(
+        description="Build the TCP-DATA-1 labeling package"
+    )
+    parser.add_argument(
+        "--limit", type=int, default=50, help="Number of labeled turns to prepare"
+    )
+    parser.add_argument(
+        "--calibration-size",
+        type=int,
+        default=10,
+        help="Double-label calibration slice size",
+    )
     parser.add_argument("--seed", type=int, default=42, help="Sampling seed")
     parser.add_argument(
         "--package-dir",
@@ -79,7 +88,9 @@ def main() -> None:
 
     turns = collect_turns()
     if len(turns) < args.limit:
-        raise SystemExit(f"Only {len(turns)} eligible turns found; need at least {args.limit}.")
+        raise SystemExit(
+            f"Only {len(turns)} eligible turns found; need at least {args.limit}."
+        )
 
     ranked = sorted(turns, key=turn_score, reverse=True)
     selected = pick_diverse_turns(ranked, args.limit, args.seed)
@@ -88,9 +99,18 @@ def main() -> None:
     args.package_dir.mkdir(parents=True, exist_ok=True)
     write_jsonl(args.package_dir / "candidate_turns.jsonl", selected)
     write_jsonl(args.package_dir / "calibration_slice.jsonl", calibration)
-    write_text(args.package_dir / "protocol.md", render_protocol(args.limit, args.calibration_size))
-    write_text(args.package_dir / "adjudication_log.md", render_adjudication_template(calibration))
-    write_text(args.package_dir / "provenance_and_limitations.md", render_provenance(turns, selected))
+    write_text(
+        args.package_dir / "protocol.md",
+        render_protocol(args.limit, args.calibration_size),
+    )
+    write_text(
+        args.package_dir / "adjudication_log.md",
+        render_adjudication_template(calibration),
+    )
+    write_text(
+        args.package_dir / "provenance_and_limitations.md",
+        render_provenance(turns, selected),
+    )
     write_text(args.package_dir / "README.md", render_readme())
 
     print(f"Prepared TCP-DATA-1 package in {args.package_dir}")
@@ -102,8 +122,14 @@ def main() -> None:
 def collect_turns() -> list[LabelTurn]:
     turns: list[LabelTurn] = []
     for session_path in sorted(SESSIONS_DIR.glob("*.jsonl")):
-        records = [json.loads(line) for line in session_path.read_text().splitlines() if line.strip()]
-        session_start = next((r for r in records if r.get("event") == "session_start"), None)
+        records = [
+            json.loads(line)
+            for line in session_path.read_text().splitlines()
+            if line.strip()
+        ]
+        session_start = next(
+            (r for r in records if r.get("event") == "session_start"), None
+        )
         if not session_start:
             continue
 
@@ -132,9 +158,19 @@ def collect_turns() -> list[LabelTurn]:
                 continue
 
             derived = derive_request(prompt, session)
-            observed_tool_names = sorted({tool["tool_name"] for tool in tool_uses if tool.get("tool_result_status") == "ok"})
+            observed_tool_names = sorted(
+                {
+                    tool["tool_name"]
+                    for tool in tool_uses
+                    if tool.get("tool_result_status") == "ok"
+                }
+            )
             observed_equivalence_classes = sorted(
-                {get_equivalence_class(tool["tool_name"], {}) for tool in tool_uses if tool.get("tool_result_status") == "ok"}
+                {
+                    get_equivalence_class(tool["tool_name"], {})
+                    for tool in tool_uses
+                    if tool.get("tool_result_status") == "ok"
+                }
             )
 
             turns.append(
@@ -146,11 +182,17 @@ def collect_turns() -> list[LabelTurn]:
                     permission_mode=session.permission_mode,
                     observed_tool_names=observed_tool_names,
                     observed_equivalence_classes=observed_equivalence_classes,
-                    ok_tool_count=sum(1 for tool in tool_uses if tool.get("tool_result_status") == "ok"),
+                    ok_tool_count=sum(
+                        1
+                        for tool in tool_uses
+                        if tool.get("tool_result_status") == "ok"
+                    ),
                     coverage_audit_suitable=len(observed_equivalence_classes) == 1,
                     proxy_required_capability_flags=derived.required_capability_flags,
                     proxy_heuristic_capability_flags=derived.heuristic_capability_flags,
-                    proxy_required_output_formats=sorted(derived.required_output_formats),
+                    proxy_required_output_formats=sorted(
+                        derived.required_output_formats
+                    ),
                     label_status="unlabeled",
                     rater1_flags=None,
                     rater1_formats=None,
@@ -174,7 +216,9 @@ def is_labelable_turn(prompt: str, tool_uses: list[dict]) -> bool:
     if len(tokens) < 5 and not has_url:
         return False
 
-    ok_tool_uses = [tool for tool in tool_uses if tool.get("tool_result_status") == "ok"]
+    ok_tool_uses = [
+        tool for tool in tool_uses if tool.get("tool_result_status") == "ok"
+    ]
     if not ok_tool_uses:
         return False
 
@@ -209,7 +253,9 @@ def turn_score(turn: LabelTurn) -> tuple[int, int, int, int]:
     )
 
 
-def pick_diverse_turns(turns: list[LabelTurn], limit: int, seed: int) -> list[LabelTurn]:
+def pick_diverse_turns(
+    turns: list[LabelTurn], limit: int, seed: int
+) -> list[LabelTurn]:
     rng = random.Random(seed)
     by_class: dict[str, list[LabelTurn]] = {}
     for turn in turns:
@@ -322,9 +368,7 @@ def render_adjudication_template(calibration: list[LabelTurn]) -> str:
 
 def render_provenance(all_turns: list[LabelTurn], selected: list[LabelTurn]) -> str:
     by_class = Counter(
-        cls
-        for turn in selected
-        for cls in turn.observed_equivalence_classes
+        cls for turn in selected for cls in turn.observed_equivalence_classes
     )
     suitable = sum(1 for turn in selected if turn.coverage_audit_suitable)
     return f"""# TCP-DATA-1 Provenance and Limitations

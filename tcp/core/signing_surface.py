@@ -9,9 +9,8 @@ from __future__ import annotations
 
 import copy
 import struct
-from typing import Tuple
-
 import zlib
+from typing import Tuple
 
 EVIDENCE_TYPE = 0x000B
 

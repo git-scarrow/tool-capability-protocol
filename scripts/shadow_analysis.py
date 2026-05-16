@@ -58,7 +58,9 @@ def main() -> None:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--session", help="Path to a single session JSONL file")
     group.add_argument("--all", action="store_true", help="Analyse all sessions")
-    group.add_argument("--audit", action="store_true", help="Run 20-turn kill condition audit")
+    group.add_argument(
+        "--audit", action="store_true", help="Run 20-turn kill condition audit"
+    )
     args = parser.parse_args()
 
     if args.session:
@@ -75,12 +77,16 @@ def main() -> None:
 
 def analyse_session(session_path: Path) -> list[CallResult]:
     from tcp.derivation.request_derivation import (
-        SessionStartEvent, PostToolUseEvent,
-        classify_unscorable, get_equivalence_class,
+        PostToolUseEvent,
+        SessionStartEvent,
+        classify_unscorable,
+        get_equivalence_class,
     )
     from tcp.harness.models import ToolRecord
 
-    records = [json.loads(l) for l in session_path.read_text().splitlines() if l.strip()]
+    records = [
+        json.loads(l) for l in session_path.read_text().splitlines() if l.strip()
+    ]
 
     # Extract session metadata
     session_start = next((r for r in records if r["event"] == "session_start"), None)
@@ -102,20 +108,23 @@ def analyse_session(session_path: Path) -> list[CallResult]:
         inv = json.loads(inventory_path.read_text())
         inventory_available = bool(inv.get("tools"))
         for t in inv.get("tools", []):
-            tool_records.append(ToolRecord(
-                tool_name=t["name"],
-                descriptor_source="shadow",
-                descriptor_version=str(inv.get("version", "unknown")),
-                capability_flags=t.get("flags", 0),
-                risk_level="safe",
-            ))
+            tool_records.append(
+                ToolRecord(
+                    tool_name=t["name"],
+                    descriptor_source="shadow",
+                    descriptor_version=str(inv.get("version", "unknown")),
+                    capability_flags=t.get("flags", 0),
+                    risk_level="safe",
+                )
+            )
 
     full_inventory_size = len(tool_records)
 
     # Build prompt lookup by turn_id
     prompts: dict[int, tuple[str, float]] = {
         r["turn_id"]: (r["prompt"], float(r.get("timestamp", 0.0)))
-        for r in records if r["event"] == "user_prompt"
+        for r in records
+        if r["event"] == "user_prompt"
     }
 
     results = []
@@ -140,7 +149,9 @@ def analyse_session(session_path: Path) -> list[CallResult]:
 
         # Unscorable check
         unscorable = classify_unscorable(prompt, tool_event)
-        unscorable_reason = _unscorable_reason(prompt, tool_event) if unscorable else None
+        unscorable_reason = (
+            _unscorable_reason(prompt, tool_event) if unscorable else None
+        )
 
         exclusion_reason = None
         decision = None
@@ -158,55 +169,59 @@ def analyse_session(session_path: Path) -> list[CallResult]:
                 exclusion_reason = "incomplete_turn_context"
 
         if unscorable or exclusion_reason is not None:
-            results.append(CallResult(
-                session_id=r["session_id"],
-                turn_id=turn_id,
-                call_id=r.get("call_id", ""),
-                tool_name=tool_name,
-                equivalence_class=equiv_class,
-                prompt=prompt[:120],
-                unscorable=unscorable,
-                unscorable_reason=unscorable_reason,
-                in_survivor_set=None,
-                survivor_count=None,
-                full_inventory_tokens=None,
-                filtered_inventory_tokens=None,
-                token_delta=None,
-                benchmark_eligible=False,
-                exclusion_reason=exclusion_reason,
-            ))
+            results.append(
+                CallResult(
+                    session_id=r["session_id"],
+                    turn_id=turn_id,
+                    call_id=r.get("call_id", ""),
+                    tool_name=tool_name,
+                    equivalence_class=equiv_class,
+                    prompt=prompt[:120],
+                    unscorable=unscorable,
+                    unscorable_reason=unscorable_reason,
+                    in_survivor_set=None,
+                    survivor_count=None,
+                    full_inventory_tokens=None,
+                    filtered_inventory_tokens=None,
+                    token_delta=None,
+                    benchmark_eligible=False,
+                    exclusion_reason=exclusion_reason,
+                )
+            )
             continue
 
         survivors = set(decision.get("survivor_names_sorted") or [])
 
         # Coverage: does survivor set contain a tool in the same equivalence class?
         from tcp.derivation.request_derivation import get_equivalence_class as geq
+
         in_survivor = any(
-            geq(s, {}) == equiv_class or s == tool_name
-            for s in survivors
+            geq(s, {}) == equiv_class or s == tool_name for s in survivors
         )
 
         full_tokens = full_inventory_size * FULL_DESC_CHARS // CHARS_PER_TOKEN
         filtered_tokens = len(survivors) * MINIMAL_DESC_CHARS // CHARS_PER_TOKEN
         token_delta = full_tokens - filtered_tokens
 
-        results.append(CallResult(
-            session_id=r["session_id"],
-            turn_id=turn_id,
-            call_id=r.get("call_id", ""),
-            tool_name=tool_name,
-            equivalence_class=equiv_class,
-            prompt=prompt[:120],
-            unscorable=False,
-            unscorable_reason=None,
-            in_survivor_set=in_survivor,
-            survivor_count=len(survivors),
-            full_inventory_tokens=full_tokens,
-            filtered_inventory_tokens=filtered_tokens,
-            token_delta=token_delta,
-            benchmark_eligible=True,
-            exclusion_reason=None,
-        ))
+        results.append(
+            CallResult(
+                session_id=r["session_id"],
+                turn_id=turn_id,
+                call_id=r.get("call_id", ""),
+                tool_name=tool_name,
+                equivalence_class=equiv_class,
+                prompt=prompt[:120],
+                unscorable=False,
+                unscorable_reason=None,
+                in_survivor_set=in_survivor,
+                survivor_count=len(survivors),
+                full_inventory_tokens=full_tokens,
+                filtered_inventory_tokens=filtered_tokens,
+                token_delta=token_delta,
+                benchmark_eligible=True,
+                exclusion_reason=None,
+            )
+        )
 
     return results
 
@@ -232,7 +247,9 @@ def print_report(results: list[CallResult]) -> None:
 
     covered = sum(1 for r in benchmark_rows if r.in_survivor_set)
     coverage = covered / len(benchmark_rows)
-    mean_delta = sum(r.token_delta for r in benchmark_rows if r.token_delta) / len(benchmark_rows)
+    mean_delta = sum(r.token_delta for r in benchmark_rows if r.token_delta) / len(
+        benchmark_rows
+    )
     unscorable_rate = n_unscorable / total if total else 0
     excluded_rate = n_excluded / len(scorable) if scorable else 0
 
@@ -347,7 +364,9 @@ def run_audit() -> None:
     print(f"{'#':<3} {'Tool':<30} {'Class':<18} {'In Surv':>8}  Prompt")
     print("-" * 100)
     for i, r in enumerate(sample, 1):
-        print(f"{i:<3} {r.tool_name:<30} {r.equivalence_class:<18} {str(r.in_survivor_set):>8}  {r.prompt[:40]}")
+        print(
+            f"{i:<3} {r.tool_name:<30} {r.equivalence_class:<18} {str(r.in_survivor_set):>8}  {r.prompt[:40]}"
+        )
 
     auto_coverage = sum(1 for r in sample if r.in_survivor_set) / 20
     print(f"\nAuto-derived coverage on sample: {auto_coverage:.0%}")
@@ -356,8 +375,11 @@ def run_audit() -> None:
 
 def _unscorable_reason(prompt: str, tool_event) -> str:
     from tcp.derivation.request_derivation import (
-        _SYSTEM_TOOLS, _CONTINUATION_PROMPTS, _derive_capability_flags_from_prompt_only
+        _CONTINUATION_PROMPTS,
+        _SYSTEM_TOOLS,
+        _derive_capability_flags_from_prompt_only,
     )
+
     if tool_event.tool_name in _SYSTEM_TOOLS:
         return "system_tool"
     stripped = prompt.strip().lower()
