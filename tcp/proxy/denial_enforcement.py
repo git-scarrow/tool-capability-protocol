@@ -124,6 +124,11 @@ def resolution_allows_denial(resolution: CapabilityResolution) -> bool:
     return _resolution_signature_valid(resolution)
 
 
+def _has_valid_unavailable(resolutions: Sequence[CapabilityResolution]) -> bool:
+    """Return True when any resolution proves signed unavailability."""
+    return any(resolution_allows_denial(resolution) for resolution in resolutions)
+
+
 def contains_capability_denial(text: str) -> bool:
     """Return True if text contains capability-denial (absence-language) phrases."""
     return contains_absence_language(text)
