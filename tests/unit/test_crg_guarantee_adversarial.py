@@ -47,7 +47,6 @@ from tcp.proxy.capability_resolution_gate import (
 )
 from tcp.proxy.denial_enforcement import (
     DenialGateDecision,
-    _has_valid_unavailable,
     _resolution_signature_valid,
     enforce_denial_gate,
 )
