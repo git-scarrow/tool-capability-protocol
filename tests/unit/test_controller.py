@@ -17,12 +17,12 @@ from tcp.proxy.controller import (
     ToolPackController,
 )
 from tcp.proxy.pack_manifest import (
-    PackContext,
-    PackManifest,
-    PackRule,
     STATE_ACTIVE,
     STATE_DEFERRED,
     STATE_SUPPRESSED,
+    PackContext,
+    PackManifest,
+    PackRule,
 )
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

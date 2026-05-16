@@ -280,9 +280,7 @@ class HumanApprovalInterface:
             risk_level = request["risk_level"]
 
             risk_emoji = (
-                "🟢"
-                if risk_level == "LOW"
-                else "🟡" if risk_level == "MEDIUM" else "🔴"
+                "🟢" if risk_level == "LOW" else "🟡" if risk_level == "MEDIUM" else "🔴"
             )
 
             print(f"{i}. {tool_name} {risk_emoji} {risk_level} RISK")

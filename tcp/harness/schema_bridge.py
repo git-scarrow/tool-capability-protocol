@@ -9,11 +9,7 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from tcp.core.descriptors import (
-    CapabilityDescriptor,
-    CapabilityFlags,
-    ParameterType,
-)
+from tcp.core.descriptors import CapabilityDescriptor, CapabilityFlags, ParameterType
 from tcp.harness.corpus import CorpusEntry
 from tcp.harness.models import ToolRecord
 

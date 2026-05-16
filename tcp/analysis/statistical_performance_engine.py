@@ -636,13 +636,13 @@ class StatisticalPerformanceEngine:
         )
 
     @staticmethod
-    @numba.jit(nopython=True) if NUMBA_AVAILABLE else lambda f: f
+    @ numba.jit(nopython=True) if NUMBA_AVAILABLE else lambda f: f
     def _numba_mean(arr: np.ndarray) -> float:
         """Numba-optimized mean calculation."""
         return np.mean(arr)
 
     @staticmethod
-    @numba.jit(nopython=True) if NUMBA_AVAILABLE else lambda f: f
+    @ numba.jit(nopython=True) if NUMBA_AVAILABLE else lambda f: f
     def _numba_variance(arr: np.ndarray, mean: float) -> float:
         """Numba-optimized variance calculation."""
         return np.var(arr - mean)
@@ -674,7 +674,9 @@ class StatisticalPerformanceEngine:
         s2_sq_n2 = stats2.variance / stats2.count
 
         df_num = (s1_sq_n1 + s2_sq_n2) ** 2
-        df_denom = s1_sq_n1**2 / (stats1.count - 1) + s2_sq_n2**2 / (stats2.count - 1)
+        df_denom = s1_sq_n1**2 / (stats1.count - 1) + s2_sq_n2**2 / (
+            stats2.count - 1
+        )
 
         if df_denom == 0:
             return 1.0

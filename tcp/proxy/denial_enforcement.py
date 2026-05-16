@@ -39,12 +39,11 @@ from tcp.proxy.absence_language import (
     extract_absence_phrases,
 )
 from tcp.proxy.capability_resolution_gate import (
-    CapabilityResolution,
-    _REQUIRED_SIX_SURFACES,
     _CRG_RESOLVER_SECRET,
+    _REQUIRED_SIX_SURFACES,
+    CapabilityResolution,
     _compute_signature,
 )
-
 
 # ── Rewrite-action mapping ─────────────────────────────────────────────────────
 
@@ -125,6 +124,11 @@ def resolution_allows_denial(resolution: CapabilityResolution) -> bool:
     return _resolution_signature_valid(resolution)
 
 
+def _has_valid_unavailable(resolutions: Sequence[CapabilityResolution]) -> bool:
+    """Return True when any resolution proves signed unavailability."""
+    return any(resolution_allows_denial(resolution) for resolution in resolutions)
+
+
 def contains_capability_denial(text: str) -> bool:
     """Return True if text contains capability-denial (absence-language) phrases."""
     return contains_absence_language(text)
@@ -202,9 +206,8 @@ def may_emit_capability_denial(
 
     # Rule 4: unavailable resolution with incomplete surfaces → invalid_resolution.
     for r in resolutions:
-        if (
-            r.status == "unavailable"
-            and set(r.checked_surfaces) != set(_REQUIRED_SIX_SURFACES)
+        if r.status == "unavailable" and set(r.checked_surfaces) != set(
+            _REQUIRED_SIX_SURFACES
         ):
             return DenialGateDecision(
                 allowed=False,

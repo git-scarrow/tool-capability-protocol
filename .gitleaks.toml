@@ -1,0 +1,5 @@
+[allowlist]
+paths = [
+  '''tcp/local_tcp_demo/manpage_cache/curl_manpage\\.json''',
+  '''tcp_security_demo/manpage_cache/curl_manpage\\.json''',
+]
