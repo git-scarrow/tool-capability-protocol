@@ -50,7 +50,11 @@ jobs:
     
     - name: Check Poetry lock file
       run: |
-        poetry lock --check
+        if [ -f poetry.lock ]; then
+          poetry lock --check
+        else
+          echo "No poetry.lock present; skipping lock consistency check."
+        fi
     
     - name: Install dependencies and check conflicts
       run: |
@@ -122,9 +126,10 @@ jobs:
       run: |
         poetry run python -c "
         import tcp
-        from tcp.core.protocol import TCPProtocol
+        from tcp.core.protocol import ToolCapabilityProtocol
         from tcp.core.descriptors import CapabilityDescriptor
         from tcp.generators.binary import BinaryGenerator
+        protocol = ToolCapabilityProtocol()
         print('TCP core dependencies validation passed')
         "
     
