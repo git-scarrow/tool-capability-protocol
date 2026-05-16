@@ -24,7 +24,6 @@ jobs:
       uses: actions/dependency-review-action@v3
       with:
         fail-on-severity: moderate
-        allow-licenses: MIT, Apache-2.0, BSD-3-Clause, BSD-2-Clause, ISC
         deny-licenses: GPL-3.0, LGPL-3.0, AGPL-3.0
 
   poetry-audit:
@@ -130,6 +129,8 @@ jobs:
         from tcp.core.descriptors import CapabilityDescriptor
         from tcp.generators.binary import BinaryGenerator
         protocol = ToolCapabilityProtocol()
+        descriptor = CapabilityDescriptor(name='test', version='1.0')
+        protocol.generate_binary(descriptor)
         print('TCP core dependencies validation passed')
         "
     
