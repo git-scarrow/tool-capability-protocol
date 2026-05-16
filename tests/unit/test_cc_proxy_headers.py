@@ -18,6 +18,11 @@ import pytest
 from starlette.requests import Request
 from starlette.testclient import TestClient
 
+try:
+    from builtins import ExceptionGroup
+except ImportError:  # pragma: no cover - Python < 3.11 compatibility
+    from exceptiongroup import ExceptionGroup
+
 from tcp.proxy.cc_proxy import (
     UPSTREAM_LIMITS,
     UPSTREAM_TIMEOUT,
