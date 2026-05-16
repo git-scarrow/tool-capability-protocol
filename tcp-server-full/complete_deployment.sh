@@ -21,8 +21,9 @@ pip install anthropic schedule
 echo "✅ Python environment ready"
 
 # Get API key and create environment file
-cat > .env << 'ENV_EOF'
-ANTHROPIC_API_KEY=sk-ant-api03-eGC6L5jfJO2dOQJK8OV8YfVJX0KhgQUgA0uPUGIg2A5QDDhWi5qGbNsPhgHKfJCX7GhFDgMWV3R7_BU0nHGm2g-E-PLHQAA
+: "${ANTHROPIC_API_KEY:?Set ANTHROPIC_API_KEY before running deployment}"
+cat > .env << ENV_EOF
+ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 PYTHONPATH=/opt/tcp-knowledge-system/scripts
 ENV_EOF
 chmod 600 .env

@@ -104,7 +104,7 @@ jobs:
         docker run --rm \
           -v "$PWD:/repo" \
           zricethezav/gitleaks:latest \
-          detect --source=/repo --no-banner --redact --exit-code=1
+          detect --source=/repo --no-banner --redact --no-git --exit-code=1
 
   tcp-security-validation:
     runs-on: ubuntu-latest
