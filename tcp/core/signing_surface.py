@@ -9,9 +9,8 @@ from __future__ import annotations
 
 import copy
 import struct
-from typing import Tuple
-
 import zlib
+from typing import Tuple
 
 EVIDENCE_TYPE = 0x000B
 
@@ -31,11 +30,11 @@ def canonical_bytes_without_evidence(descriptor_bytes: bytes) -> bytes:
     out = bytearray()
     offset = 0
     while offset < len(tlv_data):
-        t, f, l = struct.unpack_from("<HHI", tlv_data, offset)
-        payload = tlv_data[offset : offset + 8 + l]
+        t, _flags, length = struct.unpack_from("<HHI", tlv_data, offset)
+        payload = tlv_data[offset : offset + 8 + length]
         if t != EVIDENCE_TYPE:
             out.extend(payload)
-        offset += 8 + l
+        offset += 8 + length
     new_total = 32 + len(out)
     struct.pack_into("<Q", header, 16, new_total)
     # zero CRC32C then compute

@@ -23,13 +23,13 @@ from dataclasses import dataclass
 from typing import Mapping
 
 from tcp.proxy.pack_manifest import (
+    STATE_ACTIVE,
+    STATE_DEFERRED,
+    STATE_SUPPRESSED,
     PackContext,
     PackDecision,
     PackManifest,
     PackState,
-    STATE_ACTIVE,
-    STATE_DEFERRED,
-    STATE_SUPPRESSED,
     resolve_pack_decisions,
 )
 
