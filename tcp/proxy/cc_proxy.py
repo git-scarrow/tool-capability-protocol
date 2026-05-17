@@ -1164,9 +1164,7 @@ def _check_denial_enforcement(
     # Full CapabilityResolution objects are not stored in meta — we use the
     # serialised records to check status, surfaces, and signature.
     from tcp.proxy.capability_resolution_gate import _REQUIRED_SIX_SURFACES as _SIX
-    from tcp.proxy.capability_resolution_gate import (
-        SurfaceResult,
-    )
+    from tcp.proxy.capability_resolution_gate import SurfaceResult
 
     resolutions: list[CapabilityResolution] = []
     for rec in crg_records:
