@@ -1,5 +1,7 @@
 """Tests for TCP-DS-2 request derivation contract."""
 
+from __future__ import annotations
+
 import pytest
 
 from tcp.core.descriptors import CapabilityFlags
