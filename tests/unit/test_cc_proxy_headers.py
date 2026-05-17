@@ -18,6 +18,11 @@ import pytest
 from starlette.requests import Request
 from starlette.testclient import TestClient
 
+try:
+    ExceptionGroup
+except NameError:  # pragma: no cover - compatibility for Python 3.9/3.10 tests.
+    from exceptiongroup import ExceptionGroup
+
 from tcp.proxy.cc_proxy import (
     UPSTREAM_LIMITS,
     UPSTREAM_TIMEOUT,
