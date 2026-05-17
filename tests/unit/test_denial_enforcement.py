@@ -21,10 +21,10 @@ from tcp.proxy.absence_language import (
     extract_text_from_sse_buf,
 )
 from tcp.proxy.capability_resolution_gate import (
-    CRGContext,
-    resolve_capability,
-    _compute_signature,
     _REQUIRED_SIX_SURFACES,
+    CRGContext,
+    _compute_signature,
+    resolve_capability,
 )
 from tcp.proxy.denial_enforcement import (
     DenialGateDecision,

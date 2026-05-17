@@ -19,10 +19,10 @@ import time
 from pathlib import Path
 
 from tcp.proxy.cc_proxy import (
-    _ExpectedToolDerivation,
     _all_tools_from_response_body,
     _all_tools_from_sse_buf,
     _compute_expected_tool_name,
+    _ExpectedToolDerivation,
     _first_tool_from_response_body,
     _first_tool_from_sse_buf,
     _top_survivor_by_prompt_similarity,
@@ -694,8 +694,8 @@ class TestDenialEnforcementIntegration:
 
         from tcp.proxy.capability_resolution_gate import (
             CRGContext,
-            resolve_capability,
             resolution_to_log_record,
+            resolve_capability,
         )
 
         _NOTION_TOOL = "mcp__notion-agents__query_database"

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from tcp.agent.ambiguous_tasks import build_ambiguous_tasks, AmbiguousTask
+from tcp.agent.ambiguous_tasks import AmbiguousTask, build_ambiguous_tasks
 from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.router import RouteConfidence, route_tool
 

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import re
 
-
 _ABSENCE_PATTERNS: tuple[re.Pattern[str], ...] = (
     # First-person inability — original 11 patterns
     re.compile(r"\bI (?:do not|don't) have access to\b", re.I),

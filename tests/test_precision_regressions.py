@@ -1,6 +1,7 @@
 import pytest
-from tcp.derivation.request_derivation import _derive_capability_flags_from_prompt_only
+
 from tcp.core.descriptors import CapabilityFlags
+from tcp.derivation.request_derivation import _derive_capability_flags_from_prompt_only
 
 
 def test_network_false_positives():

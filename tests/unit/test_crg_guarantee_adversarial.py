@@ -37,11 +37,11 @@ import pytest
 
 from tcp.proxy.absence_language import contains_absence_language
 from tcp.proxy.capability_resolution_gate import (
-    CRGContext,
-    CapabilityResolution,
-    SurfaceResult,
     _CRG_RESOLVER_SECRET,
     _REQUIRED_SIX_SURFACES,
+    CapabilityResolution,
+    CRGContext,
+    SurfaceResult,
     _compute_signature,
     resolve_capability,
 )

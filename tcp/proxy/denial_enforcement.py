@@ -39,12 +39,11 @@ from tcp.proxy.absence_language import (
     extract_absence_phrases,
 )
 from tcp.proxy.capability_resolution_gate import (
-    CapabilityResolution,
-    _REQUIRED_SIX_SURFACES,
     _CRG_RESOLVER_SECRET,
+    _REQUIRED_SIX_SURFACES,
+    CapabilityResolution,
     _compute_signature,
 )
-
 
 # ── Rewrite-action mapping ─────────────────────────────────────────────────────
 

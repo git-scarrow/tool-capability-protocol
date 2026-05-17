@@ -13,6 +13,7 @@ from tcp.proxy.cc_proxy import _runtime_from_env
 def test_cc_proxy_module_imports_cleanly() -> None:
     """cc_proxy must import without error; catches missing names in the import block."""
     import importlib
+
     import tcp.proxy.cc_proxy as mod
 
     assert mod is not None

@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import List
 
 from .core.snf import SNFCanonicalizer
-from .core.tlv_evidence import compute_evidence_id
 from .core.telemetry import record_hist
+from .core.tlv_evidence import compute_evidence_id
 
 
 def _load_pairs(path: str) -> List[dict]:
