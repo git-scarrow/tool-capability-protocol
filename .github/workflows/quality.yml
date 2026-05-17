@@ -150,16 +150,15 @@ jobs:
       if: steps.performance-tests.outputs.present == 'true'
       run: |
         poetry run python -c "
-        from tcp.core.protocol import TCPProtocol
+        from tcp.core.protocol import ToolCapabilityProtocol
         from tcp.core.descriptors import CapabilityDescriptor
         
-        protocol = TCPProtocol()
+        protocol = ToolCapabilityProtocol()
         descriptor = CapabilityDescriptor(
             name='test', description='Test'*50, version='1.0',
-            parameters=[], security_level='SAFE', security_flags=[], performance_metrics={}
         )
         
-        binary_data = protocol.encode_capability(descriptor)
+        binary_data = protocol.generate_binary(descriptor)
         compression_ratio = (len(descriptor.description) * 50) / len(binary_data)
         
         assert compression_ratio >= 350.0, f'Compression ratio {compression_ratio} below 350:1 threshold'
@@ -171,24 +170,23 @@ jobs:
       run: |
         poetry run python -c "
         import time
-        from tcp.core.protocol import TCPProtocol
+        from tcp.core.protocol import ToolCapabilityProtocol
         from tcp.core.descriptors import CapabilityDescriptor
         
-        protocol = TCPProtocol()
+        protocol = ToolCapabilityProtocol()
         descriptor = CapabilityDescriptor(
             name='test', description='Test command', version='1.0',
-            parameters=[], security_level='SAFE', security_flags=[], performance_metrics={}
         )
         
         # Warmup
         for _ in range(100):
-            protocol.encode_capability(descriptor)
+            protocol.generate_binary(descriptor)
         
         # Measure decision time
         start = time.perf_counter_ns()
         for _ in range(1000):
-            binary_data = protocol.encode_capability(descriptor)
-            decoded = protocol.decode_capability(binary_data)
+            binary_data = protocol.generate_binary(descriptor)
+            decoded = protocol.parse_binary(binary_data)
         end = time.perf_counter_ns()
         
         avg_time_ns = (end - start) / 1000
