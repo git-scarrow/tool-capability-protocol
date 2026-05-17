@@ -373,11 +373,11 @@ jobs:
         <?xml version="1.0" encoding="utf-8"?>
         <testsuite name="reliability" tests="0" skipped="0" failures="0" errors="0" time="0" />
         EOF
-          echo "No tests/reliability directory; skipping optional reliability tests."
+          echo "No pytest-discoverable reliability tests; skipping optional pytest reliability tests."
         fi
           
     - name: Chaos Engineering Tests
-      if: steps.reliability-tests.outputs.present == 'true' && hashFiles('tests/reliability/chaos_engineering.py') != ''
+      if: hashFiles('tests/reliability/chaos_engineering.py') != ''
       run: |
         poetry run python tests/reliability/chaos_engineering.py \
           --duration=3600 \
@@ -385,7 +385,7 @@ jobs:
           --output=chaos-results.json
           
     - name: Load Testing
-      if: steps.reliability-tests.outputs.present == 'true' && hashFiles('tests/reliability/load_testing.py') != ''
+      if: hashFiles('tests/reliability/load_testing.py') != ''
       run: |
         poetry run python tests/reliability/load_testing.py \
           --concurrent-users=10000 \
@@ -393,7 +393,7 @@ jobs:
           --output=load-results.json
           
     - name: Reliability Report Generation
-      if: steps.reliability-tests.outputs.present == 'true' && hashFiles('tests/reliability/generate_report.py') != ''
+      if: hashFiles('tests/reliability/generate_report.py') != ''
       run: |
         poetry run python tests/reliability/generate_report.py \
           --input-dir=. \
@@ -401,7 +401,7 @@ jobs:
           --target=99.999
           
     - name: Upload Reliability Results
-      if: always() && steps.reliability-tests.outputs.present == 'true'
+      if: always() && (steps.reliability-tests.outputs.present == 'true' || hashFiles('tests/reliability/chaos_engineering.py') != '' || hashFiles('tests/reliability/load_testing.py') != '' || hashFiles('tests/reliability/generate_report.py') != '')
       uses: actions/upload-artifact@v4
       with:
         name: reliability-results
