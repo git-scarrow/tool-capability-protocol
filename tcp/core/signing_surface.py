@@ -30,7 +30,7 @@ def canonical_bytes_without_evidence(descriptor_bytes: bytes) -> bytes:
     out = bytearray()
     offset = 0
     while offset < len(tlv_data):
-        t, f, length = struct.unpack_from("<HHI", tlv_data, offset)
+        t, _flags, length = struct.unpack_from("<HHI", tlv_data, offset)
         payload = tlv_data[offset : offset + 8 + length]
         if t != EVIDENCE_TYPE:
             out.extend(payload)
