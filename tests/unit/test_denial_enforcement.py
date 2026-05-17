@@ -57,9 +57,11 @@ def _make_resolution(
     r = resolve_capability(capability, ctx)
     if tamper_status:
         from dataclasses import replace
+
         r = replace(r, status=tamper_status)
     if not sign:
         from dataclasses import replace
+
         r = replace(r, signature="")
     return r
 
@@ -77,14 +79,15 @@ def _make_unavailable_resolution(sign: bool = True):
     assert r.status == "unavailable"
     if not sign:
         from dataclasses import replace
+
         r = replace(r, signature="")
     return r
 
 
 # ── Absence language detection ────────────────────────────────────────────────
 
-class TestAbsenceLanguageDetection:
 
+class TestAbsenceLanguageDetection:
     def test_no_notion_phrase_clean(self):
         assert not contains_absence_language("I can search Notion for you.")
 
@@ -117,23 +120,27 @@ class TestAbsenceLanguageDetection:
 
 # ── extract_text_from_response_body ──────────────────────────────────────────
 
-class TestExtractTextFromResponseBody:
 
+class TestExtractTextFromResponseBody:
     def test_extracts_text_block(self):
         import json
-        body = json.dumps({
-            "content": [
-                {"type": "text", "text": "I don't have access to Notion."},
-                {"type": "tool_use", "name": "some_tool"},
-            ]
-        }).encode()
+
+        body = json.dumps(
+            {
+                "content": [
+                    {"type": "text", "text": "I don't have access to Notion."},
+                    {"type": "tool_use", "name": "some_tool"},
+                ]
+            }
+        ).encode()
         assert "don't have access" in extract_text_from_response_body(body)
 
     def test_empty_on_tool_only_response(self):
         import json
-        body = json.dumps({
-            "content": [{"type": "tool_use", "name": "some_tool"}]
-        }).encode()
+
+        body = json.dumps(
+            {"content": [{"type": "tool_use", "name": "some_tool"}]}
+        ).encode()
         assert extract_text_from_response_body(body) == ""
 
     def test_empty_on_malformed_body(self):
@@ -142,25 +149,34 @@ class TestExtractTextFromResponseBody:
 
 # ── extract_text_from_sse_buf ─────────────────────────────────────────────────
 
-class TestExtractTextFromSSEBuf:
 
+class TestExtractTextFromSSEBuf:
     def test_extracts_text_deltas(self):
         import json
+
         events = [
-            {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "I don't "}},
-            {"type": "content_block_delta", "delta": {"type": "text_delta", "text": "have access."}},
+            {
+                "type": "content_block_delta",
+                "delta": {"type": "text_delta", "text": "I don't "},
+            },
+            {
+                "type": "content_block_delta",
+                "delta": {"type": "text_delta", "text": "have access."},
+            },
         ]
-        buf = b"".join(
-            f"data: {json.dumps(e)}\n\n".encode() for e in events
-        )
+        buf = b"".join(f"data: {json.dumps(e)}\n\n".encode() for e in events)
         text = extract_text_from_sse_buf(buf)
         assert "don't" in text
         assert "have access" in text
 
     def test_ignores_tool_events(self):
         import json
+
         events = [
-            {"type": "content_block_start", "content_block": {"type": "tool_use", "name": "foo"}},
+            {
+                "type": "content_block_start",
+                "content_block": {"type": "tool_use", "name": "foo"},
+            },
         ]
         buf = b"".join(f"data: {json.dumps(e)}\n\n".encode() for e in events)
         assert extract_text_from_sse_buf(buf) == ""
@@ -168,8 +184,8 @@ class TestExtractTextFromSSEBuf:
 
 # ── enforce_denial_gate ───────────────────────────────────────────────────────
 
-class TestEnforceDenialGate:
 
+class TestEnforceDenialGate:
     def test_no_absence_language_is_allowed(self):
         decision = enforce_denial_gate(
             "Here are your Notion search results.",
@@ -228,17 +244,20 @@ class TestEnforceDenialGate:
 
     def test_violation_record_is_json_serializable(self):
         import json
+
         resolution = _make_resolution(status="schema_deferred")
         decision = enforce_denial_gate("I don't have access to Notion.", [resolution])
-        record = denial_violation_record(decision, "I don't have access to Notion.", "notion.search")
+        record = denial_violation_record(
+            decision, "I don't have access to Notion.", "notion.search"
+        )
         assert record["kind"] == "denial_violation"
         json.dumps(record)
 
 
 # ── Signature verification ────────────────────────────────────────────────────
 
-class TestSignatureVerification:
 
+class TestSignatureVerification:
     def test_resolver_computed_signature_is_valid(self):
         ctx = CRGContext(
             visible_tools=frozenset({_NOTION_TOOL}),
@@ -254,6 +273,7 @@ class TestSignatureVerification:
 
     def test_tampered_status_invalidates_signature(self):
         from dataclasses import replace
+
         ctx = CRGContext(
             visible_tools=frozenset({_NOTION_TOOL}),
             deferred_tools=frozenset(),
@@ -268,6 +288,7 @@ class TestSignatureVerification:
 
     def test_tampered_matched_tools_invalidates_signature(self):
         from dataclasses import replace
+
         ctx = CRGContext(
             visible_tools=frozenset({_NOTION_TOOL}),
             deferred_tools=frozenset(),
@@ -282,6 +303,7 @@ class TestSignatureVerification:
 
     def test_empty_signature_is_invalid(self):
         from dataclasses import replace
+
         ctx = CRGContext(
             visible_tools=frozenset({_NOTION_TOOL}),
             deferred_tools=frozenset(),
@@ -297,6 +319,7 @@ class TestSignatureVerification:
     def test_tampered_unavailable_blocks_denial(self):
         """Core tamper test: mutate status on a signed resolution, gate rejects."""
         from dataclasses import replace
+
         ctx = CRGContext(
             visible_tools=frozenset({_NOTION_TOOL}),
             deferred_tools=frozenset(),
@@ -437,7 +460,9 @@ class TestMayEmitCapabilityDenial:
 
     def test_case_insensitive_cannot(self):
         """10. "cannot" triggers absence-language detection."""
-        assert may_emit_capability_denial("I cannot access Notion.", []).allowed is False
+        assert (
+            may_emit_capability_denial("I cannot access Notion.", []).allowed is False
+        )
 
     def test_case_insensitive_dont(self):
         """10. "don't" triggers absence-language detection."""

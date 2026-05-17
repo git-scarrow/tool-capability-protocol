@@ -22,6 +22,7 @@ SEED = 42
 
 # ── data loading ─────────────────────────────────────────────────────────────
 
+
 def load_exp3():
     path = REPO / "exp3-results.json"
     with open(path) as f:
@@ -29,6 +30,7 @@ def load_exp3():
 
 
 # ── bootstrap helpers ─────────────────────────────────────────────────────────
+
 
 def bootstrap_ci(
     data: list,
@@ -85,9 +87,11 @@ def mean_fn(xs: list) -> float:
 
 # ── minimum detectable effect (MDE) ──────────────────────────────────────────
 
+
 def power_two_proportions(n: int, p1: float, p2: float, alpha: float = 0.05) -> float:
     """Approximate power for two-proportion z-test (two-tailed)."""
     import math
+
     z_alpha = 1.96
     p_bar = (p1 + p2) / 2
     se_alt = math.sqrt(p1 * (1 - p1) / n + p2 * (1 - p2) / n)
@@ -97,7 +101,9 @@ def power_two_proportions(n: int, p1: float, p2: float, alpha: float = 0.05) -> 
     return 1 - _norm_cdf(z_alpha - ncp) + _norm_cdf(-z_alpha - ncp)
 
 
-def n_required_two_proportions(p1: float, p2: float, power: float = 0.80, alpha: float = 0.05) -> int:
+def n_required_two_proportions(
+    p1: float, p2: float, power: float = 0.80, alpha: float = 0.05
+) -> int:
     """Return n per arm needed to detect |p2-p1| at given power."""
     for n in range(5, 10_000):
         if power_two_proportions(n, p1, p2, alpha) >= power:
@@ -105,7 +111,9 @@ def n_required_two_proportions(p1: float, p2: float, power: float = 0.80, alpha:
     return 10_000
 
 
-def mde_two_proportions(n: int, p1: float = 0.83, power: float = 0.80, alpha: float = 0.05) -> float:
+def mde_two_proportions(
+    n: int, p1: float = 0.83, power: float = 0.80, alpha: float = 0.05
+) -> float:
     """
     MDE for two-proportion z-test at given n per arm.
     Returns smallest detectable delta (p2 - p1) at given power.
@@ -123,10 +131,12 @@ def mde_two_proportions(n: int, p1: float = 0.83, power: float = 0.80, alpha: fl
 
 def _norm_cdf(x: float) -> float:
     import math
+
     return 0.5 * (1 + math.erf(x / math.sqrt(2)))
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
+
 
 def main():
     trials = load_exp3()
@@ -141,13 +151,15 @@ def main():
 
     # extract per-arm series
     correct = {arm: [t[arm]["selected_tool_correct"] for t in trials] for arm in arms}
-    tokens  = {arm: [t[arm]["input_tokens"] for t in trials] for arm in arms}
+    tokens = {arm: [t[arm]["input_tokens"] for t in trials] for arm in arms}
 
     rng = random.Random(SEED)
 
     print("=" * 72)
     print("TCP-MT-9  Bootstrap CIs — EXP-3 4-Arm Ablation")
-    print(f"n = {n} tasks per arm  |  bootstrap iterations = {N_BOOT:,}  |  seed = {SEED}")
+    print(
+        f"n = {n} tasks per arm  |  bootstrap iterations = {N_BOOT:,}  |  seed = {SEED}"
+    )
     print("=" * 72)
 
     # ── Table 1: correctness CIs ─────────────────────────────────────────────
@@ -159,7 +171,9 @@ def main():
         obs, lo, hi = bootstrap_ci(correct[arm], mean_fn, rng=rng)
         corr_ci[arm] = (obs, lo, hi)
         n_ok = sum(correct[arm])
-        print(f"{arm_labels[arm]:<42}  {obs:>6.1%}  {lo:>6.1%}  {hi:>6.1%}  {n_ok:>5}/{n}")
+        print(
+            f"{arm_labels[arm]:<42}  {obs:>6.1%}  {lo:>6.1%}  {hi:>6.1%}  {n_ok:>5}/{n}"
+        )
 
     # ── Table 2: token CIs ───────────────────────────────────────────────────
     print("\n── Table 2: Per-Arm Mean Input Tokens (95% CI) ────────────────────\n")
@@ -171,27 +185,37 @@ def main():
 
     # ── Table 3: pairwise correctness differences ────────────────────────────
     print("\n── Table 3: Pairwise Correctness Differences (A as reference) ──────\n")
-    print(f"{'Comparison':<26}  {'Δ correct':>9}  {'95% CI':>20}  {'p-value':>8}  {'sig?':>6}")
+    print(
+        f"{'Comparison':<26}  {'Δ correct':>9}  {'95% CI':>20}  {'p-value':>8}  {'sig?':>6}"
+    )
     print("-" * 72)
     ref = "arm_a"
     for arm in arms[1:]:
         obs_a, lo_a, hi_a = corr_ci[ref]
         obs_b, lo_b, hi_b = corr_ci[arm]
-        diff_obs, p = bootstrap_diff_pvalue(correct[ref], correct[arm], mean_fn, rng=rng)
+        diff_obs, p = bootstrap_diff_pvalue(
+            correct[ref], correct[arm], mean_fn, rng=rng
+        )
         # CI on the difference via paired bootstrap
         diffs = [c - a for c, a in zip(correct[arm], correct[ref])]
         _, diff_lo, diff_hi = bootstrap_ci(diffs, mean_fn, rng=rng)
         sig = "✓" if p < 0.05 else "✗"
         label = f"A vs {arm.split('_')[1].upper()}"
-        print(f"{label:<26}  {diff_obs:>+8.1%}  [{diff_lo:>+7.1%}, {diff_hi:>+7.1%}]  {p:>8.4f}  {sig:>6}")
+        print(
+            f"{label:<26}  {diff_obs:>+8.1%}  [{diff_lo:>+7.1%}, {diff_hi:>+7.1%}]  {p:>8.4f}  {sig:>6}"
+        )
 
     # ── Table 4: all pairs for completeness ─────────────────────────────────
     print("\n── Table 4: C vs D (minimal vs brief) ─────────────────────────────\n")
-    diff_obs, p = bootstrap_diff_pvalue(correct["arm_c"], correct["arm_d"], mean_fn, rng=rng)
+    diff_obs, p = bootstrap_diff_pvalue(
+        correct["arm_c"], correct["arm_d"], mean_fn, rng=rng
+    )
     diffs = [d - c for d, c in zip(correct["arm_d"], correct["arm_c"])]
     _, diff_lo, diff_hi = bootstrap_ci(diffs, mean_fn, rng=rng)
     sig = "✓" if p < 0.05 else "✗"
-    print(f"{'C vs D':<26}  {diff_obs:>+8.1%}  [{diff_lo:>+7.1%}, {diff_hi:>+7.1%}]  {p:>8.4f}  {sig:>6}")
+    print(
+        f"{'C vs D':<26}  {diff_obs:>+8.1%}  [{diff_lo:>+7.1%}, {diff_hi:>+7.1%}]  {p:>8.4f}  {sig:>6}"
+    )
 
     # ── MDE / power analysis ─────────────────────────────────────────────────
     p1_baseline = corr_ci["arm_a"][0]
@@ -204,7 +228,9 @@ def main():
 
     print(f"\n── Power Analysis ──────────────────────────────────────────────────\n")
     print(f"  n per arm (actual):       {n}")
-    print(f"  MDE at n=36, 80% power:   {'±'+f'{mde:.0%}' if not (mde!=mde) else 'unachievable at this n (ceiling effect)'}")
+    print(
+        f"  MDE at n=36, 80% power:   {'±'+f'{mde:.0%}' if not (mde!=mde) else 'unachievable at this n (ceiling effect)'}"
+    )
     print(f"  Observed A→C diff:        +{obs_diff_ac:.1%}")
     print(f"  Power at observed delta:  {pow_at_n:.1%}")
     print(f"  n needed to detect +{obs_diff_ac:.1%} at 80% power:  {n_needed} per arm")
@@ -219,17 +245,27 @@ def main():
     print(f"  Savings:            {savings_pct:.0%}")
 
     # ── Verdict ──────────────────────────────────────────────────────────────
-    _, p_ac = bootstrap_diff_pvalue(correct["arm_a"], correct["arm_c"], mean_fn, rng=rng)
+    _, p_ac = bootstrap_diff_pvalue(
+        correct["arm_a"], correct["arm_c"], mean_fn, rng=rng
+    )
     print("\n" + "=" * 72)
     print("VERDICT")
     print("=" * 72)
     if p_ac < 0.05 and obs_diff_ac > 0:
-        print(f"  PASS — A vs C difference is statistically significant (p={p_ac:.4f}).")
-        print(f"  Minimal TCP descriptions outperform behavioral prose by +{obs_diff_ac:.0%}pp")
-        print(f"  correctness while saving {savings_pct:.0%} tokens. Effect exceeds MDE.")
+        print(
+            f"  PASS — A vs C difference is statistically significant (p={p_ac:.4f})."
+        )
+        print(
+            f"  Minimal TCP descriptions outperform behavioral prose by +{obs_diff_ac:.0%}pp"
+        )
+        print(
+            f"  correctness while saving {savings_pct:.0%} tokens. Effect exceeds MDE."
+        )
     elif p_ac < 0.10:
         print(f"  MARGINAL — p={p_ac:.4f} (trend, not significant at α=0.05).")
-        print(f"  Directional signal for A→C but sample is underpowered for this delta.")
+        print(
+            f"  Directional signal for A→C but sample is underpowered for this delta."
+        )
     else:
         print(f"  FAIL — A vs C difference not significant (p={p_ac:.4f}).")
         print(f"  Cannot reject H0 at this sample size. Findings are directional only.")

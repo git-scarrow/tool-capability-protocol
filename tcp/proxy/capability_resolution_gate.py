@@ -44,6 +44,7 @@ _logger = logging.getLogger(__name__)
 #   3. With TCP_CRG_REQUIRE_KEY=1 set, an unset env var raises on import.
 #      Production deployments should set this flag to fail closed on misconfig.
 
+
 def _load_resolver_secret() -> str:
     env_key = os.environ.get("TCP_CRG_RESOLVER_SECRET")
     if env_key:
@@ -108,7 +109,6 @@ def _compute_signature(
         payload.encode(),
         hashlib.sha256,
     ).hexdigest()[:32]
-
 
 
 # ── Semantic capability → MCP server families ──────────────────────────────────

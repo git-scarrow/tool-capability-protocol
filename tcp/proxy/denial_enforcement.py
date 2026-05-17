@@ -202,9 +202,8 @@ def may_emit_capability_denial(
 
     # Rule 4: unavailable resolution with incomplete surfaces → invalid_resolution.
     for r in resolutions:
-        if (
-            r.status == "unavailable"
-            and set(r.checked_surfaces) != set(_REQUIRED_SIX_SURFACES)
+        if r.status == "unavailable" and set(r.checked_surfaces) != set(
+            _REQUIRED_SIX_SURFACES
         ):
             return DenialGateDecision(
                 allowed=False,

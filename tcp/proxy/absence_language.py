@@ -14,48 +14,124 @@ _ABSENCE_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\bI (?:do not|don't) have access to\b", re.I),
     re.compile(r"\bI (?:can't|cannot) access\b", re.I),
     re.compile(r"\bI (?:can't|cannot) reach\b", re.I),
-    re.compile(r"\bI (?:do not|don't) have (?:a |the )?(?:tool|connector|integration|plugin) for\b", re.I),
+    re.compile(
+        r"\bI (?:do not|don't) have (?:a |the )?(?:tool|connector|integration|plugin) for\b",
+        re.I,
+    ),
     re.compile(r"\bno (?:tool|connector|integration) (?:is )?available for\b", re.I),
     re.compile(r"\bI(?:'m| am) not able to (?:access|reach|connect to|use)\b", re.I),
-    re.compile(r"\bI (?:do not|don't) have (?:the )?ability to (?:access|reach|connect to)\b", re.I),
-    re.compile(r"\bI (?:do not|don't) have (?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear)\b", re.I),
-    re.compile(r"\bno (?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear) (?:tool|access|connector|integration)\b", re.I),
-    re.compile(r"\bI (?:can't|cannot) (?:search|query|access|read|write|fetch) (?:your |the )?(?:Notion|GitHub|calendar|email|database)\b", re.I),
-    re.compile(r"\bI don't have (?:direct )?access to (?:any )?(?:external|connected|linked)\b", re.I),
+    re.compile(
+        r"\bI (?:do not|don't) have (?:the )?ability to (?:access|reach|connect to)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bI (?:do not|don't) have (?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bno (?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear) (?:tool|access|connector|integration)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bI (?:can't|cannot) (?:search|query|access|read|write|fetch) (?:your |the )?(?:Notion|GitHub|calendar|email|database)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bI don't have (?:direct )?access to (?:any )?(?:external|connected|linked)\b",
+        re.I,
+    ),
     # Verb alternatives — "lack", "no way to", "have no"
-    re.compile(r"\bI lack (?:the )?(?:access|ability|capability|means|tool|tools|way) (?:to|for)\b", re.I),
+    re.compile(
+        r"\bI lack (?:the )?(?:access|ability|capability|means|tool|tools|way) (?:to|for)\b",
+        re.I,
+    ),
     re.compile(r"\bI lack access\b", re.I),
     re.compile(r"\bI have no (?:way|means|access|ability|tool|tools) to\b", re.I),
     re.compile(r"\bI (?:do not|don't) support\b", re.I),
     # Subject-inversion / impersonal — capability-token subject
-    re.compile(r"\b(?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear)(?:\s+\w+){0,3}\s+is (?:not |un)(?:accessible|available|connected|reachable|supported)\b", re.I),
-    re.compile(r"\b(?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear) integration is (?:not |un)(?:available|connected|enabled|configured|accessible)\b", re.I),
-    re.compile(r"\b(?:the )?(?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear) integration (?:is(?:n't| not)|isn't) (?:available|enabled|connected|configured)\b", re.I),
+    re.compile(
+        r"\b(?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear)(?:\s+\w+){0,3}\s+is (?:not |un)(?:accessible|available|connected|reachable|supported)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear) integration is (?:not |un)(?:available|connected|enabled|configured|accessible)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(?:the )?(?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear) integration (?:is(?:n't| not)|isn't) (?:available|enabled|connected|configured)\b",
+        re.I,
+    ),
     # Existential negation — "There is no X"
-    re.compile(r"\bthere(?:'s| is) no (?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear|tool|connector|integration|capability|way)\b", re.I),
-    re.compile(r"\bthere are no (?:tools|connectors|integrations|capabilities)\b", re.I),
+    re.compile(
+        r"\bthere(?:'s| is) no (?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear|tool|connector|integration|capability|way)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\bthere are no (?:tools|connectors|integrations|capabilities)\b", re.I
+    ),
     # Passive voice
-    re.compile(r"\b(?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear|that|it) (?:can(?:not| ?'?t)|could(?:not| ?n'?t)) be (?:accessed|reached|queried|searched|opened|connected|used)\b", re.I),
-    re.compile(r"\b(?:is|are) not (?:accessible|reachable|available|supported|connected) (?:from|in|to)\b", re.I),
+    re.compile(
+        r"\b(?:Notion|GitHub|calendar|email|Oracle|Slack|Jira|Linear|that|it) (?:can(?:not| ?'?t)|could(?:not| ?n'?t)) be (?:accessed|reached|queried|searched|opened|connected|used)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(?:is|are) not (?:accessible|reachable|available|supported|connected) (?:from|in|to)\b",
+        re.I,
+    ),
     # Workspace / context phrasing
-    re.compile(r"\b(?:your |the )?workspace is not (?:connected|accessible|available|configured)\b", re.I),
-    re.compile(r"\b(?:your |the )?(?:account|workspace|integration) (?:isn't|is not) (?:connected|linked|set up|configured)\b", re.I),
+    re.compile(
+        r"\b(?:your |the )?workspace is not (?:connected|accessible|available|configured)\b",
+        re.I,
+    ),
+    re.compile(
+        r"\b(?:your |the )?(?:account|workspace|integration) (?:isn't|is not) (?:connected|linked|set up|configured)\b",
+        re.I,
+    ),
     # Hedged / apologetic — "Unfortunately", "I'm afraid"
-    re.compile(r"\b(?:unfortunately|sadly|regrettably)[,\s].{0,80}?(?:not (?:available|accessible|connected|supported|enabled)|isn't (?:available|accessible|connected|supported|enabled))\b", re.I | re.S),
-    re.compile(r"\bI(?:'m| am) (?:afraid|sorry)[,\s].{0,80}?(?:do not|don't|cannot|can't|can ?not)\b", re.I | re.S),
+    re.compile(
+        r"\b(?:unfortunately|sadly|regrettably)[,\s].{0,80}?(?:not (?:available|accessible|connected|supported|enabled)|isn't (?:available|accessible|connected|supported|enabled))\b",
+        re.I | re.S,
+    ),
+    re.compile(
+        r"\bI(?:'m| am) (?:afraid|sorry)[,\s].{0,80}?(?:do not|don't|cannot|can't|can ?not)\b",
+        re.I | re.S,
+    ),
 )
 
 
 _NEGATION_TOKENS: tuple[str, ...] = (
-    "not accessible", "unaccessible", "unavailable", "not available",
-    "not reachable", "unreachable", "not supported", "unsupported",
-    "not connected", "disconnected", "isn't available", "isn't accessible",
-    "isn't connected", "isn't supported", "no access", "without access",
+    "not accessible",
+    "unaccessible",
+    "unavailable",
+    "not available",
+    "not reachable",
+    "unreachable",
+    "not supported",
+    "unsupported",
+    "not connected",
+    "disconnected",
+    "isn't available",
+    "isn't accessible",
+    "isn't connected",
+    "isn't supported",
+    "no access",
+    "without access",
 )
 
 _CAPABILITY_TOKENS: tuple[str, ...] = (
-    "notion", "github", "calendar", "email", "oracle", "slack", "jira",
-    "linear", "gmail", "outlook", "drive", "sharepoint", "confluence",
+    "notion",
+    "github",
+    "calendar",
+    "email",
+    "oracle",
+    "slack",
+    "jira",
+    "linear",
+    "gmail",
+    "outlook",
+    "drive",
+    "sharepoint",
+    "confluence",
 )
 
 # Window for capability-token / negation-token co-occurrence detection.
@@ -119,6 +195,7 @@ def extract_absence_phrases(text: str) -> list[str]:
 def extract_text_from_response_body(body: bytes) -> str:
     """Extract all text block content from a non-streamed Anthropic response body."""
     import json
+
     try:
         data = json.loads(body)
     except (json.JSONDecodeError, ValueError):
@@ -137,6 +214,7 @@ def extract_text_from_response_body(body: bytes) -> str:
 def extract_text_from_sse_buf(buf: bytes) -> str:
     """Extract accumulated text from an SSE byte buffer (content_block_delta events)."""
     import json
+
     try:
         text = buf.decode("utf-8", errors="replace")
     except Exception:

@@ -14,9 +14,14 @@ def test_cc_proxy_module_imports_cleanly() -> None:
     """cc_proxy must import without error; catches missing names in the import block."""
     import importlib
     import tcp.proxy.cc_proxy as mod
+
     assert mod is not None
     # Spot-check symbols that have historically broken the import.
-    assert callable(mod.may_emit_capability_denial if hasattr(mod, "may_emit_capability_denial") else mod._check_denial_enforcement)
+    assert callable(
+        mod.may_emit_capability_denial
+        if hasattr(mod, "may_emit_capability_denial")
+        else mod._check_denial_enforcement
+    )
     assert callable(mod._compute_expected_tool_name)
     assert callable(mod._write_decision_record)
 

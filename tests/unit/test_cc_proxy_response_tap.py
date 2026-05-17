@@ -347,7 +347,10 @@ class TestComputeExpectedToolName:
         assert d.candidate_set_size == 2
 
     def test_three_survivors_abstains(self):
-        meta = {"survivor_count": 3, "survivor_names_sorted": ["alpha", "beta", "gamma"]}
+        meta = {
+            "survivor_count": 3,
+            "survivor_names_sorted": ["alpha", "beta", "gamma"],
+        }
         d = _compute_expected_tool_name(meta)
         assert d.expected_tool_name is None
         assert d.abstain_reason == "ambiguous_3_survivors"
@@ -846,7 +849,11 @@ class TestDenialEnforcementIntegration:
         log = tmp_path / "decisions.jsonl"
         monkeypatch.setattr("tcp.proxy.cc_proxy.DECISIONS_LOG", log)
 
-        meta: dict = {"survivor_count": 1, "survivor_names_sorted": ["Bash"], "crg_resolutions": []}
+        meta: dict = {
+            "survivor_count": 1,
+            "survivor_names_sorted": ["Bash"],
+            "crg_resolutions": [],
+        }
         _check_denial_enforcement("", meta)
         _write_decision_record(time.time(), meta, "Bash")
 
