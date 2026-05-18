@@ -15,6 +15,7 @@ env:
 
 jobs:
   dependency-review:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -25,7 +26,6 @@ jobs:
       with:
         fail-on-severity: moderate
         allow-licenses: MIT, Apache-2.0, BSD-3-Clause, BSD-2-Clause, ISC
-        deny-licenses: GPL-3.0, LGPL-3.0, AGPL-3.0
 
   poetry-audit:
     runs-on: ubuntu-latest
@@ -49,8 +49,9 @@ jobs:
         poetry audit || echo "Poetry audit completed with findings"
     
     - name: Check Poetry lock file
+      if: hashFiles('poetry.lock') != ''
       run: |
-        poetry lock --check
+        poetry check --lock
     
     - name: Install dependencies and check conflicts
       run: |

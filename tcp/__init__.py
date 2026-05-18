@@ -8,7 +8,7 @@ from .core.descriptors import (
     ParameterDescriptor,
 )
 from .core.discovery import DiscoveryService
-from .core.protocol import ToolCapabilityProtocol
+from .core.protocol import TCPProtocol, ToolCapabilityProtocol
 from .core.registry import CapabilityRegistry
 from .generators import (
     BinaryGenerator,
@@ -42,6 +42,7 @@ __email__ = "team@tcp.dev"
 __all__ = [
     # Core classes
     "ToolCapabilityProtocol",
+    "TCPProtocol",
     "CapabilityDescriptor",
     "BinaryCapabilityDescriptor",
     "CommandDescriptor",

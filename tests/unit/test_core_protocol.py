@@ -15,12 +15,16 @@ from tcp.core.descriptors import (
     CapabilityDescriptor,
     PerformanceMetrics,
 )
-from tcp.core.protocol import ToolCapabilityProtocol
+from tcp.core.protocol import TCPProtocol, ToolCapabilityProtocol
 from tcp.core.registry import CapabilityRegistry
 
 
 class TestTCPProtocol:
     """Test suite for TCP protocol core functionality."""
+
+    def test_tcpprotocol_alias_compatibility(self):
+        """Test legacy TCPProtocol imports resolve to the current protocol class."""
+        assert TCPProtocol is ToolCapabilityProtocol
 
     def test_protocol_initialization(self, tcp_protocol):
         """Test TCP protocol initializes correctly."""

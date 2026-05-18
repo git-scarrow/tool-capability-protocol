@@ -330,3 +330,7 @@ class ToolCapabilityProtocol:
         descriptor.capability_flags = binary_desc.capability_flags
 
         return descriptor
+
+
+# Backward-compatible alias used by older validation and researcher modules.
+TCPProtocol = ToolCapabilityProtocol
