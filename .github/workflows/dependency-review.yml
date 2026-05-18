@@ -15,6 +15,7 @@ env:
 
 jobs:
   dependency-review:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
@@ -48,6 +49,7 @@ jobs:
         poetry audit || echo "Poetry audit completed with findings"
     
     - name: Check Poetry lock file
+      if: hashFiles('poetry.lock') != ''
       run: |
         poetry check --lock
     
