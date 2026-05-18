@@ -8,7 +8,7 @@ from .descriptors import (
     ParameterDescriptor,
 )
 from .discovery import DiscoveryService
-from .protocol import ToolCapabilityProtocol
+from .protocol import TCPProtocol, ToolCapabilityProtocol
 from .registry import CapabilityRegistry
 from .signing_surface import canonical_bytes_without_evidence
 from .snf import SNFCanonicalizer, SNFError
@@ -28,6 +28,7 @@ except ModuleNotFoundError as exc:
 
 __all__ = [
     "ToolCapabilityProtocol",
+    "TCPProtocol",
     "CapabilityDescriptor",
     "BinaryCapabilityDescriptor",
     "CommandDescriptor",
