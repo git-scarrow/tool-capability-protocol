@@ -1,0 +1,7 @@
+name: diag-run
+on: [push]
+jobs:
+  echo:
+    runs-on: self-hosted
+    steps:
+      - run: echo "host run-step works"
