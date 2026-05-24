@@ -82,7 +82,16 @@
       "mcp__claude-projects__claude_list_projects",
       "Read(//home/sam/projects/writing/pontius/**)",
       "Read(//home/sam/**)",
-      "Bash(/home/sam/projects/notion-forge/cli/.venv/bin/python /home/sam/projects/notion-forge/cli/claude_cli.py --help)"
+      "Bash(/home/sam/projects/notion-forge/cli/.venv/bin/python /home/sam/projects/notion-forge/cli/claude_cli.py --help)",
+      "mcp__oracle-remote__execute_query",
+      "mcp__notion-agents__direct_closeout_return",
+      "Bash(bash *)",
+      "Bash(pipx list *)",
+      "Bash(nix-shell -p black --run \"black --version\")",
+      "Bash(black --check tcp/proxy/cc_proxy.py tcp/proxy/survivor_reducer.py tests/unit/test_cc_proxy_decisions_meta.py tests/unit/test_survivor_reducer.py)",
+      "Bash(black tcp/proxy/survivor_reducer.py)",
+      "mcp__notion-agents__check_gates",
+      "mcp__notion-agents__build_dispatch_packet"
     ],
     "deny": []
   },

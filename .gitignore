@@ -154,3 +154,6 @@ test_payload.json
 
 # Local analysis artifacts
 artifacts/
+
+# Trained model artifacts (large, regenerable)
+tcp/measurement/*.json
