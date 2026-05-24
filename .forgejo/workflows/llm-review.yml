@@ -1,0 +1,30 @@
+name: LLM Code Review
+
+# Self-hosted per-file code review. Replaces the billable
+# .github/workflows/claude-code-review.yml (which ran anthropics/claude-code-action
+# on every PR). On-demand @claude escalation is intentionally kept GitHub-only
+# (see .github/workflows/claude.yml) for the rare cases worth the API spend.
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    name: Self-hosted LLM review
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: LLM per-file review
+        env:
+          CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
+          LLM_HOST: http://aws-ec2:8002
+          LLM_MODEL: gemma4:26b
+          LLM_FALLBACK: http://localhost:11434
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: python3 .forgejo/scripts/llm-review.py

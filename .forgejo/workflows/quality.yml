@@ -1,0 +1,70 @@
+name: Quality Gates
+
+# Forgejo Actions port of .github/workflows/quality.yml, deliberately reduced to
+# the core quality gates. The consortium-era jobs (external-validation,
+# researcher-validation, deployment-readiness, notify-consortium) and the DinD
+# trivy scan are intentionally dropped — see .github/workflows/quality.yml for
+# the legacy GitHub pipeline.
+#
+# Runner: needs a self-hosted Forgejo runner registered to Codeberg that
+# advertises the `self-hosted` label and has python3 available (the fleet
+# gentoo runner uses node:22-bookworm, which ships Debian python3). Bare
+# `actions/*` refs resolve via the runner's default actions registry.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+env:
+  POETRY_VERSION: "1.6.1"
+
+jobs:
+  quality-gates:
+    name: Quality Gates
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        run: python -m pip install "poetry==${POETRY_VERSION}"
+
+      - name: Install dependencies
+        run: poetry install --with dev,test
+
+      - name: Black (format check)
+        run: poetry run black --check tcp tests
+
+      - name: isort (import order)
+        run: poetry run isort --check-only tcp tests
+
+      - name: flake8 (lint)
+        run: poetry run flake8 tcp tests
+
+      - name: mypy (types)
+        run: poetry run mypy tcp
+
+      - name: Unit tests with coverage
+        run: |
+          poetry run pytest tests/unit \
+            --cov=tcp \
+            --cov-report=term-missing \
+            --cov-fail-under=10 \
+            -v
+
+      - name: Integration tests
+        run: poetry run pytest tests/integration -v
