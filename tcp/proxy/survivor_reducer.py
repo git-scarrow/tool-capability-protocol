@@ -15,8 +15,12 @@ for offline replay against the IMP-23 acceptance metrics.
 
 Design constraints (from spec):
 
-  1. Never drop ``safety_floor_tools`` from the shortlist when present in
-     survivors.
+  1. Safety-floor tools are never *demotable* (see ``demotion_candidates``),
+     independent of shortlist membership.  As of reducer v2 the shortlist is
+     evidence-only: floor tools appear in it only when they earn evidence,
+     because floor protection lives at the demotion layer, not in the
+     shortlist.  (v1 unioned the ~36-tool floor into every shortlist, which
+     inflated the size metric without adding any protection.)
   2. Never hard-prune solely on ``heuristic_capability_flags`` — those flags
      contribute to *ranking* but cannot, on their own, determine emit/abstain.
   3. Score with multiple transparent features:
@@ -27,9 +31,8 @@ Design constraints (from spec):
         - pack state ACTIVE > DEFERRED > SUPPRESSED
   4. If no positive evidence exists, abstain — do not produce a misleading
      shortlist.  The original survivor count is preserved in telemetry.
-  5. If positive evidence exists, emit a shortlist capped at ``max_shortlist``,
-     with the safety floor always preserved (its members may push the result
-     above the cap rather than displace one another).
+  5. If positive evidence exists, emit a shortlist capped at ``max_shortlist``
+     (default 15, the Gate 2 median target).
 """
 
 from __future__ import annotations
@@ -45,12 +48,17 @@ from tcp.proxy.capability_resolution_gate import (
     _CAPABILITY_SERVERS as CAPABILITY_SERVERS,
 )
 
-REDUCER_VERSION: str = "imp23.evidence_gated_reducer.v1"
+# v2 (Gate 2 tightening): the shortlist is the evidence-ranked prefix only —
+# the safety floor is no longer unioned in (its protection is enforced in
+# demotion_candidates) and the default cap drops 20 → 15.
+REDUCER_VERSION: str = "imp24.evidence_gated_reducer.v2"
 
 # TCP-IMP-24: version string for the demotion-enforcement policy layered on top
 # of the (unchanged) ranking algorithm above.  Logged so replay tooling can
 # distinguish enforcement policies without re-deriving them from row shapes.
-ENFORCEMENT_VERSION: str = "imp24.demote.v1"
+# v2: demotion candidates additionally exclude tools on recency-shielded MCP
+# servers (servers observed called in the same workspace within the TTL).
+ENFORCEMENT_VERSION: str = "imp24.demote.v2"
 
 # Transparent integer score weights.  Kept as module-level constants so a future
 # spec can tune them with explicit traceability rather than buried magic numbers.
@@ -80,8 +88,9 @@ class SurvivorReduction:
         shortlisted_count:     Length of ``shortlisted_tools``.  When abstaining,
                                this is 0 even though the survivor set is intact.
         shortlisted_tools:     Tools the reducer would propose in shadow mode.
-                               Always preserves any safety-floor entries that
-                               were in the input survivor set.
+                               Evidence-ranked prefix only (v2); safety-floor
+                               protection is enforced by demotion_candidates,
+                               not by shortlist membership.
         ranked_tools:          All survivors ordered by descending score.  Lets
                                replay scripts inspect ranking without needing
                                feature reconstruction.
@@ -212,7 +221,7 @@ def reduce_survivors(
     heuristic_capability_flags: int,
     crg_requested_capabilities: Sequence[str],
     safety_floor_tools: frozenset[str],
-    max_shortlist: int = 20,
+    max_shortlist: int = 15,
 ) -> SurvivorReduction:
     """Rank and shortlist surviving tools using transparent feature scoring.
 
@@ -240,10 +249,11 @@ def reduce_survivors(
             (or the equivalent).  When a survivor's MCP server is in any of the
             corresponding capability families, that survivor scores positive
             evidence.
-        safety_floor_tools: Tool names guaranteed to remain in the shortlist
-            when present in ``survivor_names``.
-        max_shortlist: Soft cap on shortlist size.  Safety-floor entries are
-            always preserved even if they push the final count above the cap.
+        safety_floor_tools: Tool names that are never demotable.  Used here for
+            telemetry (``safety_floor_preserved``); the actual protection is
+            enforced in ``demotion_candidates``, not by shortlist membership.
+        max_shortlist: Hard cap on shortlist size.  The shortlist is exactly
+            the evidence-ranked prefix, length <= max_shortlist.
 
     Returns:
         A ``SurvivorReduction`` describing the shortlist, ranking, and
@@ -423,23 +433,17 @@ def reduce_survivors(
             feature_summary=feature_summary,
         )
 
-    # Build the shortlist.  Order: positive-evidence tools by descending score,
-    # capped at max_shortlist; then unioned with safety-floor survivors (which
-    # may push the total above the cap rather than displace evidence-positive
-    # tools).
-    capped: list[str] = []
+    # Build the shortlist: positive-evidence tools by descending score, capped
+    # at max_shortlist.  v2 deliberately does NOT union the safety floor in:
+    # replay over 45k logged decisions showed the union added zero protection
+    # (identical called-tool-demoted rate with or without it) while inflating
+    # the median size metric — floor protection lives in demotion_candidates.
+    shortlist: list[str] = []
     for _, name, feats in scored:
         if feats["exact_name"] or feats["crg_family"] or feats["lexical_name"]:
-            capped.append(name)
-            if len(capped) >= max_shortlist:
-                break
-
-    shortlist: list[str] = list(capped)
-    shortlist_set = set(shortlist)
-    for name in sorted(survivor_names & safety_floor_tools):
-        if name not in shortlist_set:
             shortlist.append(name)
-            shortlist_set.add(name)
+            if len(shortlist) >= max_shortlist:
+                break
 
     return SurvivorReduction(
         original_count=len(survivor_names),
@@ -458,6 +462,7 @@ def demotion_candidates(
     survivor_names: frozenset[str],
     tool_surface_by_name: Mapping[str, Mapping[str, object]],
     safety_floor_tools: frozenset[str],
+    recent_mcp_servers: frozenset[str] = frozenset(),
 ) -> frozenset[str]:
     """Survivors eligible for deferred-schema demotion under TCP-IMP-24.
 
@@ -465,6 +470,16 @@ def demotion_candidates(
     tool keeps its name in the model-visible tool list but is sent with the
     minimal deferred-schema surface instead of its materialized schema.  This
     function never proposes removal.
+
+    ``recent_mcp_servers`` is the enforcement-v2 recency shield: MCP servers
+    observed handling a tool call in the same workspace within the recency TTL
+    (see cc_proxy._recent_servers_for_workspace).  Tools on a shielded server
+    are excluded from demotion because in-flight tasks routinely re-call
+    tools that the *current* prompt no longer names.  The shield only narrows
+    the candidate set — it never adds tools to the shortlist, so the shortlist
+    size metric stays an honest measure of prompt-evidence selectivity.  The
+    set used is logged per decision row (reducer_recent_servers) so replay can
+    reproduce it exactly.
 
     Invariants (each pinned by a test in test_reducer_enforcement.py):
       - Abstained reduction → empty set (enforcement is a strict no-op).
@@ -475,6 +490,7 @@ def demotion_candidates(
         candidates (their schema is already minimal; re-deferring would
         clobber the pack-state attribution in the audit log).
       - Shortlisted tools are never candidates.
+      - Tools on a recency-shielded MCP server are never candidates.
     """
     if reduction.abstained:
         return frozenset()
@@ -488,6 +504,8 @@ def demotion_candidates(
         if not isinstance(server, str) or not server:
             server = _extract_mcp_server(name)
         if server is None:
+            continue
+        if server in recent_mcp_servers:
             continue
         if _coerce_state(surface.get("surface_state")) != STATE_ACTIVE:
             continue

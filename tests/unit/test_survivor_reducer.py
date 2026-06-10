@@ -72,7 +72,7 @@ def _make_synthetic_survivor_set(
 # ── Test 1: modal 196-survivor case reduces to ≤20 with positive evidence ─────
 
 
-def test_modal_196_survivor_set_reduces_to_at_most_20_with_evidence() -> None:
+def test_modal_196_survivor_set_reduces_to_at_most_15_with_evidence() -> None:
     survivors, surface = _make_synthetic_survivor_set(196)
     # Add a Notion-family tool that should match the CRG capability "notion.search".
     notion_tool = "mcp__notion-agents__notion-search"
@@ -94,21 +94,18 @@ def test_modal_196_survivor_set_reduces_to_at_most_20_with_evidence() -> None:
 
     assert reduction.original_count == 197
     assert not reduction.abstained
-    # Shortlist capped at 20 evidence-positive tools.
-    evidence_positive = [
-        t for t in reduction.shortlisted_tools if t not in _SAFETY_FLOOR
-    ]
-    assert len(evidence_positive) <= 20
+    # v2: shortlist is the evidence-ranked prefix only, capped at 15.
+    assert len(reduction.shortlisted_tools) <= 15
     assert notion_tool in reduction.shortlisted_tools
     # The Notion tool, with both lexical + CRG hits, must rank ahead of any
     # synthetic tool with no evidence.
     assert reduction.ranked_tools[0] == notion_tool
 
 
-# ── Test 2: 336-survivor case still capped at ≤20 plus safety floor ───────────
+# ── Test 2: 336-survivor case — shortlist is evidence-only, hard cap 15 ──────
 
 
-def test_336_survivor_case_caps_at_20_plus_safety_floor() -> None:
+def test_336_survivor_case_shortlist_is_evidence_only_capped_15() -> None:
     survivors, surface = _make_synthetic_survivor_set(
         336,
         extra=tuple(_SAFETY_FLOOR),
@@ -130,20 +127,22 @@ def test_336_survivor_case_caps_at_20_plus_safety_floor() -> None:
     )
 
     assert not reduction.abstained
-    floor_in_shortlist = set(reduction.shortlisted_tools) & _SAFETY_FLOOR
-    non_floor_in_shortlist = [
-        t for t in reduction.shortlisted_tools if t not in _SAFETY_FLOOR
-    ]
-    # Every safety-floor tool that was a survivor must be preserved.
-    assert floor_in_shortlist == _SAFETY_FLOOR
-    # Non-floor entries are capped at the soft cap.
-    assert len(non_floor_in_shortlist) <= 20
+    # v2: the floor is NOT unioned into the shortlist (replay showed the union
+    # added zero protection and only inflated the size metric).  Floor tools
+    # appear only if they earn evidence; this prompt gives them none.
+    assert len(reduction.shortlisted_tools) <= 15
+    assert not set(reduction.shortlisted_tools) & _SAFETY_FLOOR
+    assert notion_tool in reduction.shortlisted_tools
+    # The broad-shortlist failure mode is structurally impossible at the cap.
+    assert reduction.shortlisted_count == len(reduction.shortlisted_tools)
 
 
-# ── Test 3: safety floor in survivors is always preserved ─────────────────────
+# ── Test 3: floor protection lives at the demotion layer, not the shortlist ──
 
 
-def test_safety_floor_survivors_always_preserved() -> None:
+def test_safety_floor_survivors_protected_at_demotion_layer() -> None:
+    from tcp.proxy.survivor_reducer import demotion_candidates
+
     survivors, surface = _make_synthetic_survivor_set(
         50,
         extra=("Read", "Bash", "Edit"),
@@ -164,10 +163,15 @@ def test_safety_floor_survivors_always_preserved() -> None:
         safety_floor_tools=_SAFETY_FLOOR,
     )
 
-    assert "Read" in reduction.shortlisted_tools
-    assert "Bash" in reduction.shortlisted_tools
-    assert "Edit" in reduction.shortlisted_tools
     assert not reduction.abstained
+    # Evidence-less floor tools are not shortlisted in v2...
+    assert "Read" not in reduction.shortlisted_tools
+    # ...but they are never demotion candidates, which is the protection that
+    # actually matters (shortlist membership had no enforcement effect).
+    candidates = demotion_candidates(reduction, survivors, surface, _SAFETY_FLOOR)
+    assert not candidates & _SAFETY_FLOOR
+    # Non-MCP built-ins are structurally exempt as well.
+    assert "Read" not in candidates and "Bash" not in candidates
 
 
 # ── Test 4: no positive evidence → abstain ────────────────────────────────────
@@ -390,7 +394,30 @@ def test_reducer_output_is_deterministic() -> None:
 
 
 def test_reducer_version_string_is_stable() -> None:
-    assert REDUCER_VERSION == "imp23.evidence_gated_reducer.v1"
+    assert REDUCER_VERSION == "imp24.evidence_gated_reducer.v2"
+
+
+def test_exact_name_mention_outranks_lexical_only_match() -> None:
+    """Exact (whole tool/server name in prompt) must beat fuzzy token overlap."""
+    exact_tool = "mcp__exa__web_search_exa"
+    fuzzy_tool = "mcp__some-server__web_helper"  # shares only the 'web' token
+    survivors = frozenset({exact_tool, fuzzy_tool})
+    surface = {
+        exact_tool: _make_surface(exact_tool),
+        fuzzy_tool: _make_surface(fuzzy_tool),
+    }
+    reduction = reduce_survivors(
+        prompt="use exa to search the web",
+        survivor_names=survivors,
+        tool_surface_by_name=surface,
+        required_capability_flags=0,
+        hard_capability_flags=0,
+        heuristic_capability_flags=0,
+        crg_requested_capabilities=[],
+        safety_floor_tools=_SAFETY_FLOOR,
+    )
+    assert not reduction.abstained
+    assert reduction.ranked_tools[0] == exact_tool
 
 
 def test_state_preference_active_outranks_deferred_when_other_signals_tie() -> None:
@@ -423,7 +450,7 @@ def test_state_preference_active_outranks_deferred_when_other_signals_tie() -> N
 )
 def test_replay_against_local_corpus_caps_broad_survivors() -> None:
     """When real corpus is available, broad-survivor rows with positive evidence
-    must shortlist to ≤20 (plus safety-floor entries).
+    must shortlist to ≤15 (evidence-only; no floor union in v2).
 
     This test is opportunistic: it is skipped in CI and on machines without a
     locally-running proxy.  It is meaningful on the operator's workstation.
@@ -469,10 +496,9 @@ def test_replay_against_local_corpus_caps_broad_survivors() -> None:
             crg_requested_capabilities=["notion.search"],
             safety_floor_tools=_SAFETY_FLOOR,
         )
-        non_floor = [t for t in reduction.shortlisted_tools if t not in _SAFETY_FLOOR]
-        assert len(non_floor) <= 20, (
+        assert len(reduction.shortlisted_tools) <= 15, (
             f"reducer exceeded shortlist cap on survivor_count={size}: "
-            f"non_floor_count={len(non_floor)}"
+            f"count={len(reduction.shortlisted_tools)}"
         )
 
 

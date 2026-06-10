@@ -22,10 +22,12 @@ Merge bar:
 
 from __future__ import annotations
 
+import time
 from typing import Any
 
 import pytest
 
+import tcp.proxy.cc_proxy as cc
 from tcp.proxy.capability_resolution_gate import (
     extract_requested_capabilities,
     resolve_capabilities_for_request,
@@ -38,8 +40,8 @@ from tcp.proxy.cc_proxy import (
 )
 from tcp.proxy.survivor_reducer import (
     ENFORCEMENT_VERSION,
-    SurvivorReduction,
     REDUCER_VERSION,
+    SurvivorReduction,
     demotion_candidates,
 )
 
@@ -49,6 +51,8 @@ from tcp.proxy.survivor_reducer import (
 
 _PROXY_ENV_VARS = (
     "TCP_PROXY_REDUCER_ENFORCE",
+    "TCP_PROXY_REDUCER_RECENCY_TTL",
+    "TCP_PROXY_CWD",
     "TCP_PROXY_ALLOWED_MCP_SERVERS",
     "TCP_PROXY_WORKSPACE_MCP_SERVERS",
     "TCP_PROXY_NETWORK",
@@ -65,6 +69,14 @@ _PROXY_ENV_VARS = (
 def _clean_proxy_env(monkeypatch: pytest.MonkeyPatch) -> None:
     for var in _PROXY_ENV_VARS:
         monkeypatch.delenv(var, raising=False)
+
+
+@pytest.fixture(autouse=True)
+def _clean_recency_registry() -> None:
+    """The recency shield is module-global in-memory state; isolate tests."""
+    cc._recent_server_calls.clear()
+    yield
+    cc._recent_server_calls.clear()
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -367,6 +379,99 @@ class TestDemotionCandidates:
         )
         # Only the active, non-floor, non-shortlisted MCP tool is a candidate.
         assert out == frozenset({"mcp__exa__web_search_exa"})
+
+
+# ── Recency shield: recent-server demotion protection ───────────────────────
+
+
+class TestRecencyShield:
+    """Enforcement v2: MCP servers called in the same workspace within the TTL
+    are excluded from demotion candidates.  The shield narrows the candidate
+    set only — it never alters the shortlist or the visible tool-name set."""
+
+    WORKSPACE = "/ws/recency-itest"
+
+    def _demote(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        monkeypatch.setenv("TCP_PROXY_REDUCER_ENFORCE", "demote")
+        monkeypatch.setenv("TCP_PROXY_CWD", self.WORKSPACE)
+        return _process_tools_array(TOOLS, EVIDENCE_BODY, "live")
+
+    def test_recent_server_is_never_a_unit_candidate(self) -> None:
+        surface = {
+            **TestDemotionCandidates.SURFACE,
+            NOTION: {"surface_state": "active", "mcp_server": "notion-agents"},
+        }
+        survivors = TestDemotionCandidates.SURVIVORS | {NOTION}
+        base = demotion_candidates(
+            _reduction((NOTION,)), survivors, surface, _SAFETY_FLOOR_TOOLS
+        )
+        assert base == frozenset({"mcp__exa__web_search_exa"})
+        shielded = demotion_candidates(
+            _reduction((NOTION,)),
+            survivors,
+            surface,
+            _SAFETY_FLOOR_TOOLS,
+            recent_mcp_servers=frozenset({"exa"}),
+        )
+        assert shielded == frozenset()
+
+    def test_recent_oracle_call_shields_oracle_from_demotion(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Baseline: no recent calls — oracle is demoted.
+        out0, meta0 = self._demote(monkeypatch)
+        assert ORACLE in meta0["reducer_demoted_tools"]
+        assert meta0["reducer_recent_servers"] == []
+        # A recent oracle call in the same workspace shields the server.
+        cc._note_recent_tool_calls(self.WORKSPACE, [ORACLE], time.time())
+        out1, meta1 = self._demote(monkeypatch)
+        assert meta1["reducer_recent_servers"] == ["oracle-remote"]
+        assert ORACLE not in meta1["reducer_demoted_tools"]
+        assert ORACLE in meta1["materialized_schema_tools"]
+        # Shield narrows candidates only: shortlist and name set unchanged.
+        assert meta1["reducer_shortlisted_tools"] == meta0["reducer_shortlisted_tools"]
+        assert _names(out1) == _names(TOOLS)
+        assert meta1["reducer_recency_ttl_seconds"] == cc.RECENCY_TTL_DEFAULT_SECONDS
+
+    def test_expired_recency_does_not_shield(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        stale = time.time() - cc.RECENCY_TTL_DEFAULT_SECONDS - 60
+        cc._note_recent_tool_calls(self.WORKSPACE, [ORACLE], stale)
+        _, meta = self._demote(monkeypatch)
+        assert meta["reducer_recent_servers"] == []
+        assert ORACLE in meta["reducer_demoted_tools"]
+
+    def test_shield_is_workspace_scoped(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        cc._note_recent_tool_calls("/ws/other-workspace", [ORACLE], time.time())
+        _, meta = self._demote(monkeypatch)
+        assert meta["reducer_recent_servers"] == []
+        assert ORACLE in meta["reducer_demoted_tools"]
+
+    def test_registry_ignores_non_mcp_names_and_empty_workspace(self) -> None:
+        now = time.time()
+        cc._note_recent_tool_calls(None, [ORACLE], now)
+        cc._note_recent_tool_calls("", [ORACLE], now)
+        cc._note_recent_tool_calls(self.WORKSPACE, ["Bash", "Read"], now)
+        # No workspace entry is ever created for non-MCP-only call batches.
+        assert cc._recent_server_calls == {}
+        assert cc._recent_mcp_servers(None, now) == frozenset()
+        assert cc._recent_mcp_servers(self.WORKSPACE, now) == frozenset()
+
+    def test_ttl_env_override_and_fallbacks(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("TCP_PROXY_REDUCER_RECENCY_TTL", "60")
+        assert cc._reducer_recency_ttl_seconds() == 60.0
+        cc._note_recent_tool_calls(self.WORKSPACE, [ORACLE], time.time() - 120)
+        assert cc._recent_mcp_servers(self.WORKSPACE, time.time()) == frozenset()
+        # Invalid and negative values fail toward the bounded default.
+        monkeypatch.setenv("TCP_PROXY_REDUCER_RECENCY_TTL", "forever")
+        assert cc._reducer_recency_ttl_seconds() == cc.RECENCY_TTL_DEFAULT_SECONDS
+        monkeypatch.setenv("TCP_PROXY_REDUCER_RECENCY_TTL", "-5")
+        assert cc._reducer_recency_ttl_seconds() == cc.RECENCY_TTL_DEFAULT_SECONDS
 
 
 # ── reducer_shortlist_hit helper ─────────────────────────────────────────────

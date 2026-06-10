@@ -17,7 +17,7 @@ import os
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 import httpx
 from starlette.applications import Starlette
@@ -163,6 +163,71 @@ def _reducer_enforcement_mode() -> str:
         return REDUCER_ENFORCE_TELEMETRY
     value = raw.strip().lower()
     return value if value in _REDUCER_ENFORCE_VALID else REDUCER_ENFORCE_TELEMETRY
+
+
+# ── Stage 4.5 recency shield (enforcement v2) ────────────────────────────────
+# Replay over decisions.jsonl showed that ~80% of would-be demotion misses are
+# "context history" cases: the model re-calls a tool it used minutes earlier in
+# the same workspace while the *current* prompt no longer names it.  Prompt
+# text alone cannot recover that signal, so enforcement v2 shields the MCP
+# servers observed handling tool calls in the same workspace within a decaying
+# TTL window from demotion.  The shield narrows the demotion-candidate set
+# only — it never alters the evidence shortlist or resurrects filtered tools.
+# Audit/replay: the exact shielded-server set used for each decision is logged
+# as reducer_recent_servers, and historical rows can reconstruct it from
+# (workspace_path, ts, tool_call_sequence), which were already logged.
+RECENCY_TTL_ENV = "TCP_PROXY_REDUCER_RECENCY_TTL"
+RECENCY_TTL_DEFAULT_SECONDS = 1800.0
+
+_recent_server_calls: dict[str, dict[str, float]] = {}
+
+
+def _reducer_recency_ttl_seconds() -> float:
+    raw = os.environ.get(RECENCY_TTL_ENV)
+    if raw is None:
+        return RECENCY_TTL_DEFAULT_SECONDS
+    try:
+        value = float(raw.strip())
+    except ValueError:
+        return RECENCY_TTL_DEFAULT_SECONDS
+    # Fail toward no shield rather than an unbounded one.
+    return value if value >= 0 else RECENCY_TTL_DEFAULT_SECONDS
+
+
+def _note_recent_tool_calls(
+    workspace: str | None, tool_names: Sequence[str], ts: float
+) -> None:
+    """Record observed MCP tool calls for the recency shield (in-memory)."""
+    if not workspace:
+        return
+    for name in tool_names:
+        server = _extract_mcp_server(name)
+        if server is not None:
+            servers = _recent_server_calls.setdefault(workspace, {})
+            prev = servers.get(server)
+            if prev is None or ts > prev:
+                servers[server] = ts
+
+
+def _recent_mcp_servers(workspace: str | None, now: float) -> frozenset[str]:
+    """MCP servers called in this workspace within the recency TTL.
+
+    Expired entries are pruned on lookup so the registry stays bounded by the
+    number of distinct (workspace, server) pairs active within one TTL.
+    """
+    if not workspace:
+        return frozenset()
+    servers = _recent_server_calls.get(workspace)
+    if not servers:
+        return frozenset()
+    ttl = _reducer_recency_ttl_seconds()
+    expired = [s for s, last in servers.items() if now - last > ttl]
+    for s in expired:
+        del servers[s]
+    if not servers:
+        del _recent_server_calls[workspace]
+        return frozenset()
+    return frozenset(servers)
 
 
 # ── Budget-aware MCP server filtering ─────────────────────────────────────────
@@ -649,11 +714,13 @@ def _process_tools_array(
     # counterfactual "what live demote WOULD have stripped" — the promotion
     # gate for TCP-IMP-24 is scored against this field, not against hit rate
     # alone.  Application remains gated on live + demote.
+    reducer_recent_servers = _recent_mcp_servers(session.cwd, time.time())
     reducer_demotion_candidate_set = demotion_candidates(
         _reduction,
         frozenset(active_survivors),
         _tool_surface_for_reducer,
         _SAFETY_FLOOR_TOOLS,
+        recent_mcp_servers=reducer_recent_servers,
     )
     reducer_demoted: frozenset[str] = frozenset()
     if mode == "live" and reducer_enforcement_mode == REDUCER_ENFORCE_DEMOTE:
@@ -893,6 +960,10 @@ def _process_tools_array(
     # deferrals, which keep their own server_allow_source).
     meta["reducer_enforcement_version"] = ENFORCEMENT_VERSION
     meta["reducer_enforcement_mode"] = reducer_enforcement_mode
+    # Recency-shield audit trail: the exact server set that narrowed the
+    # candidate set for THIS decision, so replay never has to re-derive it.
+    meta["reducer_recent_servers"] = sorted(reducer_recent_servers)
+    meta["reducer_recency_ttl_seconds"] = _reducer_recency_ttl_seconds()
     meta["reducer_demotion_candidate_count"] = len(reducer_demotion_candidate_set)
     meta["reducer_demotion_candidates"] = sorted(reducer_demotion_candidate_set)
     meta["reducer_demoted_count"] = len(reducer_demoted_applied)
@@ -1318,6 +1389,19 @@ def _write_decision_record(
     stream_aborted: bool = False,
 ) -> None:
     """Write (or rewrite) the enriched decisions.jsonl entry for this turn."""
+    # Feed the recency shield with the MCP calls observed this turn.  Uses
+    # req_ts (the same ts written to the row) so offline reconstruction from
+    # the log and the live registry agree.
+    if tool_call_sequence:
+        _note_recent_tool_calls(
+            meta.get("workspace_path"),
+            [
+                c["tool_name"]
+                for c in tool_call_sequence
+                if isinstance(c, dict) and isinstance(c.get("tool_name"), str)
+            ],
+            req_ts,
+        )
     derivation = _compute_expected_tool_name(meta)
     expected_tool_name = derivation.expected_tool_name
     first_tool_correct: bool | None = None
