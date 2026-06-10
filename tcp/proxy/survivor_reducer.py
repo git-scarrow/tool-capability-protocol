@@ -47,6 +47,11 @@ from tcp.proxy.capability_resolution_gate import (
 
 REDUCER_VERSION: str = "imp23.evidence_gated_reducer.v1"
 
+# TCP-IMP-24: version string for the demotion-enforcement policy layered on top
+# of the (unchanged) ranking algorithm above.  Logged so replay tooling can
+# distinguish enforcement policies without re-deriving them from row shapes.
+ENFORCEMENT_VERSION: str = "imp24.demote.v1"
+
 # Transparent integer score weights.  Kept as module-level constants so a future
 # spec can tune them with explicit traceability rather than buried magic numbers.
 SCORE_EXACT_NAME: int = 10
@@ -446,3 +451,45 @@ def reduce_survivors(
         reducer_version=REDUCER_VERSION,
         feature_summary=feature_summary,
     )
+
+
+def demotion_candidates(
+    reduction: SurvivorReduction,
+    survivor_names: frozenset[str],
+    tool_surface_by_name: Mapping[str, Mapping[str, object]],
+    safety_floor_tools: frozenset[str],
+) -> frozenset[str]:
+    """Survivors eligible for deferred-schema demotion under TCP-IMP-24.
+
+    Demotion is the only enforcement the reducer is allowed to drive: a demoted
+    tool keeps its name in the model-visible tool list but is sent with the
+    minimal deferred-schema surface instead of its materialized schema.  This
+    function never proposes removal.
+
+    Invariants (each pinned by a test in test_reducer_enforcement.py):
+      - Abstained reduction → empty set (enforcement is a strict no-op).
+      - Safety-floor tools are never candidates, independent of scoring.
+      - Non-MCP built-ins are never candidates (deferral is an MCP-surface
+        mechanism; built-ins have no hydration path).
+      - Tools whose surface is already DEFERRED/SUPPRESSED are never
+        candidates (their schema is already minimal; re-deferring would
+        clobber the pack-state attribution in the audit log).
+      - Shortlisted tools are never candidates.
+    """
+    if reduction.abstained:
+        return frozenset()
+    shortlisted = set(reduction.shortlisted_tools)
+    out: set[str] = set()
+    for name in survivor_names:
+        if name in shortlisted or name in safety_floor_tools:
+            continue
+        surface = tool_surface_by_name.get(name) or {}
+        server = surface.get("mcp_server")
+        if not isinstance(server, str) or not server:
+            server = _extract_mcp_server(name)
+        if server is None:
+            continue
+        if _coerce_state(surface.get("surface_state")) != STATE_ACTIVE:
+            continue
+        out.add(name)
+    return frozenset(out)

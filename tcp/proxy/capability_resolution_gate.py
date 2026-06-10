@@ -526,11 +526,22 @@ def resolve_capabilities_for_request(
     connector_servers: frozenset[str],
     policy_blocked_tools: frozenset[str],
     mode: str,
+    capabilities: Sequence[str] | None = None,
 ) -> list[CapabilityResolution]:
     """Resolve all capabilities implied by the prompt. Returns empty list when
-    no semantic capabilities are detected (non-capability-seeking prompts)."""
-    capabilities = extract_requested_capabilities(prompt)
-    if not capabilities:
+    no semantic capabilities are detected (non-capability-seeking prompts).
+
+    ``capabilities``, when provided, must be the output of
+    ``extract_requested_capabilities(prompt)`` computed by the caller (so the
+    regex pass over the prompt runs once per request and the reducer and CRG
+    cannot disagree on the capability list).  ``None`` preserves the original
+    self-extracting behavior."""
+    caps = (
+        list(capabilities)
+        if capabilities is not None
+        else extract_requested_capabilities(prompt)
+    )
+    if not caps:
         return []
 
     ctx = CRGContext(
@@ -541,7 +552,7 @@ def resolve_capabilities_for_request(
         policy_blocked_tools=policy_blocked_tools,
         mode=mode,
     )
-    return [resolve_capability(cap, ctx) for cap in capabilities]
+    return [resolve_capability(cap, ctx) for cap in caps]
 
 
 def resolution_to_log_record(resolution: CapabilityResolution) -> dict[str, Any]:

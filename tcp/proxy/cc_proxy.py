@@ -40,6 +40,7 @@ from tcp.proxy.absence_language import (
 )
 from tcp.proxy.capability_resolution_gate import (
     CapabilityResolution,
+    extract_requested_capabilities,
     resolution_to_log_record,
     resolve_capabilities_for_request,
 )
@@ -67,7 +68,11 @@ from tcp.proxy.pack_manifest import (
 )
 from tcp.proxy.projection import ProjectionTier, project_single_anthropic_tool
 from tcp.proxy.prompt_select import extract_task_prompt
-from tcp.proxy.survivor_reducer import reduce_survivors
+from tcp.proxy.survivor_reducer import (
+    ENFORCEMENT_VERSION,
+    demotion_candidates,
+    reduce_survivors,
+)
 
 PROXY_STATE_DIR = Path.home() / ".tcp-shadow" / "proxy"
 MODE_PATH = PROXY_STATE_DIR / "mode"
@@ -136,6 +141,28 @@ def _read_mode() -> str:
 def _write_mode(mode: str) -> None:
     PROXY_STATE_DIR.mkdir(parents=True, exist_ok=True)
     MODE_PATH.write_text(mode + "\n", encoding="utf-8")
+
+
+# ── Stage 4.5 enforcement flag (TCP-IMP-24) ──────────────────────────────────
+# "telemetry" (default): reducer output is logged only — byte-identical
+# behavior to TCP-IMP-23.  "demote": in live mode, non-shortlisted, non-floor
+# MCP survivors are sent with the deferred minimal-schema surface instead of a
+# materialized schema.  Demotion never removes a tool name from the
+# model-visible list, so demoted tools resolve as schema_deferred (never
+# unavailable) in the Capability Resolution Gate.
+# Unrecognized values fall back to "telemetry" (fail toward no enforcement).
+REDUCER_ENFORCE_ENV = "TCP_PROXY_REDUCER_ENFORCE"
+REDUCER_ENFORCE_TELEMETRY = "telemetry"
+REDUCER_ENFORCE_DEMOTE = "demote"
+_REDUCER_ENFORCE_VALID = frozenset({REDUCER_ENFORCE_TELEMETRY, REDUCER_ENFORCE_DEMOTE})
+
+
+def _reducer_enforcement_mode() -> str:
+    raw = os.environ.get(REDUCER_ENFORCE_ENV)
+    if raw is None:
+        return REDUCER_ENFORCE_TELEMETRY
+    value = raw.strip().lower()
+    return value if value in _REDUCER_ENFORCE_VALID else REDUCER_ENFORCE_TELEMETRY
 
 
 # ── Budget-aware MCP server filtering ─────────────────────────────────────────
@@ -585,10 +612,58 @@ def _process_tools_array(
             floor_rescued = missing_floor
             active_survivors = active_survivors | missing_floor
 
+    # ── Stage 4.5: Evidence-gated survivor reducer (TCP-IMP-23/24) ──────
+    # Runs BEFORE the output build so enforcement (deferred-schema demotion)
+    # can shape the schema surface.  Capability extraction happens exactly
+    # once here; the same list is passed to CRG below so the reducer and the
+    # resolver cannot disagree on the capability list.
+    _requested_capabilities = extract_requested_capabilities(prompt or "")
+    _tool_surface_for_reducer: dict[str, dict[str, Any]] = {}
+    for _orig, _rec, _tier, _name in entries:
+        if _rec is None or _rec.tool_name not in active_survivors:
+            continue
+        _r_server = _extract_mcp_server(_rec.tool_name)
+        _r_decision = None if _r_server is None else controller_decisions.get(_r_server)
+        _tool_surface_for_reducer[_rec.tool_name] = {
+            "description": (
+                _orig.get("description", "") if isinstance(_orig, Mapping) else ""
+            ),
+            "capability_flags": _rec.capability_flags,
+            "surface_state": (
+                STATE_ACTIVE if _r_decision is None else _r_decision.state
+            ),
+            "mcp_server": _r_server,
+        }
+    _reduction = reduce_survivors(
+        prompt=prompt or "",
+        survivor_names=frozenset(active_survivors),
+        tool_surface_by_name=_tool_surface_for_reducer,
+        required_capability_flags=tsel.required_capability_flags,
+        hard_capability_flags=tsel.hard_capability_flags,
+        heuristic_capability_flags=tsel.heuristic_capability_flags,
+        crg_requested_capabilities=_requested_capabilities,
+        safety_floor_tools=_SAFETY_FLOOR_TOOLS,
+    )
+    reducer_enforcement_mode = _reducer_enforcement_mode()
+    # Candidates are computed in every mode so telemetry/shadow rows carry the
+    # counterfactual "what live demote WOULD have stripped" — the promotion
+    # gate for TCP-IMP-24 is scored against this field, not against hit rate
+    # alone.  Application remains gated on live + demote.
+    reducer_demotion_candidate_set = demotion_candidates(
+        _reduction,
+        frozenset(active_survivors),
+        _tool_surface_for_reducer,
+        _SAFETY_FLOOR_TOOLS,
+    )
+    reducer_demoted: frozenset[str] = frozenset()
+    if mode == "live" and reducer_enforcement_mode == REDUCER_ENFORCE_DEMOTE:
+        reducer_demoted = reducer_demotion_candidate_set
+
     # ── Build output tool list ───────────────────────────────────────────
     live_tools: list[Any] = []
     materialized_schema_tools: list[str] = []
     deferred_schema_tools: list[str] = []
+    reducer_demoted_applied: list[str] = []
     surface_state_by_tool: dict[str, str] = {}
     for item in entries:
         orig, rec, tier, _name = item
@@ -606,6 +681,11 @@ def _process_tools_array(
             None if tool_server is None else controller_decisions.get(tool_server)
         )
         schema_state = STATE_ACTIVE if ctrl_decision is None else ctrl_decision.state
+        # TCP-IMP-24: reducer demotion applies only to ACTIVE-surface tools, so
+        # pack-state attribution for already-deferred tools is never clobbered.
+        demoted_here = schema_state == STATE_ACTIVE and rec.tool_name in reducer_demoted
+        if demoted_here:
+            schema_state = STATE_DEFERRED
         surface_state_by_tool[rec.tool_name] = schema_state
 
         if mode in ("live", "live-strict") and schema_state == STATE_DEFERRED:
@@ -615,11 +695,19 @@ def _process_tools_array(
                     pack_id=(None if ctrl_decision is None else ctrl_decision.pack_id),
                     server=tool_server,
                     reason=(
-                        server_allow_source.get(tool_server) if tool_server else None
+                        "reducer_demotion"
+                        if demoted_here
+                        else (
+                            server_allow_source.get(tool_server)
+                            if tool_server
+                            else None
+                        )
                     ),
                 )
             )
             deferred_schema_tools.append(rec.tool_name)
+            if demoted_here:
+                reducer_demoted_applied.append(rec.tool_name)
             continue
 
         live_tools.append(orig)
@@ -774,6 +862,7 @@ def _process_tools_array(
         connector_servers=_crg_connector_servers,
         policy_blocked_tools=crg_policy_blocked,
         mode=mode,
+        capabilities=_requested_capabilities,
     )
     if _crg_resolutions:
         meta["crg_resolution_count"] = len(_crg_resolutions)
@@ -786,37 +875,9 @@ def _process_tools_array(
             r.status not in ("callable_now",) for r in _crg_resolutions
         )
 
-    # ── Stage 4.5: Evidence-gated survivor reducer (TCP-IMP-23, shadow-only)
-    # Ranks active_survivors and produces a capped shortlist for telemetry.
-    # Never mutates live_tools in this PR; never overrides the IMP-22
-    # expected_tool_name derivation.  See tcp/proxy/survivor_reducer.py.
-    # Reuses CRG's already-extracted capability list so the regex pass over the
-    # prompt only happens once per request.
-    _crg_requested_capabilities = [r.requested_capability for r in _crg_resolutions]
-    _tool_surface_for_reducer: dict[str, dict[str, Any]] = {}
-    for _orig, _rec, _tier, _name in entries:
-        if _rec is None:
-            continue
-        if _rec.tool_name not in active_survivors:
-            continue
-        _tool_surface_for_reducer[_rec.tool_name] = {
-            "description": (
-                _orig.get("description", "") if isinstance(_orig, Mapping) else ""
-            ),
-            "capability_flags": _rec.capability_flags,
-            "surface_state": surface_state_by_tool.get(_rec.tool_name, STATE_ACTIVE),
-            "mcp_server": _extract_mcp_server(_rec.tool_name),
-        }
-    _reduction = reduce_survivors(
-        prompt=prompt or "",
-        survivor_names=frozenset(active_survivors),
-        tool_surface_by_name=_tool_surface_for_reducer,
-        required_capability_flags=tsel.required_capability_flags,
-        hard_capability_flags=tsel.hard_capability_flags,
-        heuristic_capability_flags=tsel.heuristic_capability_flags,
-        crg_requested_capabilities=_crg_requested_capabilities,
-        safety_floor_tools=_SAFETY_FLOOR_TOOLS,
-    )
+    # ── Stage 4.5 telemetry (reduction computed before the output build) ──
+    # Ranking never overrides the IMP-22 expected_tool_name derivation.
+    # Enforcement (TCP-IMP-24) is demotion-only and recorded below.
     meta["reducer_version"] = _reduction.reducer_version
     meta["reducer_original_count"] = _reduction.original_count
     meta["reducer_shortlisted_count"] = _reduction.shortlisted_count
@@ -825,6 +886,17 @@ def _process_tools_array(
     meta["reducer_abstained"] = _reduction.abstained
     meta["reducer_abstain_reason"] = _reduction.abstain_reason
     meta["reducer_feature_summary"] = dict(_reduction.feature_summary)
+    # TCP-IMP-24 enforcement attribution.  reducer_demotion_candidates is the
+    # counterfactual set (logged in every mode for promotion-gate replay);
+    # reducer_demoted_tools lists tools whose schema surface was actually
+    # deferred BY THE REDUCER this request (disjoint from pack-state
+    # deferrals, which keep their own server_allow_source).
+    meta["reducer_enforcement_version"] = ENFORCEMENT_VERSION
+    meta["reducer_enforcement_mode"] = reducer_enforcement_mode
+    meta["reducer_demotion_candidate_count"] = len(reducer_demotion_candidate_set)
+    meta["reducer_demotion_candidates"] = sorted(reducer_demotion_candidate_set)
+    meta["reducer_demoted_count"] = len(reducer_demoted_applied)
+    meta["reducer_demoted_tools"] = sorted(reducer_demoted_applied)
 
     # ── Empty-set guardrail ──────────────────────────────────────────────
     if mode in ("live", "live-strict") and len(tools) > 0 and len(live_tools) == 0:
@@ -1211,6 +1283,27 @@ def _check_denial_enforcement(
         meta["denial_violation_count"] = len(existing)
 
 
+def _compute_reducer_shortlist_hit(
+    meta: Mapping[str, Any],
+    first_tool_name: str | None,
+) -> bool | None:
+    """Scoreable shortlist accuracy for TCP-IMP-24 promotion gating.
+
+    True/False only when a tool was actually called AND the reducer emitted a
+    shortlist for this request.  None otherwise (no tool call, reducer
+    abstained, or pre-IMP-24 row without reducer fields) — None rows must be
+    excluded from hit-rate aggregation, mirroring the IMP-22 abstain contract.
+    """
+    if first_tool_name is None:
+        return None
+    if meta.get("reducer_abstained") is not False:
+        return None
+    shortlist = meta.get("reducer_shortlisted_tools")
+    if not isinstance(shortlist, list) or not shortlist:
+        return None
+    return first_tool_name in set(shortlist)
+
+
 def _write_decision_record(
     req_ts: float,
     meta: dict[str, Any],
@@ -1246,6 +1339,9 @@ def _write_decision_record(
             "expected_tool_candidate_set_phase": "post_stage4_survivors",
             "expected_tool_abstain_reason": derivation.abstain_reason,
             "first_tool_correct": first_tool_correct,
+            "reducer_shortlist_hit": _compute_reducer_shortlist_hit(
+                meta, first_tool_name
+            ),
             "tap_skipped": tap_skipped,
             "stream_aborted": stream_aborted,
             "preflight_duration_ms": preflight_duration_ms,
