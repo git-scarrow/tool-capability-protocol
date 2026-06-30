@@ -157,3 +157,6 @@ artifacts/
 
 # Trained model artifacts (large, regenerable)
 tcp/measurement/*.json
+
+# personal, per-machine Claude Code settings (managed by agent-env)
+.claude/settings.local.json
