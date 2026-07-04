@@ -12,6 +12,11 @@ PROXY_LOG="$STATE_DIR/proxy.log"
 WORKSPACE_MCP_SERVERS="${TCP_PROXY_WORKSPACE_MCP_SERVERS:-bay-view-graph}"
 PACK_MANIFEST="${TCP_PROXY_PACK_MANIFEST:-$PROXY_DIR/.tcp-proxy-packs.yaml}"
 HOST_CWD="${TCP_PROXY_CWD:-$PROXY_DIR}"
+# Stage 4.5 reducer enforcement mode. Promoted to `demote` after Gate 2 passed
+# on live v2 telemetry (0.68% miss) + reconstruction drift check (0 verdict
+# flips) + startup registry-warm (commit 4618094). Override to `telemetry` to
+# revert without editing: TCP_PROXY_REDUCER_ENFORCE=telemetry ./scripts/tcp_proxy_container.sh rebuild
+REDUCER_ENFORCE="${TCP_PROXY_REDUCER_ENFORCE:-demote}"
 
 mkdir -p "$STATE_DIR"
 
@@ -59,6 +64,7 @@ start_proxy() {
         -e HOME=/state-home \
         -e ANTHROPIC_UPSTREAM_BASE="${ANTHROPIC_UPSTREAM_BASE:-https://api.anthropic.com}" \
         -e TCP_CC_PROXY_MODE="${TCP_CC_PROXY_MODE:-shadow}" \
+        -e TCP_PROXY_REDUCER_ENFORCE="$REDUCER_ENFORCE" \
         ${TCP_PROXY_ALLOWED_MCP_SERVERS:+-e TCP_PROXY_ALLOWED_MCP_SERVERS="$TCP_PROXY_ALLOWED_MCP_SERVERS"} \
         -e TCP_PROXY_WORKSPACE_MCP_SERVERS="$WORKSPACE_MCP_SERVERS" \
         -e TCP_PROXY_CWD="$HOST_CWD" \
