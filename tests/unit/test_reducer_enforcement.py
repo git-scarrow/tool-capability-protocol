@@ -600,6 +600,78 @@ class TestRegistryWarming:
         assert cc._recency_warm_enabled() is True
 
 
+# ── Conversation id (turn-linking for offline analysis) ──────────────────────
+
+
+def _turn(role: str, text: str) -> dict[str, Any]:
+    return {"role": role, "content": [{"type": "text", "text": text}]}
+
+
+class TestConversationId:
+    """conversation_id anchors on the first user message so a conversation's
+    rows link across turns, while prompt_hash tracks the per-turn task."""
+
+    def test_stable_across_grown_history(self) -> None:
+        turn1 = [_turn("user", "open the pod bay doors")]
+        turn2 = turn1 + [
+            _turn("assistant", "I'm afraid I can't do that"),
+            _turn("user", "why not"),
+        ]
+        cid1 = cc._conversation_id(turn1)
+        assert isinstance(cid1, str) and len(cid1) == 16
+        # First user message is unchanged, so the id is invariant across turns.
+        assert cc._conversation_id(turn2) == cid1
+
+    def test_string_and_block_content_agree(self) -> None:
+        block = [{"role": "user", "content": [{"type": "text", "text": "hello"}]}]
+        string = [{"role": "user", "content": "hello"}]
+        assert cc._conversation_id(block) == cc._conversation_id(string)
+
+    def test_distinct_openings_differ(self) -> None:
+        a = cc._conversation_id([_turn("user", "task alpha")])
+        b = cc._conversation_id([_turn("user", "task beta")])
+        assert a is not None and b is not None and a != b
+
+    def test_anchors_on_first_user_not_assistant(self) -> None:
+        # A leading assistant/system turn must not become the anchor.
+        msgs = [_turn("assistant", "preamble"), _turn("user", "the real opening")]
+        assert cc._conversation_id(msgs) == cc._conversation_id(
+            [_turn("user", "the real opening")]
+        )
+
+    def test_none_when_unrecoverable(self) -> None:
+        assert cc._conversation_id(None) is None
+        assert cc._conversation_id([]) is None
+        assert cc._conversation_id([_turn("assistant", "no user turn")]) is None
+        # First user message carries no text (e.g. only a tool_result block).
+        tool_result = [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "tool_result", "tool_use_id": "x", "content": "r"}
+                ],
+            }
+        ]
+        assert cc._conversation_id(tool_result) is None
+
+    def test_meta_carries_stable_id_while_prompt_hash_varies(self) -> None:
+        first = {"role": "user", "content": [{"type": "text", "text": "alpha task"}]}
+        body1 = {"messages": [first]}
+        body2 = {
+            "messages": [
+                first,
+                _turn("assistant", "working on alpha"),
+                _turn("user", "now do beta task"),
+            ]
+        }
+        _, meta1 = _process_tools_array(TOOLS, body1, "live")
+        _, meta2 = _process_tools_array(TOOLS, body2, "live")
+        assert isinstance(meta1["conversation_id"], str)
+        # Same conversation across turns → same id, different per-turn task hash.
+        assert meta2["conversation_id"] == meta1["conversation_id"]
+        assert meta2["prompt_hash"] != meta1["prompt_hash"]
+
+
 # ── reducer_shortlist_hit helper ─────────────────────────────────────────────
 
 

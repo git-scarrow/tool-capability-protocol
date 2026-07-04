@@ -448,6 +448,43 @@ def _session_from_env() -> SessionStartEvent:
     )
 
 
+def _conversation_id(messages: Any) -> str | None:
+    """Stable per-conversation fingerprint from the first user message.
+
+    The proxy sees stateless HTTP turns with no client-supplied conversation
+    id, but Claude Code resends the full history each turn, so the opening user
+    message is invariant across a conversation's turns while ``prompt_hash``
+    (the current task) changes every turn.  Hashing that opening message links
+    a conversation's decision rows for offline analysis (e.g. classifying a
+    deferred-tool call as a warm re-use vs a cold first use).
+
+    Caveat: context compaction can rewrite early messages, changing the anchor
+    mid-conversation and splitting it into segments — an over-count of distinct
+    conversations, never a cross-conversation collision.  Returns None when no
+    user text is recoverable.
+    """
+    if not isinstance(messages, list):
+        return None
+    for m in messages:
+        if not isinstance(m, Mapping) or m.get("role") != "user":
+            continue
+        content = m.get("content")
+        if isinstance(content, str):
+            text = content
+        elif isinstance(content, list):
+            text = "".join(
+                b.get("text", "")
+                for b in content
+                if isinstance(b, Mapping) and b.get("type") == "text"
+            )
+        else:
+            text = ""
+        if text:
+            return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
+        return None
+    return None
+
+
 def _deferred_tool_surface(
     tool: Mapping[str, Any],
     *,
@@ -901,6 +938,7 @@ def _process_tools_array(
         ),
         "prompt_excerpt": prompt[:240],
         "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16],
+        "conversation_id": _conversation_id(messages),
         "workspace_path": session.cwd,
         "workspace_name": pack_context.workspace_name,
         "resolved_profile": pack_context.profile,
