@@ -17,7 +17,7 @@ import os
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Iterator, Mapping, Sequence
 
 import httpx
 from starlette.applications import Starlette
@@ -228,6 +228,104 @@ def _recent_mcp_servers(workspace: str | None, now: float) -> frozenset[str]:
         del _recent_server_calls[workspace]
         return frozenset()
     return frozenset(servers)
+
+
+# ── Recency shield warming (enforcement v2) ──────────────────────────────────
+# On a cold start the in-memory registry is empty, so for one TTL window after
+# every restart the shield is blind: a still-running session's servers get
+# demoted until they are re-observed.  The v2 drift check confirmed this restart
+# boundary is the ONLY source of reconstruction-vs-live shield divergence.
+# Seeding the registry from the tail of the decision log closes that window.
+# Warming only ADDS in-TTL shield entries, so it can only narrow the demotion
+# set — it never removes a tool or opens a denial the cold path wouldn't.  It is
+# best-effort: any read/parse failure leaves the registry cold (prior behaviour).
+#
+# The normal stop condition is the TTL horizon (_warm_recency_registry_from_log
+# breaks once it reads past now - ttl); because the reader is a lazy generator,
+# that break stops the read early.  _WARM_MAX_BYTES is only a backstop against a
+# log whose rows lack a parseable ts.  Decision rows are large (~150 KB each:
+# full tool arrays + prompt), so the backstop is sized to comfortably span a
+# heavy TTL window of rows rather than to be the binding limit.
+_WARM_BLOCK_BYTES = 256 * 1024
+_WARM_MAX_BYTES = 128 * 1024 * 1024
+
+
+def _recency_warm_enabled() -> bool:
+    """Whether to seed the recency registry from the log at startup."""
+    raw = os.environ.get("TCP_PROXY_REDUCER_WARM")
+    if raw is None:
+        return True
+    return raw.strip().lower() not in ("0", "false", "no", "off")
+
+
+def _iter_log_rows_reverse(path: Path, max_bytes: int) -> Iterator[dict[str, Any]]:
+    """Yield decoded JSONL rows from the tail of ``path``, newest first.
+
+    Reads at most ``max_bytes`` from the end so startup cost stays bounded no
+    matter how large the decision log grows.  Lines spanning a block boundary
+    are stitched back together; malformed lines are skipped.
+    """
+    with open(path, "rb") as f:
+        f.seek(0, os.SEEK_END)
+        pos = f.tell()
+        carry = b""
+        read = 0
+        while pos > 0 and read < max_bytes:
+            block = min(_WARM_BLOCK_BYTES, pos, max_bytes - read)
+            pos -= block
+            read += block
+            f.seek(pos)
+            chunk = f.read(block) + carry
+            lines = chunk.split(b"\n")
+            # lines[0] is a partial line continued in the (earlier) next block,
+            # unless we have reached the start of the file.
+            carry = lines[0] if pos > 0 else b""
+            for raw in reversed(lines[1 if pos > 0 else 0 :]):
+                if not raw.strip():
+                    continue
+                try:
+                    yield json.loads(raw)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+
+
+def _warm_recency_registry_from_log(
+    path: Path = DECISIONS_LOG, now: float | None = None
+) -> int:
+    """Seed ``_recent_server_calls`` from recent decision-log rows.
+
+    Returns the number of (workspace, server) pairs live in the registry after
+    warming.  Best-effort: returns the current count and leaves the registry
+    otherwise untouched if the log is missing or unreadable.
+    """
+    if now is None:
+        now = time.time()
+    ttl = _reducer_recency_ttl_seconds()
+    if ttl <= 0:
+        return 0
+    horizon = now - ttl
+    try:
+        for row in _iter_log_rows_reverse(path, _WARM_MAX_BYTES):
+            ts = row.get("ts")
+            if not isinstance(ts, (int, float)) or isinstance(ts, bool):
+                continue
+            if ts < horizon:
+                break  # append-ordered log: every earlier row is expired too
+            if ts > now:
+                continue  # ignore future-dated rows (clock skew)
+            seq = row.get("tool_call_sequence") or []
+            _note_recent_tool_calls(
+                row.get("workspace_path"),
+                [
+                    c["tool_name"]
+                    for c in seq
+                    if isinstance(c, dict) and isinstance(c.get("tool_name"), str)
+                ],
+                float(ts),
+            )
+    except OSError:
+        pass
+    return sum(len(servers) for servers in _recent_server_calls.values())
 
 
 # ── Budget-aware MCP server filtering ─────────────────────────────────────────
@@ -1490,6 +1588,13 @@ def _build_upstream_client() -> httpx.AsyncClient:
 @asynccontextmanager
 async def _app_lifespan(app: Starlette) -> Any:
     app.state.upstream_client = _build_upstream_client()
+    if _recency_warm_enabled():
+        # Best-effort: warming is a startup optimisation for the recency shield;
+        # a failure here must never block the proxy from serving.
+        try:
+            _warm_recency_registry_from_log()
+        except Exception:
+            pass
     try:
         yield
     finally:

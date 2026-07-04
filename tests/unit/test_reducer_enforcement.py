@@ -22,7 +22,9 @@ Merge bar:
 
 from __future__ import annotations
 
+import json
 import time
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -472,6 +474,130 @@ class TestRecencyShield:
         assert cc._reducer_recency_ttl_seconds() == cc.RECENCY_TTL_DEFAULT_SECONDS
         monkeypatch.setenv("TCP_PROXY_REDUCER_RECENCY_TTL", "-5")
         assert cc._reducer_recency_ttl_seconds() == cc.RECENCY_TTL_DEFAULT_SECONDS
+
+
+# ── Startup registry warming ─────────────────────────────────────────────────
+
+
+def _warm_row(ts: float, workspace: str, called: list[str]) -> dict[str, Any]:
+    return {
+        "ts": ts,
+        "workspace_path": workspace,
+        "reducer_version": REDUCER_VERSION,
+        "tool_call_sequence": [{"tool_name": t} for t in called],
+    }
+
+
+def _write_log(path: Path, rows: list[dict[str, Any]]) -> None:
+    path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+
+
+class TestRegistryWarming:
+    """Startup warming seeds the recency registry from the tail of the decision
+    log so the shield is not blind for one TTL window after a proxy restart.
+    Warming only ADDS in-TTL entries — it never removes a tool or opens a
+    denial the cold path wouldn't — and is best-effort (fails open)."""
+
+    WS = "/ws/warm"
+    NOW = 10_000.0
+    EXA = "mcp__exa__web_search_exa"
+
+    def test_seeds_in_ttl_server(self, tmp_path: Path) -> None:
+        log = tmp_path / "decisions.jsonl"
+        _write_log(log, [_warm_row(self.NOW - 100, self.WS, [ORACLE])])
+        n = cc._warm_recency_registry_from_log(path=log, now=self.NOW)
+        assert n == 1
+        assert cc._recent_mcp_servers(self.WS, self.NOW) == frozenset({"oracle-remote"})
+
+    def test_excludes_rows_older_than_ttl(self, tmp_path: Path) -> None:
+        ttl = cc.RECENCY_TTL_DEFAULT_SECONDS
+        log = tmp_path / "decisions.jsonl"
+        # Append order: oldest first. The reverse reader must break at the
+        # expired row without ever mis-seeding it, yet still seed the newer one.
+        _write_log(
+            log,
+            [
+                _warm_row(self.NOW - ttl - 60, self.WS, [ORACLE]),  # expired
+                _warm_row(self.NOW - 30, self.WS, [NOTION]),  # in-window (newest)
+            ],
+        )
+        cc._warm_recency_registry_from_log(path=log, now=self.NOW)
+        assert cc._recent_mcp_servers(self.WS, self.NOW) == frozenset({"notion-agents"})
+
+    def test_ignores_non_mcp_calls(self, tmp_path: Path) -> None:
+        log = tmp_path / "decisions.jsonl"
+        _write_log(log, [_warm_row(self.NOW - 10, self.WS, ["Bash", "Read"])])
+        n = cc._warm_recency_registry_from_log(path=log, now=self.NOW)
+        assert n == 0
+        assert cc._recent_server_calls == {}
+
+    def test_missing_log_fails_open(self, tmp_path: Path) -> None:
+        n = cc._warm_recency_registry_from_log(
+            path=tmp_path / "nope.jsonl", now=self.NOW
+        )
+        assert n == 0
+        assert cc._recent_server_calls == {}
+
+    def test_keeps_newest_ts_per_server(self, tmp_path: Path) -> None:
+        ttl = cc.RECENCY_TTL_DEFAULT_SECONDS
+        log = tmp_path / "decisions.jsonl"
+        # Append order: oldest first, both within the window.
+        _write_log(
+            log,
+            [
+                _warm_row(self.NOW - ttl + 5, self.WS, [ORACLE]),  # older
+                _warm_row(self.NOW - 5, self.WS, [ORACLE]),  # newest
+            ],
+        )
+        cc._warm_recency_registry_from_log(path=log, now=self.NOW)
+        # The stored ts is the newest call, so the server survives to now+ttl-5.
+        assert cc._recent_mcp_servers(self.WS, self.NOW + ttl - 10) == frozenset(
+            {"oracle-remote"}
+        )
+
+    def test_future_dated_row_ignored(self, tmp_path: Path) -> None:
+        log = tmp_path / "decisions.jsonl"
+        _write_log(log, [_warm_row(self.NOW + 500, self.WS, [ORACLE])])
+        assert cc._warm_recency_registry_from_log(path=log, now=self.NOW) == 0
+
+    def test_ttl_zero_disables_warming(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("TCP_PROXY_REDUCER_RECENCY_TTL", "0")
+        log = tmp_path / "decisions.jsonl"
+        _write_log(log, [_warm_row(self.NOW - 5, self.WS, [ORACLE])])
+        assert cc._warm_recency_registry_from_log(path=log, now=self.NOW) == 0
+        assert cc._recent_server_calls == {}
+
+    def test_reads_across_block_boundary(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        # Tiny blocks force the reverse reader to stitch lines across many
+        # boundaries; all rows must still be recovered.
+        monkeypatch.setattr(cc, "_WARM_BLOCK_BYTES", 8)
+        log = tmp_path / "decisions.jsonl"
+        _write_log(
+            log,
+            [
+                _warm_row(self.NOW - 50, "/ws/a", [ORACLE]),
+                _warm_row(self.NOW - 40, "/ws/b", [NOTION]),
+                _warm_row(self.NOW - 30, "/ws/a", [self.EXA]),
+            ],
+        )
+        cc._warm_recency_registry_from_log(path=log, now=self.NOW)
+        assert cc._recent_mcp_servers("/ws/a", self.NOW) == frozenset(
+            {"oracle-remote", "exa"}
+        )
+        assert cc._recent_mcp_servers("/ws/b", self.NOW) == frozenset({"notion-agents"})
+
+    def test_warm_enabled_env_parsing(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        monkeypatch.delenv("TCP_PROXY_REDUCER_WARM", raising=False)
+        assert cc._recency_warm_enabled() is True
+        for off in ("0", "false", "No", "off"):
+            monkeypatch.setenv("TCP_PROXY_REDUCER_WARM", off)
+            assert cc._recency_warm_enabled() is False
+        monkeypatch.setenv("TCP_PROXY_REDUCER_WARM", "1")
+        assert cc._recency_warm_enabled() is True
 
 
 # ── reducer_shortlist_hit helper ─────────────────────────────────────────────

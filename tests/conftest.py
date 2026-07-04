@@ -325,6 +325,11 @@ def setup_test_environment(tmp_path):
     os.environ["TCP_TEST_DATA_DIR"] = str(tmp_path / "test_data")
     os.environ["TCP_TEST_OUTPUT_DIR"] = str(tmp_path / "test_output")
     os.environ["TCP_TEST_CACHE_DIR"] = str(tmp_path / "test_cache")
+    # Keep the proxy's startup recency-registry warming off by default: tests
+    # that build the app via TestClient run its lifespan, and warming would
+    # otherwise read the operator's real ~/.tcp-shadow decision log. Tests that
+    # exercise warming call the function directly with an explicit path.
+    os.environ["TCP_PROXY_REDUCER_WARM"] = "0"
 
     yield
 
@@ -333,6 +338,7 @@ def setup_test_environment(tmp_path):
     os.environ.pop("TCP_TEST_DATA_DIR", None)
     os.environ.pop("TCP_TEST_OUTPUT_DIR", None)
     os.environ.pop("TCP_TEST_CACHE_DIR", None)
+    os.environ.pop("TCP_PROXY_REDUCER_WARM", None)
 
 
 # Performance testing utilities
