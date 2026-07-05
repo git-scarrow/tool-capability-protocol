@@ -672,6 +672,60 @@ class TestConversationId:
         assert meta2["prompt_hash"] != meta1["prompt_hash"]
 
 
+# ── Realized demotion byte saving ────────────────────────────────────────────
+
+
+def _big_oracle_tools() -> list[dict[str, Any]]:
+    """TOOLS but with a large oracle schema, so stripping it saves real bytes."""
+    big = {
+        "type": "object",
+        "properties": {
+            f"arg{i}": {"type": "string", "description": "detail " * 8}
+            for i in range(40)
+        },
+    }
+    return [
+        _tool("Read"),
+        _tool("Bash"),
+        _tool("mcp__git__git_status"),
+        _tool("mcp__notion-agents__start_agent_run", "Run a Notion agent"),
+        {
+            "name": ORACLE,
+            "description": "Run a SQL query on Oracle",
+            "input_schema": big,
+        },
+    ]
+
+
+class TestDemotionByteDelta:
+    """Per-turn request-size saving from demotion: same emitted tool set, full
+    schemas vs the stripped schemas actually sent.  Isolates schema deferral
+    from Stage 1/2 tool removal, so the delta is demotion's own contribution."""
+
+    def test_saving_is_positive_and_consistent(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        monkeypatch.setenv("TCP_PROXY_REDUCER_ENFORCE", "demote")
+        _, meta = _process_tools_array(_big_oracle_tools(), EVIDENCE_BODY, "live")
+        assert ORACLE in meta["reducer_demoted_tools"]
+        # Stripping the large oracle schema is a real, positive saving.
+        assert meta["tools_bytes_emitted"] < meta["tools_bytes_materialized"]
+        assert meta["tools_bytes_demotion_saved"] > 0
+        assert (
+            meta["tools_bytes_demotion_saved"]
+            == meta["tools_bytes_materialized"] - meta["tools_bytes_emitted"]
+        )
+
+    def test_no_saving_when_telemetry_does_not_apply_demotion(self) -> None:
+        # Reducer defaults to telemetry: candidates are still computed, but
+        # nothing is stripped, so the realized saving is exactly zero.
+        _, meta = _process_tools_array(_big_oracle_tools(), EVIDENCE_BODY, "live")
+        assert meta["reducer_enforcement_mode"] == "telemetry"
+        assert meta["reducer_demotion_candidates"]
+        assert meta["tools_bytes_demotion_saved"] == 0
+        assert meta["tools_bytes_emitted"] == meta["tools_bytes_materialized"]
+
+
 # ── reducer_shortlist_hit helper ─────────────────────────────────────────────
 
 

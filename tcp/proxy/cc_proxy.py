@@ -1105,6 +1105,39 @@ def _process_tools_array(
     meta["reducer_demoted_count"] = len(reducer_demoted_applied)
     meta["reducer_demoted_tools"] = sorted(reducer_demoted_applied)
 
+    # ── Realized demotion byte saving ────────────────────────────────────
+    # Same emitted tool SET, full schemas vs the (possibly stripped) schemas
+    # actually sent upstream.  Ranging both sums over the identical emitted set
+    # isolates the reducer's schema *deferral* from Stage 1/2 tool *removal*
+    # (which happens in every mode), so the delta is the request-size benefit
+    # attributable to demotion.  ``saved`` is serialization-invariant (both
+    # sides use one encoder); the absolute counts are canonical-JSON UTF-8
+    # bytes, a close proxy for the wire (~4 bytes/token).
+    _emitted_empty_fallback = len(tools) > 0 and len(live_tools) == 0
+    if mode in ("live", "live-strict") and not _emitted_empty_fallback:
+        _emitted_surface: list[Any] = live_tools
+    else:
+        _emitted_surface = list(tools)
+    _full_by_name = {
+        t["name"]: t
+        for t in tools
+        if isinstance(t, Mapping) and isinstance(t.get("name"), str)
+    }
+    _bytes_emitted = _bytes_full = 0
+    for _t in _emitted_surface:
+        if not isinstance(_t, Mapping):
+            continue
+        _bytes_emitted += len(
+            json.dumps(_t, ensure_ascii=False, default=str).encode("utf-8")
+        )
+        _orig = _full_by_name.get(_t.get("name"), _t)
+        _bytes_full += len(
+            json.dumps(_orig, ensure_ascii=False, default=str).encode("utf-8")
+        )
+    meta["tools_bytes_emitted"] = _bytes_emitted
+    meta["tools_bytes_materialized"] = _bytes_full
+    meta["tools_bytes_demotion_saved"] = _bytes_full - _bytes_emitted
+
     # ── Empty-set guardrail ──────────────────────────────────────────────
     if mode in ("live", "live-strict") and len(tools) > 0 and len(live_tools) == 0:
         meta["live_empty_fallback"] = True
