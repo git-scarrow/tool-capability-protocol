@@ -278,3 +278,123 @@ def denial_violation_record(
         "reason": decision.reason,
         "requested_capability": requested_capability,
     }
+
+
+# ── Denial gate v2 (CRG Phase 2B) ─────────────────────────────────────────────
+# Dual-run alongside v1: v2 verdicts are telemetry-only (denial_v2_* fields)
+# until the fixture + live disagreement-review gates pass.  Enforcement stays
+# dormant in both versions.
+
+from tcp.proxy.absence_language import (  # noqa: E402  (section-local import)
+    ABSENCE_DETECTOR_VERSION_V2,
+    detect_absence_v2,
+)
+
+
+@dataclass(frozen=True)
+class DenialV2Decision:
+    """v2 verdict for one response: tiered detection + resolution adjudication.
+
+    ``violation`` requires ALL of: a Tier A (assistant-voice, guarded) absence
+    claim, an in-surface capability reference, and no valid signed
+    unavailable resolution.  Tier B candidates and out-of-surface claims are
+    observations, never violations.
+    """
+
+    tier_a: bool
+    tier_b: bool
+    in_surface: bool
+    narration_suppressed: bool
+    violation: bool
+    reason: str
+    rewrite_action: str | None
+    matched_phrases: tuple[str, ...]
+    detector_version: str = ABSENCE_DETECTOR_VERSION_V2
+
+
+def evaluate_denial_v2(
+    text: str,
+    resolutions: Sequence[CapabilityResolution],
+    surface_tokens: Sequence[str] | None = None,
+) -> DenialV2Decision:
+    """Run the v2 tiered detector and adjudicate against CRG resolutions.
+
+    Rules (in order):
+      1. No Tier A → never a violation (tier_b_candidate / narration /
+         no_absence_language).
+      2. Tier A out-of-surface (files, hosts, infra) → observed, not a
+         violation.
+      3. Tier A in-surface + valid signed unavailable resolution → allowed.
+      4. Tier A in-surface + no resolutions → violation
+         (tier_a_in_surface_no_resolutions).
+      5. Tier A in-surface + only reachable statuses → violation with the
+         v1 rewrite-action precedence.
+    """
+    det = detect_absence_v2(text, surface_tokens)
+    phrases = det.tier_a_phrases or det.tier_b_phrases
+
+    if not det.tier_a:
+        if det.narration_suppressed:
+            reason = "narration_suppressed"
+        elif det.tier_b:
+            reason = "tier_b_candidate"
+        else:
+            reason = "no_absence_language"
+        return DenialV2Decision(
+            tier_a=False,
+            tier_b=det.tier_b,
+            in_surface=False,
+            narration_suppressed=det.narration_suppressed,
+            violation=False,
+            reason=reason,
+            rewrite_action=None,
+            matched_phrases=phrases,
+        )
+
+    if not det.tier_a_in_surface:
+        return DenialV2Decision(
+            tier_a=True,
+            tier_b=det.tier_b,
+            in_surface=False,
+            narration_suppressed=False,
+            violation=False,
+            reason="tier_a_out_of_surface",
+            rewrite_action=None,
+            matched_phrases=phrases,
+        )
+
+    if any(resolution_allows_denial(r) for r in resolutions):
+        return DenialV2Decision(
+            tier_a=True,
+            tier_b=det.tier_b,
+            in_surface=True,
+            narration_suppressed=False,
+            violation=False,
+            reason="valid_unavailable_resolution",
+            rewrite_action=None,
+            matched_phrases=phrases,
+        )
+
+    if not resolutions:
+        return DenialV2Decision(
+            tier_a=True,
+            tier_b=det.tier_b,
+            in_surface=True,
+            narration_suppressed=False,
+            violation=True,
+            reason="tier_a_in_surface_no_resolutions",
+            rewrite_action=None,
+            matched_phrases=phrases,
+        )
+
+    statuses = sorted({r.status for r in resolutions})
+    return DenialV2Decision(
+        tier_a=True,
+        tier_b=det.tier_b,
+        in_surface=True,
+        narration_suppressed=False,
+        violation=True,
+        reason="tier_a_with_reachable_status_" + "+".join(statuses),
+        rewrite_action=_pick_rewrite_action(resolutions),
+        matched_phrases=phrases,
+    )

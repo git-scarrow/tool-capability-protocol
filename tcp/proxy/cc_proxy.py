@@ -35,6 +35,8 @@ from tcp.harness.gating import RuntimeEnvironment, gate_tools
 from tcp.harness.models import ToolSelectionRequest
 from tcp.proxy.absence_language import (
     contains_absence_language,
+    detect_absence_v2,
+    extract_context_windows,
     extract_text_from_response_body,
     extract_text_from_sse_buf,
 )
@@ -52,6 +54,7 @@ from tcp.proxy.controller import (
 from tcp.proxy.denial_enforcement import (
     denial_violation_record,
     enforce_denial_gate,
+    evaluate_denial_v2,
     may_emit_capability_denial,
 )
 from tcp.proxy.pack_manifest import (
@@ -1450,36 +1453,19 @@ def _all_tools_from_response_body(body: bytes) -> list[dict[str, Any]]:
     return result
 
 
-def _check_denial_enforcement(
-    response_text: str,
-    meta: dict[str, Any],
-) -> None:
-    """Run the denial gate against response text and stamp flat denial fields on meta.
+def _reconstruct_crg_resolutions(
+    meta: Mapping[str, Any],
+) -> list[CapabilityResolution]:
+    """Rebuild lightweight CapabilityResolution stubs from logged crg records.
 
-    Reads crg_resolutions from meta (populated by Stage 5), runs
-    may_emit_capability_denial, and:
-      - Always sets flat denial_* fields on meta when absence-language is found.
-      - Appends a denial_violation record to meta["denial_violations"] when the
-        gate rejects (backward-compat list preserved alongside the flat fields).
-
-    Decision-record flat fields added:
-      denial_violation: bool
-      denial_violation_reason: str | null
-      denial_rewrite_action: str | null
-      denial_matched_phrase: str | null
-      denial_resolution_statuses: list[str]
+    Full CapabilityResolution objects are not stored in meta — the serialised
+    records carry enough to check status, surfaces, and signature.
     """
-    if not response_text or not contains_absence_language(response_text):
-        return
-    crg_records = meta.get("crg_resolutions", [])
-    # Reconstruct lightweight resolution stubs from logged records.
-    # Full CapabilityResolution objects are not stored in meta — we use the
-    # serialised records to check status, surfaces, and signature.
     from tcp.proxy.capability_resolution_gate import _REQUIRED_SIX_SURFACES as _SIX
     from tcp.proxy.capability_resolution_gate import SurfaceResult
 
     resolutions: list[CapabilityResolution] = []
-    for rec in crg_records:
+    for rec in meta.get("crg_resolutions", []):
         surface_results = tuple(
             SurfaceResult(
                 surface=sr["surface"],
@@ -1504,6 +1490,88 @@ def _check_denial_enforcement(
                 signature=rec.get("signature", ""),
             )
         )
+    return resolutions
+
+
+# Server segments too short/generic for the v2 in-surface check — bare words
+# like "fetch" appear in ordinary prose and would wrongly mark infra claims
+# as in-surface.
+_V2_GENERIC_SERVER_TOKENS = frozenset({"git", "exa", "fetch"})
+
+
+def _surface_tokens_from_meta(meta: Mapping[str, Any]) -> list[str]:
+    """Session capability tokens for the v2 in-surface check.
+
+    Derived from the turn's own tool surface: MCP server segments plus full
+    tool base names (underscore-bearing only, so common single words never
+    become capability evidence).
+    """
+    tokens: set[str] = set()
+    for key in (
+        "materialized_schema_tools",
+        "deferred_schema_tools",
+        "survivor_names_sorted",
+    ):
+        names = meta.get(key)
+        if not isinstance(names, list):
+            continue
+        for name in names:
+            if not isinstance(name, str) or not name.startswith("mcp__"):
+                continue
+            parts = name.split("__")
+            if len(parts) < 3:
+                continue
+            server, tool = parts[1], parts[2]
+            if len(server) >= 4 and server not in _V2_GENERIC_SERVER_TOKENS:
+                tokens.add(server)
+            if "_" in tool:
+                tokens.add(tool)
+    return sorted(tokens)
+
+
+def _check_denial_enforcement(
+    response_text: str,
+    meta: dict[str, Any],
+) -> None:
+    """Run the v1 and v2 denial gates against response text (dual-run, 2B).
+
+    v1 (Phase 2A) behavior is unchanged: flat denial_* fields are stamped
+    when v1 absence-language is found, and violation records append to
+    meta["denial_violations"].
+
+    v2 (Phase 2B) runs side by side and stamps telemetry-only denial_v2_*
+    fields whenever either detector fires, plus bounded context excerpts
+    (denial_context_excerpts) so future audits can re-label events with
+    real context.  Enforcement remains dormant in both versions.
+    """
+    if not response_text:
+        return
+    v1_absence = contains_absence_language(response_text)
+    surface_tokens = _surface_tokens_from_meta(meta)
+    pre = detect_absence_v2(response_text, surface_tokens)
+    if not v1_absence and not (pre.tier_a or pre.tier_b):
+        return
+
+    resolutions = _reconstruct_crg_resolutions(meta)
+
+    # ── v2 telemetry fields (Phase 2B) ────────────────────────────────────
+    v2 = evaluate_denial_v2(response_text, resolutions, surface_tokens)
+    meta["denial_v2_tier_a"] = v2.tier_a
+    meta["denial_v2_tier_b"] = v2.tier_b
+    meta["denial_v2_in_surface"] = v2.in_surface
+    meta["denial_v2_violation"] = v2.violation
+    meta["denial_v2_reason"] = v2.reason
+    meta["denial_v2_rewrite_action"] = v2.rewrite_action
+    meta["denial_v2_matched_phrases"] = [p[:160] for p in v2.matched_phrases[:5]]
+    meta["denial_detector_version_v2"] = v2.detector_version
+
+    if not v1_absence:
+        # v2-only signal: no v1 fields (preserves the exact v1 flag set for
+        # the disagreement review), but keep excerpts for labeling.
+        meta["denial_context_excerpts"] = extract_context_windows(
+            response_text, v2.matched_phrases
+        )
+        return
 
     decision = may_emit_capability_denial(response_text, resolutions)
 
@@ -1513,6 +1581,10 @@ def _check_denial_enforcement(
     meta["denial_rewrite_action"] = decision.rewrite_action
     meta["denial_matched_phrase"] = decision.matched_absence_phrase
     meta["denial_resolution_statuses"] = [r.status for r in resolutions]
+    meta["denial_context_excerpts"] = extract_context_windows(
+        response_text,
+        tuple(decision.matched_phrases) + v2.matched_phrases,
+    )
 
     if not decision.allowed:
         cap = resolutions[0].requested_capability if resolutions else None
