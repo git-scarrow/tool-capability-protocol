@@ -16,3 +16,6 @@ Do not refactor the binary protocol or compression logic until `derive_request` 
 ## Critical Paths
 - **Logs**: `~/.tcp-shadow/proxy/decisions.jsonl` (Inspect this to see live gating failures).
 - **Validation**: `python3 tcp/derivation/audit_contract.py --audit-set artifacts/tcp-data-1/audit_set_ground_truth.jsonl`
+
+## Known Limitations
+- **Remote Control unreachable through the proxy**: any host with `ANTHROPIC_BASE_URL` pointed at `cc_proxy` cannot use Claude Code's Remote Control feature. Not on the current priority path (derivation precision comes first), but don't re-diagnose it — see `KNOWN_LIMITATION_REMOTE_CONTROL.md`.
